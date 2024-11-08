@@ -1388,7 +1388,7 @@
               cursor_pos[1] = spaces.length;
               draw();
             }
-          } else if (e.code == "Backspace" && !e.isComposing) {
+          } else if ((e.code == "Backspace" || e.key == "Backspace") && !e.isComposing) {
             if (mode == EDITOR_MODES.MODERN) {
               if (selecting) {
                 deleteSelected();
