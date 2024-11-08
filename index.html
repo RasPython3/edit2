@@ -1070,7 +1070,7 @@
         } else {
           f_handle = undefined;
           result = new Promise((resolve, reject)=>{
-            document.querySelectorAll("input[type=\"file\",name=\"file-input\"]").forEach((el)=>{
+            document.querySelectorAll("input[type=\"file\"][name=\"file-input\"]").forEach((el)=>{
               // make sure that all old file input elements are removed
               el.remove();
             });
@@ -1078,15 +1078,17 @@
             input.setAttribute("type", "file");
             input.setAttribute("name", "file-input");
             input.style.display = "none";
+            document.body.appendChild(input);
             input.addEventListener("input", (e)=>{
               resolve(e.target.files[0]);
-              e.remove();
+              e.target.remove();
             });
             input.addEventListener("cancel", (e)=>{
               // attention: some browsers don't support this event
               reject();
             });
-          })
+            input.click();
+          });
         }
         if (!wait) {
           wait = new Promise((resolve, reject)=>{resolve(undefined);});
@@ -1140,7 +1142,7 @@
           }
           w.close();
           edited = false;
-        } 
+        }
         if (f_handle && !another) {
           (new Promise((resolve,reject)=>{resolve(f_handle)})).then((e)=>{e.createWritable().then(callback)})
         } else if (window.showSaveFilePicker != undefined) {
@@ -1162,6 +1164,8 @@
           let url = URL.createObjectURL(blob);
           a.download = filename;
           a.href = url
+          a.style.display = "none";
+          document.body.appendChild(a);
           a.click();
           window.addEventListener("pagehide", (e)=>{URL.revokeObjectURL(url);}, {once:true, passive:true});
         }
