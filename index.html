@@ -1314,7 +1314,7 @@
           //  texts.splice(cursor_pos[0], 2, arr.slice(0, cursor_pos[0]).join(""), "");
           //  texts[cursor_pos[0]+1] = arr.slice(cursor_pos[0]).join("");
           //  cursor_pos[0] += 1;
-          if (e.code == "Tab" && !e.isComposing) {
+          if ((e.code == "Tab" || e.key == "Tab") && !e.isComposing) {
             if (mode == EDITOR_MODES.LEGACY) {
               pos = [form.editarea.selectionStart, form.editarea.selectionEnd].sort(((a,b)=>{
                 return a - b
@@ -1328,7 +1328,7 @@
               ev = new InputEvent("input", {data: " ".repeat(indent), isComposing:false});
               e.target.dispatchEvent(ev);
             }
-          } else if (e.code == "Enter" && !e.isComposing) {
+          } else if ((e.code == "Enter" || e.key == "Enter") && !e.isComposing) {
             if (mode == EDITOR_MODES.LEGACY) {
               pos = [form.editarea.selectionStart, form.editarea.selectionEnd].sort(((a,b)=>{
                 return a - b
