@@ -954,6 +954,91 @@
       <div name="sensor" class="sensor"></div>
     </div>
     <span id="lookout" style="font-size: 1em; scale: 0; opacity: 0; transition: font-size 0.01ms;"></span>
+    <style>
+      /* for mobile-controller */
+      div[name="mobile-controller"] {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 300px;
+        transform-origin: top left;
+        scale: 1;
+        aspect-ratio: 1.6;
+      }
+      div[name="mobile-controller"] input {
+        font-size: 32px;
+      }
+      div[name="mobile-controller"] > div {
+        display: inline-flex;
+        width: 100%;
+        height: 50%;
+      }
+      div[name="mobile-controller"] > div:nth-child(3) {
+        flex-wrap: nowrap;
+        flex-direction: row;
+        justify-content: space-evenly;
+        border-radius: 2rem 0 0 0;
+        overflow: hidden;
+      }
+      div[name="mobile-controller"] > div:last-child {
+        flex-wrap: wrap;
+        flex-direction: column;
+        justify-content: center;
+      }
+      div[name="mobile-controller"] input[type="checkbox"]:checked + input[type="button"] {
+        color: white;
+        background: #3366ff;
+      }
+      div[name="mobile-controller"] input[type="checkbox"] {
+        display: none;
+      }
+      div[name="mobile-controller"] label[for="hide-softkey"] {
+        position: absolute;
+        top: -0.5em;
+        left: -0.5em;
+        width: 2em;
+        aspect-ratio: 1;
+        border-radius: 1em;
+        color: white;
+        background: gray;
+        font-weight: 800;
+        text-align: center;
+        line-height: 2em;
+      }
+      div[name="mobile-controller"] input#hide-softkey:checked + label[for="hide-softkey"] {
+        top: unset;
+        left: unset;
+        bottom: 0;
+        right:0;
+        rotate: 180deg;
+      }
+      div[name="mobile-controller"] input#hide-softkey:checked + label + div {
+        display: none;
+      }
+      div[name="mobile-controller"] input#hide-softkey:checked + label + div + div {
+        display: none;
+      }
+    </style>
+    <div name="mobile-controller" style="display: none;">
+      <input name="hide-softkey" id="hide-softkey" type="checkbox">
+      <label for="hide-softkey">↓</label>
+      <div>
+        <input name="ctrl" id="ctrl" type="checkbox">
+        <input name="ctrl-btn" type="button" style="height: 100%; width: 20%;" value="Ctrl">
+        <input name="alt" id="alt" type="checkbox">
+        <input name="alt-btn" type="button" style="height: 100%; width: 20%;" value="Alt">
+        <input name="shift" id="shift" type="checkbox">
+        <input name="shift-btn" type="button" style="height: 100%; width: 30%;" value="Shift">
+        <input name="tab" type="button" style="height: 100%; width: 30%;" value="Tab">
+      </div>
+      <div>
+        <input name="left" type="button" style="height: 100%; width: 30%;" value="←">
+        <input name="up" type="button" style="height: 50%; width: 40%;" value="↑">
+        <input name="down" type="button" style=" height: 50%; width: 40%;" value="↓">
+        <input name="right" type="button" style="height: 100%; width: 30%;" value="→">
+      </div>
+    </div>
+  </div>
     <script>
       window.addEventListener("load", (e)=>{
         let sheet = new CSSStyleSheet();
@@ -1004,6 +1089,14 @@
         MODERN: 1
       }
 
+      var softkeyStatus = {
+        indexInLine: -1,
+        ignoreSelectionChangeEvent: false,
+        ctrlKey: false,
+        shiftKey: false,
+        altKey: false
+      };
+
       var mode = EDITOR_MODES.LEGACY
 
       const css = document.getElementById("mode-styles");
@@ -1025,8 +1118,317 @@
       }
       confFontSize();
       async function startup() {
-        form.editarea.focus();
-        cursor_move();
+        try {
+          form.editarea.focus();
+          cursor_move();
+        } catch {}
+        // mobile controller
+        let ismobile = true;
+        if (navigator.userAgent.match(/.* Mobile/) || (navigator.userAgentData && navigator.userAgentData.mobile)) {
+          ismobile = true;
+        } else {
+          try {
+            if ((await navigator.keyboard.getLayoutMap()).size == 0) {
+              // would use software keyboard
+              ismobile = true;
+            }
+          } catch {}
+        }
+        if (ismobile) {
+          // enable additional emulative keyboard
+          let softkey = document.querySelector("div[name=\"mobile-controller\"]");
+          form.editarea.addEventListener("selectionchange", (e)=>{
+            if (!softkeyStatus.ignoreSelectionChangeEvent) {
+              softkeyStatus.indexInLine = -1;
+            }
+          });
+          softkey.addEventListener("pointerdown", (e)=>{
+            e.preventDefault();
+          });
+          softkey.querySelectorAll("input").forEach((el)=>{
+            if (el.name.endsWith("-btn")) {
+              el.addEventListener("click", (e)=>{
+                softkey.querySelector("input#" + e.target.name.match(/^(.*)-btn$/)[1]).click();
+              });
+              return;
+            }
+            el.addEventListener("click", (e)=>{
+              if (document.activeElement != form.editarea && document.activeElement != document.getElementById("cursor").children[1]) {
+                return; //if (document.activeElement == e.)
+              }
+              //console.log(document.activeElement);
+              let ev;
+              let common_options = {
+                bubbles: true,
+                cancelable:true,
+                ctrlKey:softkeyStatus.ctrlKey,
+                shiftKey:softkeyStatus.shiftKey,
+                altKey:softkeyStatus.altKey
+              };
+              if (e.target.name == "up") {
+                ev = new KeyboardEvent("keydown", {key:"ArrowUp", code:"ArrowUp", ...common_options});
+              } else if (e.target.name == "down") {
+                ev = new KeyboardEvent("keydown", {key:"ArrowDown", code:"ArrowDown", ...common_options});
+              } else if (e.target.name == "left") {
+                ev = new KeyboardEvent("keydown", {key:"ArrowLeft", code:"ArrowLeft", ...common_options});
+              } else if (e.target.name == "right") {
+                ev = new KeyboardEvent("keydown", {key:"ArrowRight", code:"ArrowRight", ...common_options});
+              } else if (e.target.name == "ctrl") {
+                softkeyStatus.ctrlKey = e.target.checked;
+                common_options.ctrlKey = softkeyStatus.ctrlKey;
+                ev = new KeyboardEvent((e.target.checked?"keydown":"keyup"), {key:"Control", code:"ControlLeft", ...common_options});
+              } else if (e.target.name == "shift") {
+                softkeyStatus.shiftKey = e.target.checked;
+                common_options.shiftKey = softkeyStatus.shiftKey;
+                ev = new KeyboardEvent((e.target.checked?"keydown":"keyup"), {key:"Shift", code:"ShiftLeft", ...common_options});
+              } else if (e.target.name == "alt") {
+                softkeyStatus.altKey = e.target.checked;
+                common_options.altKey = softkeyStatus.altKey;
+                ev = new KeyboardEvent((e.target.checked?"keydown":"keyup"), {key:"Alt", code:"AltLeft", ...common_options});
+              } else if (e.target.name == "tab") {
+                ev = new KeyboardEvent("keydown", {key:"Tab", code:"Tab", ...common_options});
+              }
+              if (ev) {
+                if ((mode==EDITOR_MODES.LEGACY?form.editarea:document.getElementById("cursor").children[1]).dispatchEvent(ev)) {
+                  // e.preventDefault was not called by any listeners
+                  if (mode == EDITOR_MODES.LEGACY && ["up", "down", "left", "right"].includes(e.target.name)) {
+                    let selectStart = form.editarea.selectionStart;
+                    let selectEnd = form.editarea.selectionEnd;
+                    let selectDir = form.editarea.selectionDirection;
+                    let selectStartLine = 0;
+                    let selectStartInLine = 0;
+                    let selectEndLine = 0;
+                    let selectEndInLine = 0;
+                    let lineLengths = [];
+                    let fullsizeCharIndexes = [[]];
+                    let count = 0;
+                    let lineLength = 0;
+                    for (let match of form.editarea.value.matchAll(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[\x00-\x7f]/g)) {
+                      if (count < selectEnd) {
+                        if (match[0] == "\n") {
+                          if (count < selectStart) {
+                            selectStartInLine = 0;
+                            selectStartLine++;
+                          }
+                          selectEndInLine = 0;
+                          selectEndLine++;
+                        } else {
+                          if (count < selectStart) {
+                            selectStartInLine++;
+                          }
+                          selectEndInLine++;
+                        }
+                      }
+                      if (match[0] == "\n") {
+                        lineLengths.push(lineLength);
+                        fullsizeCharIndexes.push([]);
+                        lineLength = 0;
+                      } else {
+                        if (match[1]) {
+                          fullsizeCharIndexes.at(-1).push(lineLength);
+                        }
+                        lineLength++;
+                      }
+                      count++;
+                    }
+                    if (selectDir == "backward") {
+                      [selectStartLine, selectEndLine, selectStartInLine, selectEndInLine] = [selectEndLine, selectStartLine, selectEndInLine, selectStartInLine];
+                    }
+                    if (softkeyStatus.indexInLine == -1) {
+                      softkeyStatus.indexInLine = selectEndInLine;
+                    }
+                    console.log([selectStartLine, selectEndLine, selectStartInLine, selectEndInLine, selectDir]);
+                    lineLengths.push(lineLength);
+                    if (ev.key == "ArrowUp") {
+                      if (!document.querySelector("div[name=\"mobile-controller\"] input#shift").checked) {
+                        selectEndLine = selectStartLine = selectEndLine-1;
+                        if (selectEndLine < 0) {
+                          selectEndInLine = selectStartInLine = 0;
+                          selectEndLine = selectStartLine = 0;
+                        } else {
+                          if (lineLengths.at(selectEndLine)+fullsizeCharIndexes.at(selectEndLine).length < softkeyStatus.indexInLine) {
+                            selectEndInLine = lineLengths.at(selectEndLine);
+                          } else {
+                            selectEndInLine = 0;
+                            let lookslike=0;
+                            for (let i=0; i < lineLengths.at(selectEndLine); i++) {
+                              lookslike += fullsizeCharIndexes.at(selectEndLine).includes(i)?2:1;
+                              if (softkeyStatus.indexInLine >= lookslike) {
+                                selectEndInLine++;
+                              } else {
+                                break;
+                              }
+                            }
+                          }
+                          selectStartInLine = selectEndInLine;
+                        }
+                      } else {
+                        selectEndLine = selectEndLine-1;
+                        if (selectEndLine < 0) {
+                          selectEndInLine = 0;
+                          selectEndLine = 0;
+                        } else {
+                          if (lineLengths.at(selectEndLine)+fullsizeCharIndexes.at(selectEndLine).length < softkeyStatus.indexInLine) {
+                            selectEndInLine = lineLengths.at(selectEndLine);
+                          } else {
+                            selectEndInLine = 0;
+                            let lookslike=0;
+                            for (let i=0; i < lineLengths.at(selectEndLine); i++) {
+                              lookslike += fullsizeCharIndexes.at(selectEndLine).includes(i)?2:1;
+                              if (softkeyStatus.indexInLine >= lookslike) {
+                                selectEndInLine++;
+                              } else {
+                                break;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    } else if (ev.key == "ArrowDown") {
+                      if (!document.querySelector("div[name=\"mobile-controller\"] input#shift").checked) {
+                        selectEndLine = selectStartLine = selectEndLine+1;
+                        if (selectEndLine > lineLengths.length-1) {
+                          selectEndInLine = selectStartInLine = lineLengths.at(-1);
+                          selectEndLine = selectStartLine = lineLengths.length-1;
+                        } else {
+                          if (lineLengths.at(selectEndLine)+fullsizeCharIndexes.at(selectEndLine).length < softkeyStatus.indexInLine) {
+                            selectEndInLine = lineLengths.at(selectEndLine);
+                          } else {
+                            selectEndInLine = 0;
+                            let lookslike=0;
+                            for (let i=0; i < lineLengths.at(selectEndLine); i++) {
+                              lookslike += fullsizeCharIndexes.at(selectEndLine).includes(i)?2:1;
+                              if (softkeyStatus.indexInLine >= lookslike) {
+                                selectEndInLine++;
+                              } else {
+                                break;
+                              }
+                            }
+                          }
+                          selectStartInLine = selectEndInLine;
+                        }
+                      } else {
+                        selectEndLine = selectEndLine+1;
+                        if (selectEndLine > lineLengths.length-1) {
+                          selectEndInLine = lineLengths.at(-1);
+                          selectEndLine = lineLengths.length-1;
+                        } else {
+                          if (lineLengths.at(selectEndLine)+fullsizeCharIndexes.at(selectEndLine).length < softkeyStatus.indexInLine) {
+                            selectEndInLine = lineLengths.at(selectEndLine);
+                          } else {
+                            selectEndInLine = 0;
+                            let lookslike=0;
+                            for (let i=0; i < lineLengths.at(selectEndLine); i++) {
+                              lookslike += fullsizeCharIndexes.at(selectEndLine).includes(i)?2:1;
+                              if (softkeyStatus.indexInLine >= lookslike) {
+                                selectEndInLine++;
+                              } else {
+                                break;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    } else if (ev.key == "ArrowLeft") {
+                      if (!document.querySelector("div[name=\"mobile-controller\"] input#shift").checked) {
+                        if (selectStartLine != selectEndLine || selectStartInLine != selectEndInLine) {
+                          if (selectDir == "forward") {
+                            selectEndLine = selectStartLine;
+                            selectEndInLine = selectStartInLine;
+                          } else {
+                            selectStartLine = selectEndLine;
+                            selectStartInLine = selectEndInLine;
+                          }
+                        } else {
+                          if (selectEndInLine == 0) {
+                            if (selectEndLine > 0) {
+                              softkeyStatus.indexInLine = selectEndInLine = selectStartInLine = lineLengths.at(selectEndLine-1);
+                              selectEndLine = selectStartLine = selectEndLine-1;
+                            }
+                          } else {
+                            softkeyStatus.indexInLine = selectEndInLine = selectStartInLine = selectEndInLine-1;
+                          }
+                        }
+                      } else {
+                        if (selectEndInLine == 0) {
+                          if (selectEndLine > 0) {
+                            softkeyStatus.indexInLine = selectEndInLine = lineLengths.at(selectEndLine-1);
+                            selectEndLine = selectEndLine-1;
+                          }
+                        } else {
+                          softkeyStatus.indexInLine = selectEndInLine = selectEndInLine-1;
+                        }
+                      }
+                    } else if (ev.key == "ArrowRight") {
+                      if (!document.querySelector("div[name=\"mobile-controller\"] input#shift").checked) {
+                        if (selectStartLine != selectEndLine || selectStartInLine != selectEndInLine) {
+                          if (selectDir == "forward") {
+                            selectStartLine = selectEndLine;
+                            selectStartInLine = selectEndInLine;
+                          } else {
+                            selectEndLine = selectStartLine;
+                            selectEndInLine = selectStartInLine;
+                          }
+                        } else {
+                          if (selectEndInLine >= lineLengths.at(selectEndLine)) {
+                            if (selectEndLine < lineLengths.length-1) {
+                              softkeyStatus.indexInLine = selectEndInLine = selectStartInLine = 0;
+                              selectEndLine = selectStartLine = selectEndLine+1;
+                            }
+                          } else {
+                            softkeyStatus.indexInLine = selectEndInLine = selectStartInLine = selectEndInLine+1;
+                          }
+                        }
+                      } else {
+                        if (selectEndInLine >= lineLengths.at(selectEndLine+1)) {
+                          if (selectEndLine  < lineLengths.length-1) {
+                            softkeyStatus.indexInLine = selectEndInLine = 0;
+                            selectEndLine = selectEndLine+1;
+                          }
+                        } else {
+                          softkeyStatus.indexInLine = selectEndInLine = selectEndInLine+1;
+                        }
+                      }
+                    }
+                    softkeyStatus.ignoreSelectionChangeEvent = true;
+                    if (selectStartLine > selectEndLine || selectStartLine == selectEndLine && selectStartInLine > selectEndInLine) {
+                      form.editarea.selectionStart = lineLengths.slice(0, selectEndLine).reduce((a, i)=>a+i+1, 0) + selectEndInLine;
+                      form.editarea.selectionEnd = lineLengths.slice(0, selectStartLine).reduce((a, i)=>a+i+1, 0) + selectStartInLine;
+                      form.editarea.selectionDirection = "backward";
+                    } else if (selectStartLine == selectEndLine && selectStartInLine == selectEndInLine) {
+                      form.editarea.selectionStart = lineLengths.slice(0, selectStartLine).reduce((a, i)=>a+i+1, 0) + selectStartInLine;
+                      form.editarea.selectionEnd = form.editarea.selectionStart;
+                      form.editarea.selectionDirection = "forward";
+                    } else {
+                      form.editarea.selectionStart = lineLengths.slice(0, selectStartLine).reduce((a, i)=>a+i+1, 0) + selectStartInLine;
+                      form.editarea.selectionEnd = lineLengths.slice(0, selectEndLine).reduce((a, i)=>a+i+1, 0) + selectEndInLine;
+                      form.editarea.selectionDirection = "forward";
+                    }
+                    setTimeout(10, ()=>{softkeyStatus.ignoreSelectionChangeEvent = false;});
+                  } else {
+                    // must be already handled
+                  }
+                }
+              }
+            });
+          });
+          let callback = (e)=>{
+            console.log(e);
+            try {
+              let w = Math.min(window.visualViewport.width, window.visualViewport.height / 1.5, 300);
+              let h = w / 1.6;
+              softkey.style.top = (window.visualViewport.offsetTop + window.visualViewport.height - h) + "px";
+              softkey.style.left = (window.visualViewport.offsetLeft + window.visualViewport.width - w) + "px";
+              softkey.style.scale = w / 300;
+            } catch (e) {
+              console.error(e);
+            }
+          };
+          window.visualViewport.addEventListener("resize", callback);
+          window.visualViewport.addEventListener("scroll", callback);
+          callback(null);
+          softkey.style.display = "";
+        }
       }
 
       /* function getId(id):
@@ -1308,7 +1710,7 @@
         if (e.key == "Process") {
           return;
         };
-        if (e.keyCode < 32 || e.keyCode == 127) {
+        if (e.keyCode < 32 || e.keyCode == 127) { // FIXME e.keyCode is now deprecated!
           //if (e.keyCode == 13 && mode == EDITOR_MODES.MODERN) {
           //  let arr = [...texts[cursor_pos[0]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g)];
           //  texts.splice(cursor_pos[0], 2, arr.slice(0, cursor_pos[0]).join(""), "");
@@ -1525,7 +1927,8 @@
             return;
           }
           if (composing) {
-            composing_text = [...text.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).slice(0, cursor_pos[4]), e.data, ...text.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).slice(cursor_pos[4])].join("");
+            // FIXME: following line does not work
+            //composing_text = [...text.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).slice(0, cursor_pos[4]), e.data, ...text.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).slice(cursor_pos[4])].join("");
           } else {
             texts[cursor_pos[0]] = (()=>{
               let result = [];
@@ -1579,23 +1982,23 @@
           console.log(e.type, e);
           if (composing) { return; }
           let prev_pos = [cursor_pos[0], cursor_pos[1]];
-          if (e.keyCode == 37) {
+          if (e.key == "ArrowLeft") {
             if (e.shiftKey || !selecting) {
               cursor_move(-1, 0);
             } else {
               [cursor_pos[0], cursor_pos[1]] = (selection[0]<selection[2]||selection[0]==selection[2]&&selection[1]<selection[3])?selection.slice(0, 2):selection.slice(2, 4);
               cursor_move();
             }
-          } else if (e.keyCode == 38) {
+          } else if (e.key == "ArrowUp") {
             cursor_move(0, -1);
-          } else if (e.keyCode == 39) {
+          } else if (e.key == "ArrowRight") {
             if (e.shiftKey || !selecting) {
               cursor_move(1, 0);
             } else {
               [cursor_pos[0], cursor_pos[1]] = (selection[0]<selection[2]||selection[0]==selection[2]&&selection[1]<selection[3])?selection.slice(2, 4):selection.slice(0, 2);
               cursor_move();
             }
-          } else if (e.keyCode == 40) {
+          } else if (e.key == "ArrowDown") {
             cursor_move(0, 1);
           } else {
             handle_keydown(e);
