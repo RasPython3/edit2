@@ -794,7 +794,7 @@
                 </ul>
               </div>
               <div class="frame">
-                <span id="font-check" style="display: inline-block!important; position: absolute; top: 0; left: 0; z-index: -100; width: 0.5em; height: 1.5em;"></span>
+                <span id="font-check" style="display: inline-block!important; position: absolute; top: 0; left: 0; height: 1.5em; z-index: -100;">M</span>
                 <pre id="code-area">
                   <code>aaa</code>
                   <code>bbb</code>
@@ -1672,7 +1672,7 @@
           //cursor_pos[2] = cursor_pos[0];
           //cursor_pos[4] = (texts.slice(0, cursor_pos[0]).join("\n").match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).length + cursor_pos[1] + (cursor_pos[0] != 0);
           document.getElementById("cursor").style.top = (1.5*cursor_pos[0]) + "em";
-          document.getElementById("cursor").style.left = (0.5*cursor_pos[2]) + "em";
+          document.getElementById("cursor").style.left = (fontsize[0]*cursor_pos[2]) + "px";
           var node = getCursoredNode()[0];
           if (node.nodeType == Node.TEXT_NODE) {
             node = node.parentNode;
