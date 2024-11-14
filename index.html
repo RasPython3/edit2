@@ -188,7 +188,8 @@
         flex-wrap: wrap;
         width: fit-content;
         height: fit-content;
-        padding-left: 2.5em;
+        min-width: calc(100% - 2.5em);
+        margin-left: 2.5em;
       }
       .wrapper > .rows {
          position: sticky;
@@ -327,6 +328,7 @@
         top: 0%;
         padding-inline: 5px;
         margin: 0;
+        line-height: 1.5em;
         box-sizing: border-box;
       }
       #selected-area > code {
@@ -701,6 +703,9 @@
       .modern {
         display: none ! important;
       }
+      .modern span.hljs-zenkaku {
+        width: 1em;
+      }
     </style>
     <form name="editor">
       <nav>
@@ -791,13 +796,13 @@
             <div class="wrapper">
               <div class="rows">
                 <ul>
+                  <li>1</li>
                 </ul>
               </div>
               <div class="frame">
                 <span id="font-check" style="display: inline-block!important; position: absolute; top: 0; left: 0; height: 1.5em; z-index: -100;">M</span>
                 <pre id="code-area">
-                  <code>aaa</code>
-                  <code>bbb</code>
+                  <code></code>
                 </pre>
               </div>
               <div class="frame">
@@ -821,7 +826,7 @@
                 <div id="sensor">
                 </div>
               </div>
-              <div class="scroll">
+              <div class="scroll" style="display: none;">
                 <div id="up">
                   <svg viewBox="0 0 12 12" width="12px" height="12px" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
                     <defs></defs>
@@ -1060,8 +1065,8 @@
       });
     </script>
     <script type="text/javascript">
-      var texts = [];
-      var codes = [];
+      var texts = [""];
+      var codes = [""];
       var reader;
       var filename = "untitled.txt";
       var form = document.forms.editor;
@@ -1114,6 +1119,9 @@
       function confFontSize() {
         let rect = fontcheck.getBoundingClientRect();
         fontsize = [rect.width, rect.height];
+        document.querySelector("div#cursor").style.width = fontsize[0] + "px";
+        document.querySelector("div#cursor  > span").style.maxWidth = fontsize[0]*2 + "px";
+        css.sheet.cssRules[1].style.width = fontsize[0]*2 + "px";
         //lh = rect.height;
       }
       confFontSize();
@@ -1122,6 +1130,7 @@
           form.editarea.focus();
           cursor_move();
         } catch {}
+        modeChange();
         // mobile controller
         let ismobile = true;
         if (navigator.userAgent.match(/.* Mobile/) || (navigator.userAgentData && navigator.userAgentData.mobile)) {
@@ -1581,7 +1590,7 @@
         let tags = [];
         let last = 1;
         while (i2 <= c && i <= codes[r].length) {
-            let i3 = [...(codes[r].slice(i, i+50).match(/^(?:[^<>&]|(?:&[^<>;]+;))*/) || [""])[0].matchAll(/&[^;]+;|./g)];
+            let i3 = [...((codes[r]+"\n").slice(i, i+50).match(/^(?:[^<>&]|(?:&[^<>;]+;))*/) || [""])[0].matchAll(/&[^;]+;|.|\n/g)];
             if (i3.length > 0) {
               i2 += i3.length;
               if (i2 > c + 1) {
@@ -1631,80 +1640,162 @@
           cursor_pos[0] = texts.length - 1;
         }
         if (cursor_pos[1] < 0) {
-          cursor_pos[1] = 0;
+          if (cursor_pos[0] > 0) {
+            x = 0;
+            y--;
+            cursor_pos[0]--;
+            cursor_pos[1] = (texts[cursor_pos[0]].match(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g) || []).length;
+          } else {
+            cursor_pos[1] = 0;
+          }
+        } else if (x > 0 && cursor_pos[1] > (texts[cursor_pos[0]].match(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g) || []).length) {
+          if (cursor_pos[0] < texts.length - 1) {
+            x = 0;
+            y++;
+            cursor_pos[0]++;
+            cursor_pos[1] = 0;
+          }
+        }
+        if (x || y) {
+          if ((cursor_pos[0] - 4) * fontsize[1] < document.querySelector(".modern div.textarea").scrollTop) {
+            document.querySelector(".modern div.textarea").scrollBy(0, (cursor_pos[0] - 4) * fontsize[1] - document.querySelector(".modern div.textarea").scrollTop);
+          } else if ((cursor_pos[0] + 4) * fontsize[1] > document.querySelector(".modern div.textarea").scrollTop + document.querySelector(".modern").getBoundingClientRect().height) {
+            document.querySelector(".modern div.textarea").scrollBy(0, (cursor_pos[0] + 4) * fontsize[1] - document.querySelector(".modern div.textarea").scrollTop - document.querySelector(".modern").getBoundingClientRect().height);
+          }
         }
         //document.getElementById("cursor").scrollIntoView();
         //console.log(texts[cursor_pos[0]]);
         if (texts[cursor_pos[0]]) {
-            //console.log(texts[cursor_pos[0]].slice(0, cursor_pos[1]));
-            //console.log(2);
-            document.getElementById("cursor-letter").innerText = (texts[cursor_pos[0]].match(new RegExp("^(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]){"+cursor_pos[1]+"}([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])")) || [0, " "])[1]; //[cursor_pos[1]];
-            //console.log(3);
-          } else {
-            document.getElementById("cursor-letter").innerText = " ";
-          }
-          sp = document.createElement("span");
-          cursor_pos[2] = ((iter)=>{
-            var arr = [];
-            for (let i = 0; i < cursor_pos[1]; i++) {
-              let res = iter.next();
-              if (!res.done) {
-                arr.push(res.value);
-              } else {
-                if (x) {
-                  cursor_pos[1] = i;
-                  if (x < 0) {
-                    cursor_pos[1] += x;
-                  }
+          //console.log(texts[cursor_pos[0]].slice(0, cursor_pos[1]));
+          //console.log(2);
+          document.getElementById("cursor-letter").innerText = (texts[cursor_pos[0]].match(new RegExp("^(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]){"+cursor_pos[1]+"}([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])")) || [0, " "])[1]; //[cursor_pos[1]];
+          //console.log(3);
+        } else {
+          document.getElementById("cursor-letter").innerText = " ";
+        }
+        sp = document.createElement("span");
+        cursor_pos[2] = ((iter)=>{
+          var arr = [];
+          for (let i = 0; i < cursor_pos[1]; i++) {
+            let res = iter.next();
+            if (!res.done) {
+              arr.push(res.value);
+            } else {
+              if (x) {
+                cursor_pos[1] = i;
+                if (x < 0) {
+                  cursor_pos[1] += x;
                 }
-                break;
+                arr = arr.slice(0, cursor_pos[1]);
               }
-            };
-            return arr;
-          })(texts[cursor_pos[0]].matchAll(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g)).reduce((total, i)=>{if (i[1]) {return total+2} else {return total+1}}, 0);
-          //sp.innerText = (texts[cursor_pos[0]].match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).slice(0, cursor_pos[1]).join("") || "";
-          //sp.style.top = (1.5*cursor_pos[0]) + "em";
-          //document.getElementById("measure-pos").children = [];
-          //document.getElementById("measure-pos").appendChild(sp);
-          //cursor_pos[3] = (sp.clientWidth/parseFloat(getComputedStyle(document.documentElement).fontSize))/0.5;
-          sp.remove();
-          cursor_pos[2] *= (cursor_pos[2] >= 0);
-          //cursor_pos[2] = cursor_pos[0];
-          //cursor_pos[4] = (texts.slice(0, cursor_pos[0]).join("\n").match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).length + cursor_pos[1] + (cursor_pos[0] != 0);
-          document.getElementById("cursor").style.top = (1.5*cursor_pos[0]) + "em";
-          document.getElementById("cursor").style.left = (fontsize[0]*cursor_pos[2]) + "px";
-          var node = getCursoredNode()[0];
-          if (node.nodeType == Node.TEXT_NODE) {
-            node = node.parentNode;
-          }
-          style = window.getComputedStyle(node);
-          document.getElementById("cursor-letter").style.color = "var(--theme-editor-bg)";
-          document.getElementById("cursor-letter").style.background = style.color;
-          document.getElementById("cursor-letter").style.fontWeight = style.fontWeight;
-          return;
-          if (texts[cursor_pos[0]].length > cursor_pos[0]) {
-            for (let i = 0; i < document.getElementById("code-area").children[0].childNodes.length; i++) {
-              if (document.getElementById("code-area").children[0].childNodes[i].nodeName == "#text") {
-                l.push(document.getElementById("code-area").children[0].childNodes[i].data);
-              } else if (document.getElementById("code-area").children[0].childNodes[i].nodeName == "BR" && document.getElementById("code-area").children[0].childNodes[i].className != "ghost") {
-                l.push("\n");
-              } else {
-                l.push(document.getElementById("code-area").children[0].childNodes[i].innerText);
-              }
-              if (cursor_pos[4] <= l.join("").length-1) {
-                let style = getComputedStyle(document.getElementById("code-area").children[0].childNodes[i]) || {color:"var(--theme-editor-bg)"};
-                console.log(document.getElementById("code-area").children[0].childNodes[i]);
-                document.getElementById("cursor-letter").style.color = theme.background;
-                document.getElementById("cursor-letter").style.background = style.color;
-                document.getElementById("cursor-letter").style.fontWeight = style.fontWeight;
-                break;
-              }
+              break;
             }
-          } else {
-            document.getElementById("cursor-letter").setAttribute("style", "");
+          };
+          return arr;
+        })(texts[cursor_pos[0]].matchAll(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g)).reduce((total, i)=>{if (i[1]) {return total+2} else {return total+1}}, 0);
+        if (texts[cursor_pos[0]]) {
+          //console.log(texts[cursor_pos[0]].slice(0, cursor_pos[1]));
+          //console.log(2);
+          document.getElementById("cursor-letter").innerText = (texts[cursor_pos[0]].match(new RegExp("^(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]){"+cursor_pos[1]+"}([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])")) || [0, " "])[1]; //[cursor_pos[1]];
+          //console.log(3);
+        } else {
+          document.getElementById("cursor-letter").innerText = " ";
+        }
+        //sp.innerText = (texts[cursor_pos[0]].match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).slice(0, cursor_pos[1]).join("") || "";
+        //sp.style.top = (1.5*cursor_pos[0]) + "em";
+        //document.getElementById("measure-pos").children = [];
+        //document.getElementById("measure-pos").appendChild(sp);
+        //cursor_pos[3] = (sp.clientWidth/parseFloat(getComputedStyle(document.documentElement).fontSize))/0.5;
+        sp.remove();
+        cursor_pos[2] *= (cursor_pos[2] >= 0);
+        //cursor_pos[2] = cursor_pos[0];
+        //cursor_pos[4] = (texts.slice(0, cursor_pos[0]).join("\n").match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).length + cursor_pos[1] + (cursor_pos[0] != 0);
+        document.getElementById("cursor").style.top = (1.5*cursor_pos[0]) + "em";
+        document.getElementById("cursor").style.left = (fontsize[0]*cursor_pos[2]) + "px";
+        var node = getCursoredNode()[0];
+        if (node.nodeType == Node.TEXT_NODE) {
+          node = node.parentNode;
+        }
+        style = window.getComputedStyle(node);
+        document.getElementById("cursor-letter").style.color = "var(--theme-editor-bg)";
+        document.getElementById("cursor-letter").style.background = style.color;
+        document.getElementById("cursor-letter").style.fontWeight = style.fontWeight;
+        return;
+        if (texts[cursor_pos[0]].length > cursor_pos[0]) {
+          for (let i = 0; i < document.getElementById("code-area").children[0].childNodes.length; i++) {
+            if (document.getElementById("code-area").children[0].childNodes[i].nodeName == "#text") {
+              l.push(document.getElementById("code-area").children[0].childNodes[i].data);
+            } else if (document.getElementById("code-area").children[0].childNodes[i].nodeName == "BR" && document.getElementById("code-area").children[0].childNodes[i].className != "ghost") {
+              l.push("\n");
+            } else {
+              l.push(document.getElementById("code-area").children[0].childNodes[i].innerText);
+            }
+            if (cursor_pos[4] <= l.join("").length-1) {
+              let style = getComputedStyle(document.getElementById("code-area").children[0].childNodes[i]) || {color:"var(--theme-editor-bg)"};
+              console.log(document.getElementById("code-area").children[0].childNodes[i]);
+              document.getElementById("cursor-letter").style.color = theme.background;
+              document.getElementById("cursor-letter").style.background = style.color;
+              document.getElementById("cursor-letter").style.fontWeight = style.fontWeight;
+              break;
+            }
+          }
+        } else {
+          document.getElementById("cursor-letter").setAttribute("style", "");
+        }
+      }
+      function deleteSelected() {
+        if (!selecting || mode != EDITOR_MODES.MODERN) {
+          return;
+        }
+        let deleted;
+        if (selection[0] < selection[2] || selection[0] == selection[2] && selection[1] <= selection[3]) {
+          deleted = [...selection];
+        } else {
+          deleted = [selection[2], selection[3], selection[0], selection[1]];
+        }
+        texts[deleted[0]] = (texts[deleted[0]].match(new RegExp("^(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]){"+deleted[1]+"}")) || [texts[deleted[0]]])[0] + (texts[deleted[2]].match(new RegExp("^(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]){"+deleted[3]+"}(.*)$")) || ["",""])[1]
+        codes[deleted[0]] = hljs.highlight(texts[deleted[0]], {language:lang}).value.replaceAll(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/g, (match, offset, string)=>{return "<span class=\"hljs-zenkaku\">"+match+"</span>"});
+        if (deleted[2] - deleted[0] > 0) {
+          texts.splice(deleted[0]+1, deleted[2] - deleted[0]);
+          codes.splice(deleted[0]+1, deleted[2] - deleted[0]);
+        }
+        for (let i=deleted[2]; i>=deleted[0]; i--) { // from later to earlier
+          if (i >= row && i <= row + document.querySelector("#code-area").children.length) {
+            let el = document.querySelector("#code-area").children[i-row];
+            let rownum = document.querySelector(".modern div.rows > ul").lastChild;
+            if (i == deleted[0]) {
+              el.innerHTML = codes[deleted[0]];
+              //rownum.innerText = i+1;
+            } else if (row <= i && i < row + document.querySelector("#code-area").children.length) {
+              if (codes.length > row+document.querySelector("#code-area").children.length+deleted[0]-i) {
+                el.innerHTML = codes[row+document.querySelector("#code-area").children.length+deleted[0]-i];
+                //rownum.innerText = row+document.querySelector("#code-area").children.length;
+                document.querySelector("#code-area").insertAdjacentElement("beforeend", el);
+                //document.querySelector(".modern div.rows > ul").insertAdjacentElement("beforeend", rownum);
+                //row--; // FIXME!!!!!
+              } else if (row > 0) {
+                el.innerHTML = codes[row-1];
+                rownum.innerText = row;
+                document.querySelector("#code-area").insertAdjacentElement("afterbegin", el);
+                document.querySelector(".modern div.rows > ul").insertAdjacentElement("afterbegin", rownum);
+                row--; // FIXME!!!!!
+              } else {
+                el.remove();
+                rownum.remove();
+              }
+            } else if (el) {
+              el.innerHTML = codes[row+document.querySelector("#code-area").children.length];
+              //rownum.innerText = row+document.querySelector("#code-area").children.length+1;
+              document.querySelector("#code-area").insertAdjacentElement("beforeend", el);
+              //document.querySelector(".modern div.rows > ul").insertAdjacentElement("beforeend", rownum);
+            }
           }
         }
-      function deleteSelected() {
+        cursor_pos[0] = deleted[0];
+        cursor_pos[1] = deleted[1];
+        select(cursor_pos.slice(0, 2), cursor_pos.slice(0, 2));
+        cursor_move();
+        draw();
       }
       function handle_keydown(e) {
         if (e.key == "Process") {
@@ -1718,17 +1809,85 @@
           //  cursor_pos[0] += 1;
           if ((e.code == "Tab" || e.key == "Tab") && !e.isComposing) {
             if (mode == EDITOR_MODES.LEGACY) {
-              pos = [form.editarea.selectionStart, form.editarea.selectionEnd].sort(((a,b)=>{
+              let orgpos = [form.editarea.selectionStart, form.editarea.selectionEnd];
+              let pos = orgpos.sort(((a,b)=>{
                 return a - b
               }
               ));
-              form.editarea.value = form.editarea.value.slice(0, pos[0]) + " ".repeat(indent) + form.editarea.value.slice(pos[1]);
-              form.editarea.selectionStart = form.editarea.selectionEnd = pos[0] + indent;
+              while (pos[0] > 0 && form.editarea.value[pos[0]-1] != "\n") {
+                pos[0]--;
+              }
+              while (pos[1] < form.editarea.value.length-1 && form.editarea.value[pos[1]] != "\n") {
+                pos[1]++;
+              }
+               counts = [];
+              form.editarea.value = form.editarea.value.slice(0, pos[0]) + form.editarea.value.slice(pos[0], pos[1]).split("\n").map((line)=>{
+                if (!e.shiftKey) {
+                  counts.push(indent);
+                  return " ".repeat(indent)+line;
+                } else {
+                  let r = new RegExp("[ ]{" + indent + "}|[ ]*");
+                  counts.push(line.match(r)[0].length);
+                  return line.replace(r, "");
+                }
+              }).join("\n") + form.editarea.value.slice(pos[1]);
+              console.log(counts)
+              form.editarea.selectionStart = orgpos[0] + (!e.shiftKey?indent:0);
+              form.editarea.selectionEnd = orgpos[1] + counts.reduce((a,i)=>a+i,0) * (!e.shiftKey?1:-1);
               e.preventDefault();
             } else if (EDITOR_MODES.MODERN) {
               e.preventDefault();
-              ev = new InputEvent("input", {data: " ".repeat(indent), isComposing:false});
-              e.target.dispatchEvent(ev);
+              for (let i=selection[0]; selection[0]<=selection[2]?i <= selection[2]:i >= selection[2]; i+=(selection[0]<=selection[2]?1:-1)) {
+                if (!e.shiftKey) {
+                  texts[i] = " ".repeat(indent) + texts[i];
+                  codes[i] = " ".repeat(indent) + codes[i];
+                  if (cursor_pos[0] == i) {
+                    cursor_pos[1] += indent;
+                  }
+                  if (selection[0] == i) {
+                    selection[1] += indent;
+                  }
+                  if (selection[2] == i) {
+                    selection[3] += indent;
+                  }
+                } else {
+                  texts[i] = texts[i].replace(new RegExp("[ ]{" + indent + "}|[ ]*"), "");
+                  let k = 0;
+                  let count = 0;
+                  while (count < indent) {
+                    if (codes[i][k] == "<") {
+                      while (k < codes[i].length) {
+                        if (codes[i][k] == ">") {
+                          break;
+                        }
+                        k++;
+                      }
+                      k++;
+                    } else {
+                      if (codes[i][k] != " ") {
+                        break;
+                      } else {
+                        codes[i] = codes[i].slice(0, k) + codes[i].slice(k+1);
+                        count++;
+                      }
+                    }
+                  }
+                  if (cursor_pos[0] == i) {
+                    cursor_pos[1] -= count;
+                  }
+                  if (selection[0] == i) {
+                    selection[1] -= count;
+                  }
+                  if (selection[2] == i) {
+                    selection[3] -= count;
+                  }
+                }
+                if (i >= row && i < row + document.getElementById("code-area").children.length) {
+                  document.getElementById("code-area").children[i-row].innerHTML = codes[i];
+                }
+                select([selection[0], Math.max(0, selection[1])], [selection[2], Math.max(0, selection[3])]); // avoid negative
+                cursor_move();
+              }
             }
           } else if ((e.code == "Enter" || e.key == "Enter") && !e.isComposing) {
             if (mode == EDITOR_MODES.LEGACY) {
@@ -1755,7 +1914,7 @@
               }
               spaces = texts[cursor_pos[0]].match(/^[ \t]*/)[0].slice(0, cursor_pos[1]);
               let newline = spaces;
-              let len = codes[cursor_pos[0]].match("^(?:(?:<[^>]+>)*(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])(?:<[^>]+>)?){"+cursor_pos[1]+"}")[0].length;
+              let len = (codes[cursor_pos[0]].match("^(?:(?:<[^>]+>)*(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])(?:<[^>]+>)?){"+cursor_pos[1]+"}") || [""])[0].length;
               let tags = getCursoredNode(cursor_pos[0], cursor_pos[1])[4];
               let tagends = tags.map((i)=>"</"+i.match(/^<[^ >]+[ >]/)[0].slice(1, -1)+">");
               newline += tags.join("") + codes[cursor_pos[0]].slice(len);
@@ -1770,21 +1929,21 @@
                   newline += i[0] || "";
                 }
               }
-              texts[cursor_pos[0]] = texts[cursor_pos[0]].match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g).slice(0, cursor_pos[1]).join("");
+              texts[cursor_pos[0]] = (texts[cursor_pos[0]].match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).slice(0, cursor_pos[1]).join("");
               texts.splice(cursor_pos[0]+1, 0, newline);
-              if (texts.length <= document.getElementById("code-area").children.length) {
-                let node = document.createElement("code");
-                node.innerHTML = codes[cursor_pos[0]+1];
-                document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
-              } else if (row + document.getElementById("code-area").children.length >= texts.length) {
-                let node = document.getElementById("code-area").children[0];
-                node.innerHTML = codes[cursor_pos[0]+1];
-                document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
-                row += 1;
+              if (texts.length >= document.getElementById("code-area").children.length) {
+                //let node = document.createElement("code");
+                //node.innerHTML = codes[cursor_pos[0]+1];
+                //document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
+              } else if (row + document.getElementById("code-area").children.length <= texts.length) {
+                //let node = document.getElementById("code-area").children[0];
+                //node.innerHTML = codes[cursor_pos[0]+1];
+                //document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
+                //row += 1;
               } else {
-                let node = [...document.getElementById("code-area").children].at(-1);
-                node.innerHTML = codes[cursor_pos[0]+1];
-                document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
+                //let node = [...document.getElementById("code-area").children].at(-1);
+                //node.innerHTML = codes[cursor_pos[0]+1];
+                //document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
               }
               cursor_pos[0] += 1;
               cursor_pos[1] = spaces.length;
@@ -1802,27 +1961,33 @@
               let arr2;
               if (cursor_pos[1] == 0) {
                 if (cursor_pos[0] > 0) {
-                  cursor_pos[1] = texts[cursor_pos[0] - 1].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).length;
+                  cursor_pos[1] = (texts[cursor_pos[0] - 1].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g) || []).length;
                   texts[cursor_pos[0] - 1] = texts[cursor_pos[0] - 1] + texts.splice(cursor_pos[0], 1)[0];
                   codes[cursor_pos[0] - 1] = codes[cursor_pos[0] - 1] + codes.splice(cursor_pos[0], 1)[0];
                   let node = document.getElementById("code-area").children[cursor_pos[0]-row];
+                  let rownum = document.querySelector(".modern div.rows > ul").children[cursor_pos[0]-row];
                   document.getElementById("code-area").children[cursor_pos[0]-1-row].innerHTML = codes[cursor_pos[0] - 1];
                   console.log(node);
                   if (texts.length <= document.getElementById("code-area").children.length) {
                     node.remove();
+                    rownum.remove();
                   } else if (row + document.getElementById("code-area").children.length >= texts.length) {
                     document.getElementById("code-area").insertAdjacentElement("afterbegin", node);
+                    document.querySelector(".modern div.rows > ul").insertAdjacentElement("afterbegin", rownum);
                     node.innerHTML = codes[row-1];
+                    rownum.innerText = row;
                     row -= 1;
                   } else {
                     document.getElementById("code-area").insertAdjacentElement("beforeend", node);
+                    document.querySelector(".modern div.rows > ul").insertAdjacentElement("beforeend", rownum);
                     node.innerHTML = codes[row + document.getElementById("code-area").children.length - 1];
+                    rownum.innerText = row + document.getElementById("code-area").children.length;
                   }
                   cursor_pos[0] -= 1;
                   draw();
                 }
               } else {
-                arr = texts[cursor_pos[0]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g);
+                arr = texts[cursor_pos[0]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g) || [];
                 let len = 1
                 if (arr.slice(cursor_pos[1]-indent, cursor_pos[1]).join("") == " ".repeat(indent)) {
                   len = indent;
@@ -1832,7 +1997,7 @@
                 console.log(node, index, l, len, cursor_pos[1]);
                 let tlen = arr.splice(cursor_pos[1], len).join("").length;
                 texts[cursor_pos[0]] = arr.join("");
-                arr2 = node.innerText.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g);
+                arr2 = node.innerText.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g) || [];
                 let i = 0;
                 let i2 = codes[cursor_pos[0]].match(/^(?:<[^>]+>)*/)[0].length;
                 while (i < cursor_pos[1]) {
@@ -1840,7 +2005,7 @@
                   i += 1;
                 }
                 console.log(i2, i2+tlen*16, codes[cursor_pos[0]].slice(i2, i2+tlen*16));
-                tlen = codes[cursor_pos[0]].slice(i2, i2+tlen*16).match(/(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g).slice(0, tlen).join("").length;
+                tlen = (codes[cursor_pos[0]].slice(i2, i2+tlen*16).match(/(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).slice(0, tlen).join("").length;
                 codes[cursor_pos[0]] = (codes[cursor_pos[0]].slice(0, i2) + codes[cursor_pos[0]].slice(i2 + tlen)).replace(/<([^\/> ]+)[^>]*><\/\1[^>]+>/g, "");
                 if (node.innerText.length == 0) {
                   while (node.innerText.length == 0 && node.tagName != "CODE") {
@@ -1927,6 +2092,7 @@
             return;
           }
           if (composing) {
+            return; // don't handle for now
             // FIXME: following line does not work
             //composing_text = [...text.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).slice(0, cursor_pos[4]), e.data, ...text.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).slice(cursor_pos[4])].join("");
           } else {
@@ -1964,16 +2130,23 @@
             index2 = index2.map((i)=>i+offset);
             node = node.parentNode;
             console.log(index2);
-          } else {
+          } else if (node.innerHTML.length > 0 && index2.at(-1) > 0) {
             index2.push(-(node.innerHTML.slice(0, index2.at(-1)).match(/(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])$/)[0].length) + index2.pop());
+          } else {
+            index2.push(0);
           }
           if (i2 < codes[cursor_pos[0]].length) {
             node.innerHTML = ((html)=>html.slice(0, index2.at(-1)) + escaped + html.slice(index2.at(-1)))(node.innerHTML.replace(/(?:>|^)[^<>]+(?:<|$)/g, (m)=>">".repeat(m[0]==">")+m.replace(/[<>]/g, "").replace(/(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g, (m)=>m[0]=="&"?m:hljs.highlight(m, {language:"text"}).value)+"<".repeat(m.at(-1)=="<")));
           } else {
             node.innerHTML += escaped;
           }
-          codes[cursor_pos[0]] = codes[cursor_pos[0]].slice(0, i2)+escaped+codes[cursor_pos[0]].slice(i2);
-          cursor_pos[1] += e.data.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).length;
+          if (!composing) {
+            codes[cursor_pos[0]] = codes[cursor_pos[0]].slice(0, i2)+escaped+codes[cursor_pos[0]].slice(i2);
+            cursor_pos[1] += e.data.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).length;
+            node.innerHTML = codes[cursor_pos[0]];
+          } else {
+            node.innerHTML = codes[cursor_pos[0]].slice(0, i2)+escaped+codes[cursor_pos[0]].slice(i2);
+          }
           cursor_move();
         });
         document.getElementById("cursor").children[1].addEventListener("keyup", (e)=>{
@@ -2062,20 +2235,23 @@
           if (mode == EDITOR_MODES.MODERN) {
             let pos = (selection[0]<selection[2]||selection[0]==selection[2]&&selection[1]<selection[3])?selection:selection.slice(2)+selection.slice(0, 2);
             if (e.code == "KeyA" && e.ctrlKey) {
-              select([0, 0], [texts.length-1, texts.at(-1).match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g).length]);
+              select([0, 0], [texts.length-1, texts.at(-1).match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]??/g).length]);
               cursor_move();
             } else if (selecting && (e.code == "KeyC" || e.code == "KeyX") && e.ctrlKey) {
               let text;
               if (pos[0] == pos[2]) {
-                text = texts[pos[0]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g).slice(pos[1], pos[3]).join("");
+                text = (texts[pos[0]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g) || []).slice(pos[1], pos[3]).join("");
               } else {
-                text = texts[pos[0]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g).slice(pos[1]).join("");
+                text = (texts[pos[0]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g) || []).slice(pos[1]).join("");
                 for (let i = pos[0] + 1; i < pos[2]; i++) {
                   text += "\n" + texts[i];
                 }
-                text += "\n" + texts[pos[2]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g).slice(0, pos[3]).join("");
+                text += "\n" + (texts[pos[2]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g) || []).slice(0, pos[3]).join("");
               }
               navigator.clipboard.writeText(text);
+              if (e.code == "KeyX") {
+                deleteSelected();
+              }
             }  
           }
         } else {
@@ -2083,17 +2259,53 @@
         }
       })
       function draw(v=0) {
+        document.querySelector(".modern .wrapper").style.height = texts.length * fontsize[1] + "px";
         let box = document.getElementById("code-area");
         scrollTop = wrapper.parentNode.scrollTop;
-        if (fontsize[1]*(row+10) - scrollTop > 0) {
-          tops = [];
-          bottoms = [];
-          rows_tops = [];
-          rows_bottoms = [];
+        let lines = Math.ceil(document.querySelector(".modern").getBoundingClientRect().height / fontsize[1]) + 20;
+        let linesDiff = lines - box.children.length;
+        if (linesDiff > 0) {
+          let tops = [];
+          let bottoms = [];
+          let rows_tops = [];
+          let rows_bottoms = [];
+          for (let i=0; i < linesDiff && row+box.children.length+i < codes.length; i++) {
+            let el = document.createElement("code");
+            el.innerHTML = codes[row+box.children.length+i] || "";
+            rows_bottoms.push(((rowel)=>{rowel.innerText = row+rows.children.length+i+1; return rowel;})(document.createElement("li")));
+            bottoms.push(el);
+          }
+          for (let i=1; i <= linesDiff - bottoms.length && row >= i; i++) {
+            let el = document.createElement("code");
+            el.innerHTML = codes[row-i] || "";
+            rows_tops.push(((rowel)=>{rowel.innerText = row-i+1; return rowel;})(document.createElement("li")));
+            tops.push(el);
+          }
+          for (let i=0; i < bottoms.length; i++) {
+            box.insertAdjacentElement("beforeend", bottoms[i]);
+            rows.insertAdjacentElement("beforeend", rows_bottoms[i]);
+          }
+          for (let i=tops.length-1; i >= 0; i--) {
+            box.insertAdjacentElement("afterbegin", tops[i]);
+            rows.insertAdjacentElement("afterbegin", rows_tops[i]);
+          }
+          row -= tops.length;
+        } else if (linesDiff > 0) {
+          for (let i=-1; i >= linesDiff; i--) {
+            box.children[box.children.length+linesDiff].remove();
+            rows.children[box.children.length+linesDiff].remove();
+          }
+        }
+        if (fontsize[1]*(row+5) - scrollTop > 0) {
+          console.log("awawaw");
+          let tops = [];
+          let bottoms = [];
+          let rows_tops = [];
+          let rows_bottoms = [];
           for (let i = 1; i < Math.ceil(row+10 - scrollTop/fontsize[1]) && row >= i; i++) {
             if (box.children.length+tops.length-i < 0) {break;}
             let el = document.createElement("code");
-            el.innerHTML = codes[row-i];
+            el.innerHTML = codes[row-i] || "";
             rows_tops.push(((rowel)=>{rowel.innerText = row-i+1; return rowel;})(document.createElement("li")));
             tops.push(el);
             bottoms.push(box.children.length-i)
@@ -2113,17 +2325,20 @@
           box.style.paddingTop = row * fontsize[1] + "px";
           rows.style.paddingTop = row * fontsize[1] + "px";
           //box.scrollTop += tops.length * fontsize[1];
-        } else if (fontsize[1]*(row-10) - scrollTop < 0) {
-          tops = [];
-          bottoms = [];
-          rows_tops = [];
-          rows_bottoms = [];
-          for (let i = 0; i < Math.ceil(scrollTop/fontsize[1] - row - 10) && row >= i; i++) {
-            if (i >= box.children.length+bottoms.length) {break;}
+        }
+        if (fontsize[1]*(row+15) - scrollTop < 0) {
+          console.log("wawawa");
+          let tops = [];
+          let bottoms = [];
+          let rows_tops = [];
+          let rows_bottoms = [];
+          for (let i = 0; i < Math.floor(scrollTop/fontsize[1] - row - 10); i++) {
+            console.log(i, box.children.length+bottoms.length);
+            if (i > box.children.length+bottoms.length) {break;}
             if (row+box.children.length+i >= texts.length) {break;}
             tops.push(i);
             let el = document.createElement("code");
-            el.innerHTML = codes[row+box.children.length+i];
+            el.innerHTML = codes[row+box.children.length+i] || "";
             rows_bottoms.push(((rowel)=>{rowel.innerText = row+rows.children.length+i+1; return rowel;})(document.createElement("li")));
             bottoms.push(el);
           }
@@ -2188,13 +2403,14 @@
         let [node2, index3, l2, index4, tags2] = getCursoredNode(...end);
         let els = [];
         els.push(header);
-        header.style.marginLeft = "calc(0.5em * " + [...(function*(iter){
+        header.style.marginLeft = "calc(" + fontsize[0] + "px * " + [...(function*(iter){
           for (let i=0; i < start[1]; i++) {
             let i2 = iter.next();
-            yield i2[1]?2:1;
+            console.log(i2);
             if (i2.done) {
               break;
             }
+            yield i2[1]?2:1;
           }
         })(texts[start[0]].matchAll(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g))].reduce((total, i)=>total+i, 0) + ")";
         if (start[0] == end[0]) {
@@ -2224,8 +2440,18 @@
         }
         [cursor_pos[0], cursor_pos[1]] = pos;
         cursor_move();
-        setTimeout(()=>{document.getElementById("cursor-input").focus();}, 0);
+        setTimeout(()=>{document.getElementById("cursor-input").focus();}, 10);
       });
+      sensor.addEventListener("pointermove", (e)=>{
+        if (e.buttons & 1 > 0) {
+          let pos = getCursorPos(e.offsetX, e.offsetY);
+          console.log(e, pos);
+          select((selecting?selection:cursor_pos).slice(0, 2), pos);
+          [cursor_pos[0], cursor_pos[1]] = pos;
+          cursor_move();
+        }
+      });
+      window.addEventListener("resize", (e)=>draw());
       wrapper.parentNode.addEventListener("scroll", (e)=>{
         console.log(e);
         if (handling) {return;}
