@@ -1066,6 +1066,49 @@
         document.adoptedStyleSheets = [sheet];
       });
     </script>
+    <script>
+      class UTF8String {
+        constructor(string) {
+          this.string = string;
+          this.byteLengths = [];
+          for (let m of string.matchAll(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g)) {
+            this.byteLengths.push((this.byteLengths.at(-1) || 0) + m[0].length);
+          }
+          this.match = this.string.match.bind(this);
+          this.matchAll = this.string.matchAll.bind(this);
+          this.replace = this.string.replace.bind(this);
+          this.split = this.string.split.bind(this);
+        }
+        static fromString(string) {
+          return new this(string);
+        }
+        slice(indexStart, indexEnd=undefined) {
+          let start, end;
+          if (indexStart != undefined && indexStart != 0) {
+            start = this.byteLengths.at(Math.max(Math.min(this.byteLengths.length, indexStart), -1*this.byteLengths.length) - 1) || 0;
+          } else  {
+            start = 0;
+          }
+          if (indexEnd != undefined) {
+            if (indexEnd != 0) {
+              end = this.byteLengths.at(Math.max(Math.min(this.byteLengths.length, indexEnd), -1*this.byteLengths.length) - 1) || 0;
+            } else  {
+              end = 0;
+            }
+          }
+          return this.string.slice(start, end);
+        }
+        valueOf() {
+          return this.string;
+        }
+        toString() {
+          return this.string;
+        }
+        get length() {
+          return this.byteLengths.length;
+        }
+      }
+    </script>
     <script type="text/javascript">
       var texts = [""];
       var codes = [""];
