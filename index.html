@@ -1072,6 +1072,10 @@
           this.string = string;
           this.byteLengths = [];
           for (let m of string.matchAll(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g)) {
+            Object.defineProperty(this, this.byteLengths.length, {
+              value: m[0],
+              writable: false
+            });
             this.byteLengths.push((this.byteLengths.at(-1) || 0) + m[0].length);
           }
           this.match = this.string.match.bind(this);
