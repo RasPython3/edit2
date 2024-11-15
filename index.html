@@ -1130,7 +1130,7 @@
       }
     </script>
     <script type="text/javascript">
-      var texts = [""];
+      var texts = [new UTF8String("")];
       var codes = [""];
       var reader;
       var filename = "untitled.txt";
@@ -1591,7 +1591,7 @@
             //ファイルの中身をtextarea内に表示する
             form.editarea.textContent = reader.result;
             form.editarea.value = reader.result;
-            texts = reader.result.split("\n");
+            texts = reader.result.split("\n").map((line)=>UTF8String.fromString(line));
             wrapper.style.height = fontsize[1] * texts.length + "px";
             codes = Array(texts.length);
             //document.getElementById("code-area")
@@ -1709,11 +1709,11 @@
             x = 0;
             y--;
             cursor_pos[0]--;
-            cursor_pos[1] = (texts[cursor_pos[0]].match(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g) || []).length;
+            cursor_pos[1] = texts[cursor_pos[0]].length;
           } else {
             cursor_pos[1] = 0;
           }
-        } else if (x > 0 && cursor_pos[1] > (texts[cursor_pos[0]].match(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g) || []).length) {
+        } else if (x > 0 && cursor_pos[1] > texts[cursor_pos[0]].length) {
           if (cursor_pos[0] < texts.length - 1) {
             x = 0;
             y++;
@@ -1731,12 +1731,11 @@
         //document.getElementById("cursor").scrollIntoView();
         //console.log(texts[cursor_pos[0]]);
         sp = document.createElement("span");
-        cursor_pos[2] = ((iter)=>{
+        cursor_pos[2] = ((textarr)=>{
           var arr = [];
           for (let i = 0; i < cursor_pos[1]; i++) {
-            let res = iter.next();
-            if (!res.done) {
-              arr.push(res.value);
+            if (i < textarr.length) {
+              arr.push(textarr.isFullSize(i));
             } else {
               if (x) {
                 cursor_pos[1] = i;
@@ -1749,11 +1748,11 @@
             }
           };
           return arr;
-        })(texts[cursor_pos[0]].matchAll(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g)).reduce((total, i)=>{if (i[1]) {return total+2} else {return total+1}}, 0);
+        })(texts[cursor_pos[0]]).reduce((total, i)=>{if (i) {return total+2} else {return total+1}}, 0);
         if (texts[cursor_pos[0]]) {
           //console.log(texts[cursor_pos[0]].slice(0, cursor_pos[1]));
           //console.log(2);
-          document.getElementById("cursor-letter").innerText = (texts[cursor_pos[0]].match(new RegExp("^(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]){"+cursor_pos[1]+"}([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])")) || [0, " "])[1]; //[cursor_pos[1]];
+          document.getElementById("cursor-letter").innerText = texts[cursor_pos[0]][cursor_pos[1]] ||" "; //[cursor_pos[1]];
           //console.log(3);
         } else {
           document.getElementById("cursor-letter").innerText = " ";
@@ -1810,7 +1809,7 @@
         } else {
           deleted = [selection[2], selection[3], selection[0], selection[1]];
         }
-        texts[deleted[0]] = (texts[deleted[0]].match(new RegExp("^(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]){"+deleted[1]+"}")) || [texts[deleted[0]]])[0] + (texts[deleted[2]].match(new RegExp("^(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]){"+deleted[3]+"}(.*)$")) || ["",""])[1]
+        texts[deleted[0]] = UTF8String.fromString(texts[deleted[0]].slice(0, deleted[1]) + texts[deleted[2]].slice(deleted[3]));
         codes[deleted[0]] = hljs.highlight(texts[deleted[0]], {language:lang}).value.replaceAll(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/g, (match, offset, string)=>{return "<span class=\"hljs-zenkaku\">"+match+"</span>"});
         if (deleted[2] - deleted[0] > 0) {
           texts.splice(deleted[0]+1, deleted[2] - deleted[0]);
@@ -1896,7 +1895,7 @@
               e.preventDefault();
               for (let i=selection[0]; selection[0]<=selection[2]?i <= selection[2]:i >= selection[2]; i+=(selection[0]<=selection[2]?1:-1)) {
                 if (!e.shiftKey) {
-                  texts[i] = " ".repeat(indent) + texts[i];
+                  texts[i] = UTF8String.fromString(" ".repeat(indent) + texts[i]);
                   codes[i] = " ".repeat(indent) + codes[i];
                   if (cursor_pos[0] == i) {
                     cursor_pos[1] += indent;
@@ -1908,7 +1907,7 @@
                     selection[3] += indent;
                   }
                 } else {
-                  texts[i] = texts[i].replace(new RegExp("[ ]{" + indent + "}|[ ]*"), "");
+                  texts[i] = UTF8String.fromString(texts[i].replace(new RegExp("[ ]{" + indent + "}|[ ]*"), ""));
                   let k = 0;
                   let count = 0;
                   while (count < indent) {
@@ -1978,15 +1977,8 @@
               codes[cursor_pos[0]] = codes[cursor_pos[0]].slice(0, len) + tagends.join("");
               codes.splice(cursor_pos[0]+1, 0, newline);
               document.getElementById("code-area").children[cursor_pos[0]-row].innerHTML = codes[cursor_pos[0]];
-              newline = spaces;
-              i2 = 0;
-              for (let i of texts[cursor_pos[0]].matchAll(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g)) {
-                i2 += 1;
-                if (i2 > cursor_pos[1]) {
-                  newline += i[0] || "";
-                }
-              }
-              texts[cursor_pos[0]] = (texts[cursor_pos[0]].match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).slice(0, cursor_pos[1]).join("");
+              newline = UTF8String.fromString(spaces + texts[cursor_pos[0]].slice(cursor_pos[1]));
+              texts[cursor_pos[0]] = UTF8String.fromString(texts[cursor_pos[0]].slice(0, cursor_pos[1]));
               texts.splice(cursor_pos[0]+1, 0, newline);
               if (texts.length >= document.getElementById("code-area").children.length) {
                 //let node = document.createElement("code");
@@ -2014,12 +2006,11 @@
                 cursor_move();
                 return;
               }
-              let arr;
               let arr2;
               if (cursor_pos[1] == 0) {
                 if (cursor_pos[0] > 0) {
                   cursor_pos[1] = (texts[cursor_pos[0] - 1].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g) || []).length;
-                  texts[cursor_pos[0] - 1] = texts[cursor_pos[0] - 1] + texts.splice(cursor_pos[0], 1)[0];
+                  texts[cursor_pos[0] - 1] = UTF8String.fromString(texts[cursor_pos[0] - 1] + texts.splice(cursor_pos[0], 1)[0]);
                   codes[cursor_pos[0] - 1] = codes[cursor_pos[0] - 1] + codes.splice(cursor_pos[0], 1)[0];
                   let node = document.getElementById("code-area").children[cursor_pos[0]-row];
                   let rownum = document.querySelector(".modern div.rows > ul").children[cursor_pos[0]-row];
@@ -2044,16 +2035,15 @@
                   draw();
                 }
               } else {
-                arr = texts[cursor_pos[0]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g) || [];
                 let len = 1
-                if (arr.slice(cursor_pos[1]-indent, cursor_pos[1]).join("") == " ".repeat(indent)) {
+                if (texts[cursor_pos[0]].slice(cursor_pos[1]-indent, cursor_pos[1]) == " ".repeat(indent)) {
                   len = indent;
                 }
                 cursor_pos[1] -= len;
                 let [node, index, l] = getCursoredNode();
                 console.log(node, index, l, len, cursor_pos[1]);
-                let tlen = arr.splice(cursor_pos[1], len).join("").length;
-                texts[cursor_pos[0]] = arr.join("");
+                let tlen = texts[cursor_pos[0]].slice(cursor_pos[1], cursor_pos[1]+len).length;
+                texts[cursor_pos[0]] = UTF8String.fromString(texts[cursor_pos[0]].slice(0, cursor_pos[1]) + texts[cursor_pos[0]].slice(cursor_pos[1]+len));
                 arr2 = node.innerText.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g) || [];
                 let i = 0;
                 let i2 = codes[cursor_pos[0]].match(/^(?:<[^>]+>)*/)[0].length;
@@ -2153,21 +2143,9 @@
             // FIXME: following line does not work
             //composing_text = [...text.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).slice(0, cursor_pos[4]), e.data, ...text.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).slice(cursor_pos[4])].join("");
           } else {
-            texts[cursor_pos[0]] = (()=>{
-              let result = [];
-              let len = 0;
-              let iter = texts[cursor_pos[0]].matchAll(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g);
-              for (let i=0; i < cursor_pos[1]; i++) {
-                res = iter.next();
-                if (!res.done) {
-                  result.push(res.value[0]);
-                  len += res.value.length;
-                } else {
-                  break;
-                }
-              }
-              return result.join("") + e.data + texts[cursor_pos[0]].slice(len);
-            })();
+            texts[cursor_pos[0]] = UTF8String.fromString(
+              texts[cursor_pos[0]].slice(0, cursor_pos[1]) + e.data + texts[cursor_pos[0]].slice(cursor_pos[1])
+            );
             document.getElementById("cursor").children[1].value = "";
             //cursor_pos[1] += (e.data.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).length;
           }
@@ -2297,13 +2275,13 @@
             } else if (selecting && (e.code == "KeyC" || e.code == "KeyX") && e.ctrlKey) {
               let text;
               if (pos[0] == pos[2]) {
-                text = (texts[pos[0]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g) || []).slice(pos[1], pos[3]).join("");
+                text = texts[pos[0]].slice(pos[1], pos[3]);
               } else {
-                text = (texts[pos[0]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g) || []).slice(pos[1]).join("");
+                text = texts[pos[0]].slice(pos[1]);
                 for (let i = pos[0] + 1; i < pos[2]; i++) {
                   text += "\n" + texts[i];
                 }
-                text += "\n" + (texts[pos[2]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g) || []).slice(0, pos[3]).join("");
+                text += "\n" + texts[pos[2]].slice(0, pos[3]);
               }
               navigator.clipboard.writeText(text);
               if (e.code == "KeyX") {
@@ -2416,31 +2394,27 @@
         }
       }
       function getCursorPos(x, y) {
-        var pos = [0, 0];
-        pos[0] = Math.floor(y / fontsize[1]);
-        pos[1] = ((iter, index)=>{
-          let i = 0
-          let result = -1;
-          while (result < index) {
-            let res = iter.next();
-            if (!res.done) {
-              result++;
-              if (res.value[1]) {
-                if (i + 2 < index) {
-                  i += 2;
-                } else { break; }
-              } else {
-                if (i + 1 < index) {
-                  i += 1;
-                } else { break; }
-              }
+        var pos = [Math.floor(y / fontsize[1]), 0];
+        let index = Math.floor(x / fontsize[0]);
+        let i = 0;
+        let result = -1;
+        while (result < index) {
+          result++;
+          if (result < texts[pos[0]].length) {
+            if (texts[pos[0]].isFullSize(result)) {
+              if (i + 2 < index) {
+                i += 2;
+              } else { break; }
             } else {
-              result += 1;
-              break;
+              if (i + 1 < index) {
+                i += 1;
+              } else { break; }
             }
-          };
-          return result;
-        })(texts[pos[0]].matchAll(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g), Math.floor(x / fontsize[0]));
+          } else {
+            break;
+          }
+        }
+        pos[1] = result;
         return pos;
       }
       function select(start, end) {
@@ -2460,16 +2434,14 @@
         let [node2, index3, l2, index4, tags2] = getCursoredNode(...end);
         let els = [];
         els.push(header);
-        header.style.marginLeft = "calc(" + fontsize[0] + "px * " + [...(function*(iter){
+        header.style.marginLeft = "calc(" + fontsize[0] + "px * " + [...(function*(){
           for (let i=0; i < start[1]; i++) {
-            let i2 = iter.next();
-            console.log(i2);
-            if (i2.done) {
+            if (i >= texts[start[0]].length) {
               break;
             }
-            yield i2[1]?2:1;
+            yield texts[start[0]].isFullSize(i)?2:1;
           }
-        })(texts[start[0]].matchAll(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g))].reduce((total, i)=>total+i, 0) + ")";
+        })()].reduce((total, i)=>total+i, 0) + ")";
         if (start[0] == end[0]) {
           header.innerHTML = tags.join("") + codes[start[0]].slice(index2[0] - (codes[start[0]].slice(0, index2[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length, index4[0] - (codes[end[0]].slice(0, index4[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length).replace(/<[^/][^>]+><\/[^>]+>/g, "");
         } else {
