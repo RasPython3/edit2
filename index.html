@@ -2395,7 +2395,7 @@
       }
       function getCursorPos(x, y) {
         var pos = [Math.floor(y / fontsize[1]), 0];
-        let index = Math.floor(x / fontsize[0]);
+        let index = Math.round(x / fontsize[0]);
         let i = 0;
         let result = -1;
         while (result < index) {
