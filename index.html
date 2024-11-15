@@ -1086,6 +1086,22 @@
         static fromString(string) {
           return new this(string);
         }
+        isFullSize(index) {
+          let ch = this.at(index);
+          if (ch == undefined) {
+            return false;
+          }
+          return ch.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/) != null;
+        }
+        at(index) {
+          if (index == 0) {
+            return this.string.slice(0, this.byteLengths.at(0) || undefined);
+          } else if (-1 * this.byteLengths.length <= index && index < this.byteLengths.length) {
+            return this.slice(index, index!=-1?index+1:undefined);
+          } else {
+            return undefined;
+          }
+        }
         slice(indexStart, indexEnd=undefined) {
           let start, end;
           if (indexStart != undefined && indexStart != 0) {
