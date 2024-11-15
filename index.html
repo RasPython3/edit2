@@ -1730,14 +1730,6 @@
         }
         //document.getElementById("cursor").scrollIntoView();
         //console.log(texts[cursor_pos[0]]);
-        if (texts[cursor_pos[0]]) {
-          //console.log(texts[cursor_pos[0]].slice(0, cursor_pos[1]));
-          //console.log(2);
-          document.getElementById("cursor-letter").innerText = (texts[cursor_pos[0]].match(new RegExp("^(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]){"+cursor_pos[1]+"}([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])")) || [0, " "])[1]; //[cursor_pos[1]];
-          //console.log(3);
-        } else {
-          document.getElementById("cursor-letter").innerText = " ";
-        }
         sp = document.createElement("span");
         cursor_pos[2] = ((iter)=>{
           var arr = [];
