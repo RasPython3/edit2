@@ -1182,8 +1182,11 @@
       });
 
       function confFontSize() {
+        // following is a contermeasure for the problem that small digits are rounded off automatically.
+        fontcheck.innerText = "M".repeat(1000);
         let rect = fontcheck.getBoundingClientRect();
-        fontsize = [rect.width, rect.height];
+        fontcheck.innerText = "M"; // leaving it without undoing stresses the browser
+        fontsize = [rect.width / 1000, rect.height];
         document.querySelector("div#cursor").style.width = fontsize[0] + "px";
         document.querySelector("div#cursor  > span").style.maxWidth = fontsize[0]*2 + "px";
         css.sheet.cssRules[1].style.width = fontsize[0]*2 + "px";
@@ -1532,6 +1535,7 @@
 
       function open_file(e) {
         var wait;
+        let result;
         if (File.prototype.isPrototypeOf(e)) {
           f_handle = undefined;
           result = new Promise((resolve, reject)=>{resolve(e);});
@@ -1583,15 +1587,18 @@
             lang = "text";
           }
           //FileReaderのインスタンスを作成する
-          reader = new FileReader();
+          let reader = new FileReader();
           //読み込んだファイルの中身を取得する
           reader.readAsText(result);
           //ファイルの中身を取得後に処理を行う
           reader.addEventListener("load", function() {
             //ファイルの中身をtextarea内に表示する
-            form.editarea.textContent = reader.result;
+            //form.editarea.textContent = reader.result;
             form.editarea.value = reader.result;
-            texts = reader.result.split("\n").map((line)=>UTF8String.fromString(line));
+            texts = [];
+            for (let line of reader.result.matchAll(/(?<=^|\n)[^\n]*(?:\n|$)/g)) {
+              texts.push(UTF8String.fromString(line[0]));
+            }
             wrapper.style.height = fontsize[1] * texts.length + "px";
             codes = Array(texts.length);
             //document.getElementById("code-area")
@@ -1604,8 +1611,14 @@
             setTimeout(()=>{
               let tmp_codes = hljs.highlight(reader.result, {language:lang}).value.replaceAll(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/g, (match, offset, string)=>{return "<span class=\"hljs-zenkaku\">"+match+"</span>"}).replaceAll(/\n/g, (match, offset, string)=>{m = string.slice(Math.max(0, offset-1024), offset).match(/(?<start><(?<tag>[^ \/>]+)[^>]*?>)[^<>]*$/); if (m != undefined) {return "</"+m.groups.tag+">\n"+m.groups.start} else {return "\n"}}).split("\n");
               codes = tmp_codes;
+              for (let i = row; i < codes.length; i++) {
+                let el = document.getElementById("code-area").children[i-row];
+                if (el != undefined) {
+                  el.innerHTML = codes[i];
+                }
+              }
             }, 1);
-          });
+          }, {once: true});
           document.getElementById("file_name").innerText = filename;
         });
       }
