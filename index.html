@@ -1,4 +1,12 @@
 <!DOCTYPE html>
+<!--
+  edit2 - https://raspython3.github.io/edit2/
+
+  Copyright RasPython3, Released under the MIT License
+  See https://raspython3.guthub.io/edit2/LICENSE
+
+  Date: 2024-11-24
+-->
 <html lang="ja">
   <head>
     <title>TextEditor</title>
@@ -884,41 +892,41 @@
           </div>
           <div style="height:20rem;overflow:scroll;">
             <p style="white-space:pre-line">
-          Chromebookで開発をしたい。でも、テキストエディタがない。
-          じゃあ、簡易的でいいから作ってしまえ。
-          そして生まれたのが、「TextEditor.html」。「edit2」の前身。
-          最初は、ボタンとテキストボックスだけの、単純なツールから始まりました。
-          使っていくうちに、装飾を付けたくなりました。
-          だから、コピーを作って、なまえを「edit2」に変えて、いじってみた。
-          背景色が変わり、下の「挿入」も、自分の好きなVimをイメージして付けました。
-          でも、なんだか使いにくい。
-          そこで、タブでインデントできるようにしてみました。
-          自動インデントも作りました。
-          ここで、別路線を開拓しようと、限界までVimに近づける「edit4」が
-          開発されていました。
-          edit4は、位置から作り直され、テキストボックスではなく、レイヤーシステムや、
-          オリジナルに作ったカーソルが採用されました。
-          見やすさの観点から、highlightjsが導入され、とってもカラフルになりました。
-          長い行は途中で折り返したりもしました。
-          でも、javascriptが書きづらく、非常に動作が重くなって、断念していました。
-          しばらくして、edit2は更に進化をしようとしていました。
-          ボタンの羅列は、メニューバーへと変化しました。
-          行数を表示したくて、スペースを確保したり。
-          もっと使いやすいように、サブウィンドウを実装して。
-          でも、やっぱり、なんだかまだ足りない。
-          最近のテキストエディタは、大抵ハイライトされている。
-          行数はもちろん、かっこを強調表示したりもする。
-          でも、こいつは白黒。ちょっと寂しい。行数の表示も、ちょっと大変そう。
-          そんなとき、ふと思い出した。edit4は、行ごとに分かれている。
-          ハイライトもついていて、かっこの強調だってできそうだ。
-          でも、edit4は重い。折り返し処理のせいもあって、編集どころか、
-          カーソル移動すら、もっさりする。
-          そこで、思いついた。
-          edit2と、edit4を、くっつけてしまえ。
-          ベースはedit2。でも、レイヤーはカーソルは、ほとんどそのままedit4から移植。
-          edit4のjavascriptも一部移植。折り返しは廃止。
-          そんな作業を延々と繰り返して、だいぶ形になってきた。
-          それが、今の「edit2」。
+              Chromebookで開発をしたい。でも、テキストエディタがない。
+              じゃあ、簡易的でいいから作ってしまえ。
+              そして生まれたのが、「TextEditor.html」。「edit2」の前身。
+              最初は、ボタンとテキストボックスだけの、単純なツールから始まりました。
+              使っていくうちに、装飾を付けたくなりました。
+              だから、コピーを作って、なまえを「edit2」に変えて、いじってみた。
+              背景色が変わり、下の「挿入」も、自分の好きなVimをイメージして付けました。
+              でも、なんだか使いにくい。
+              そこで、タブでインデントできるようにしてみました。
+              自動インデントも作りました。
+              ここで、別路線を開拓しようと、限界までVimに近づける「edit4」が
+              開発されていました。
+              edit4は、一から作り直され、テキストボックスではなく、レイヤーシステムや、
+              オリジナルに作ったカーソルが採用されました。
+              見やすさの観点から、highlightjsが導入され、とってもカラフルになりました。
+              長い行は途中で折り返したりもしました。
+              でも、javascriptが書きづらく、非常に動作が重くなって、断念していました。
+              しばらくして、edit2は更に進化をしようとしていました。
+              ボタンの羅列は、メニューバーへと変化しました。
+              行数を表示したくて、スペースを確保したり。
+              もっと使いやすいように、サブウィンドウを実装して。
+              でも、やっぱり、なんだかまだ足りない。
+              最近のテキストエディタは、大抵ハイライトされている。
+              行数はもちろん、かっこを強調表示したりもする。
+              でも、こいつは白黒。ちょっと寂しい。行数の表示も、ちょっと大変そう。
+              そんなとき、ふと思い出した。edit4は、行ごとに分かれている。
+              ハイライトもついていて、かっこの強調だってできそうだ。
+              でも、edit4は重い。折り返し処理のせいもあって、編集どころか、
+              カーソル移動すら、もっさりする。
+              そこで、思いついた。
+              edit2と、edit4を、くっつけてしまえ。
+              ベースはedit2。でも、レイヤーはカーソルは、ほとんどそのままedit4から移植。
+              edit4のjavascriptも一部移植。折り返しは廃止。
+              そんな作業を延々と繰り返して、だいぶ形になってきた。
+              それが、今の「edit2」。
             </p>
           </div>
         </div>
@@ -2270,22 +2278,22 @@
       });
       window.addEventListener("keydown", (e) => {
         console.log(e)
-        if (e.code=="KeyO" && e.ctrlKey) {
+        if (e.code=="KeyO" && (e.ctrlKey || softkeyStatus.altKey)) {
           open_file();
           e.preventDefault();
-        } else if (e.code=="KeyS" && e.ctrlKey) {
+        } else if (e.code=="KeyS" && (e.ctrlKey || softkeyStatus.ctrlKey)) {
           save_file();
           e.preventDefault();
-        } else if (e.code=="KeyN" && e.ctrlKey && e.altKey) {
+        } else if (e.code=="KeyN" && (e.ctrlKey || softkeyStatus.ctrlKey) && (e.altKey || softkeyStatus.altKey)) {
           window.open(location.href, window.name);
           e.preventDefault();
         } else if (e.target != form.editarea) {
           if (mode == EDITOR_MODES.MODERN) {
             let pos = (selection[0]<selection[2]||selection[0]==selection[2]&&selection[1]<selection[3])?selection:selection.slice(2)+selection.slice(0, 2);
-            if (e.code == "KeyA" && e.ctrlKey) {
+            if (e.code == "KeyA" && (e.ctrlKey || softkeyStatus.ctrlKey)) {
               select([0, 0], [texts.length-1, texts.at(-1).match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]??/g).length]);
               cursor_move();
-            } else if (selecting && (e.code == "KeyC" || e.code == "KeyX") && e.ctrlKey) {
+            } else if (selecting && (e.code == "KeyC" || e.code == "KeyX") && (e.ctrlKey || softkeyStatus.ctrlKey)) {
               let text;
               if (pos[0] == pos[2]) {
                 text = texts[pos[0]].slice(pos[1], pos[3]);
