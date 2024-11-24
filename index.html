@@ -1628,6 +1628,7 @@
             }, 1);
           }, {once: true});
           document.getElementById("file_name").innerText = filename;
+          document.querySelectorAll(".tabs")[0].children[0].innerText = filename;
         });
       }
       function save_file(e, another=false) {
