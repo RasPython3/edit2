@@ -2270,22 +2270,22 @@
       });
       window.addEventListener("keydown", (e) => {
         console.log(e)
-        if (e.code=="KeyO" && e.ctrlKey) {
+        if (e.code=="KeyO" && (e.ctrlKey || softkeyStatus.altKey)) {
           open_file();
           e.preventDefault();
-        } else if (e.code=="KeyS" && e.ctrlKey) {
+        } else if (e.code=="KeyS" && (e.ctrlKey || softkeyStatus.ctrlKey)) {
           save_file();
           e.preventDefault();
-        } else if (e.code=="KeyN" && e.ctrlKey && e.altKey) {
+        } else if (e.code=="KeyN" && (e.ctrlKey || softkeyStatus.ctrlKey) && (e.altKey || softkeyStatus.altKey)) {
           window.open(location.href, window.name);
           e.preventDefault();
         } else if (e.target != form.editarea) {
           if (mode == EDITOR_MODES.MODERN) {
             let pos = (selection[0]<selection[2]||selection[0]==selection[2]&&selection[1]<selection[3])?selection:selection.slice(2)+selection.slice(0, 2);
-            if (e.code == "KeyA" && e.ctrlKey) {
+            if (e.code == "KeyA" && (e.ctrlKey || softkeyStatus.ctrlKey)) {
               select([0, 0], [texts.length-1, texts.at(-1).match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]??/g).length]);
               cursor_move();
-            } else if (selecting && (e.code == "KeyC" || e.code == "KeyX") && e.ctrlKey) {
+            } else if (selecting && (e.code == "KeyC" || e.code == "KeyX") && (e.ctrlKey || softkeyStatus.ctrlKey)) {
               let text;
               if (pos[0] == pos[2]) {
                 text = texts[pos[0]].slice(pos[1], pos[3]);
