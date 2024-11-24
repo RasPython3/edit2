@@ -702,6 +702,7 @@
         }
         set value(value) {
           this.#input.value = value;
+          this.#input.dispatchEvent(new InputEvent("input"));
         }
       }
       customElements.define("pop-up", HTMLPopupElement);
@@ -868,7 +869,7 @@
           <button name="back">もどる</button>
           <button name="next">すすむ</button>
           <button name="replace">置き換え</button>
-          <button name="replaceAll">すべて置き換え</button>
+          <button name="replaceAll" disabled>すべて置き換え</button>
         </div>
       </pop-up>
       <pop-up id="base64Input">
@@ -943,7 +944,7 @@
           </section>
           <section>
             <label>テーマ</label>
-            <select>
+            <select disabled>
               <option>OSの設定に合わせる</option>
               <option>ダークモード</option>
               <option>ライトモード</option>
@@ -954,8 +955,8 @@
           <section>
             <label>エディタの文字色/背景色</label>
             <span>
-              <color-picker></color-picker>
-              <color-picker></color-picker>
+              <color-picker name="editor-fg"></color-picker>
+              <color-picker name="editor-bg"></color-picker>
             </span>
           </section>
         </form>
@@ -1175,6 +1176,14 @@
         altKey: false
       };
 
+      var settings = {
+        indent: 4,
+        mode: EDITOR_MODES.LEGACY,
+        theme: 0,
+        textFg: "#ffffff",
+        textBg: "#000000"
+      };
+
       var mode = EDITOR_MODES.LEGACY
 
       const css = document.getElementById("mode-styles");
@@ -1201,11 +1210,58 @@
         //lh = rect.height;
       }
       confFontSize();
+
+      function loadSettings() {
+        let data;
+        try {
+          let jsonData = localStorage.getItem("settings");
+          if (jsonData) {
+            data = JSON.parse(jsonData);
+          }
+        } catch {
+          return false;
+        }
+        if (!data) {
+          // try to save
+          try {
+            localStorage.setItem("settings", JSON.stringify(settings));
+          } catch {
+            ;
+          }
+        }
+        settings = {...settings, ...data};
+        document.getElementById("editor-mode-setting").selectedIndex = settings.mode;
+        document.getElementById("editor-mode-setting").dispatchEvent(new InputEvent("input"));
+        indent = settings.indent;
+        document.getElementById("indent_width").value = indent;
+        document.getElementById("indent_width").dispatchEvent(new InputEvent("input"));
+        document.querySelector("color-picker[name=\"editor-fg\"]").value = settings.textFg;
+        document.querySelector("color-picker[name=\"editor-fg\"]").dispatchEvent(new InputEvent("input"));
+        document.querySelector("color-picker[name=\"editor-bg\"]").value = settings.textBg;
+        document.querySelector("color-picker[name=\"editor-bg\"]").dispatchEvent(new InputEvent("input"));
+        return true;
+      }
+
+      function updateSettings(data) {
+        try {
+          settings = {...settings, ...data};
+        } catch {
+          return false;
+        }
+        try {
+          localStorage.setItem("settings", JSON.stringify(settings));
+        } catch {
+          ;
+        }
+        return true;
+      }
+
       async function startup() {
         try {
           form.editarea.focus();
           cursor_move();
         } catch {}
+        loadSettings();
         modeChange();
         // mobile controller
         let ismobile = true;
@@ -1524,6 +1580,7 @@
 
       function modeChange() {
         mode = Number(document.getElementById("editor-mode-setting").selectedOptions[0].value || 0);
+        updateSettings({mode: mode});
         if (mode == EDITOR_MODES.LEGACY) {
           css.sheet.cssRules[0].selectorText = ".modern";
         } else if (mode == EDITOR_MODES.MODERN) {
@@ -1538,8 +1595,19 @@
       document.getElementById("indent_width").addEventListener("input", (e) => {
         indent = parseInt(document.getElementById("indent_width").value);
         document.getElementById("indent_label").innerText = indent;
-      })
+        updateSettings({indent: indent});
+      });
       document.getElementById("indent_width").value = 4;
+
+      document.querySelector("color-picker[name=\"editor-fg\"]").addEventListener("input", (e)=>{
+        css.sheet.addRule("*", "--theme-editor-text-color: " + e.target.value + ";");
+        updateSettings({textFg: e.target.value});
+      })
+
+      document.querySelector("color-picker[name=\"editor-bg\"]").addEventListener("input", (e)=>{
+        css.sheet.addRule("*", "--theme-editor-bg: " + e.target.value + ";");
+        updateSettings({textBg: e.target.value});
+      })
 
       function open_file(e) {
         var wait;
