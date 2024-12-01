@@ -2252,7 +2252,26 @@
             texts[cursor_pos[0]] = UTF8String.fromString(
               texts[cursor_pos[0]].slice(0, cursor_pos[1]) + e.data + texts[cursor_pos[0]].slice(cursor_pos[1])
             );
-            document.getElementById("cursor").children[1].value = "";
+            let word;
+            let wordStart, wordCursor, wordEnd;
+            wordStart = wordCursor = wordEnd = cursor_pos[1] + UTF8String.fromString(e.data).length;
+            while (wordStart > 0) {
+              wordStart--;
+              if (texts[cursor_pos[0]][wordStart] == " ") {
+                wordStart++;
+                break;
+              }
+            }
+            while(wordEnd < texts[cursor_pos[0]].length) {
+              wordEnd++;
+              if (texts[cursor_pos[0]][wordEnd] == " ") {
+                wordEnd--;
+                break;
+              }
+            }
+            
+            document.getElementById("cursor").children[1].value = texts[cursor_pos[0]].slice(wordStart, wordEnd);
+            document.getElementById("cursor").children[1].selectionStart = document.getElementById("cursor").children[1].selectionEnd = wordCursor;
             //cursor_pos[1] += (e.data.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).length;
           }
           var [node, index, l, index2, tags] = getCursoredNode();
