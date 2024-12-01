@@ -152,12 +152,12 @@
       }
       color-picker {
         display: inline-flex;
-        width: 1rem;
-        height: 1rem;
-        border: solid 1px buttonface;
+        min-width: 1rem;
+        height: 1.2rem;
+        border: solid 1px var(--theme-sub-color);
         border-radius: 0.2rem;
-        justify-content: flex-end;
-        align-items: flex-start;
+        justify-content: flex-start;
+        align-items: baseline;
         box-sizing: border-box;
       }
       color-picker > input {
@@ -167,6 +167,9 @@
         border: 0px;
         margin: 0px;
         opacity: 0;
+      }
+      color-picker > label {
+        font-family: monospace;
       }
       span.logo {
         background-size: contain;
@@ -684,15 +687,27 @@
       }
       class HTMLColorPickerElement extends HTMLElement {
         #input;
+        #label;
         constructor() {
           super();
           setTimeout(()=>{
             this.#input = document.createElement("input");
+            this.#label = document.createElement("label");
             this.appendChild(this.#input);
+            this.appendChild(this.#label);
             this.#input.type = "color";
             this.style.background = this.#input.value;
             this.#input.addEventListener("input", (e)=>{
-              this.style.background = this.#input.value;
+              let value = this.#input.value;
+              this.style.backgroundColor = value;
+              this.#label.innerText = value;
+              let [red, blue, green] = value.match(/#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/).slice(1).map((i)=>parseInt(i, 16));
+              let brightness = (red + green + blue) / 3;
+              if (brightness  > 127) {
+                this.#label.style.color = "black";
+              } else {
+                this.#label.style.color = "white";
+              }
             });
             this.addEventListener("click", (e)=>{this.#input.click();});
           }, 0);
