@@ -2249,23 +2249,26 @@
             e.target.dispatchEvent(ev);
           }
         });
+        document.getElementById("cursor").children[1].addEventListener("beforeinput", (e)=>{
+          if (e.inputType == "deleteContentBackward") {
+            let i = 0;
+            let count = ((range)=>range.endOffset-range.startOffset)(e.getTargetRanges()[0]);
+            while (count > 0) {
+              count -= texts[cursor_pos[0]][cursor_pos[1] - i].length;
+              i++;
+            }
+            let ev = new KeyboardEvent("keydown", {key: "Backspace", isComposing: false});
+            while (i > 0) {
+              e.target.dispatchEvent(ev);
+              i--;
+            }
+            e.preventDefault();
+          }
+        });
         document.getElementById("cursor").children[1].addEventListener("input", (e)=>{
           console.log(e.type, e);
           //console.log(document.getElementById("cursor").children[1].selectionStart, document.getElementById("cursor").children[1].selectionEnd);
           if (e.data == null || e.data == undefined) {
-            if (e.inputType == "deleteContentBackward") {
-              let i = 0;
-              let count = ((range)=>range.endOffset-range.startOffset)(e.getTargetRanges()[0]);
-              while (count > 0) {
-                count -= texts[cursor_pos[0]][cursor_pos[1] - i].length;
-                i++;
-              }
-              let ev = new KeyboardEvent("keydown", {key: "Backspace", isComposing: false});
-              while (i > 0) {
-                e.target.dispatchEvent(ev);
-                i--;
-              }
-            }
             return;
           }
           if (composing) {
