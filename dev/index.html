@@ -2077,7 +2077,17 @@
               spaces = texts[cursor_pos[0]].match(/^[ \t]*/)[0].slice(0, cursor_pos[1]);
               let newline = spaces;
               let len = (codes[cursor_pos[0]].match("^(?:(?:<[^>]+>)*(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])(?:<[^>]+>)?){"+cursor_pos[1]+"}") || [""])[0].length;
-              let tags = getCursoredNode(cursor_pos[0], cursor_pos[1])[4];
+              let tags = ((data)=>{
+                let result = [...data[4]];
+                for (let i = data[3].length-1; i > 0; i--) {
+                  if (data[3][i] == 1) {
+                    result.pop();
+                  } else {
+                    break;
+                  }
+                }
+                return result;
+              })(getCursoredNode(cursor_pos[0], cursor_pos[1]+1));
               let tagends = tags.map((i)=>"</"+i.match(/^<[^ >]+[ >]/)[0].slice(1, -1)+">");
               newline += tags.join("") + codes[cursor_pos[0]].slice(len);
               codes[cursor_pos[0]] = codes[cursor_pos[0]].slice(0, len) + tagends.join("");
