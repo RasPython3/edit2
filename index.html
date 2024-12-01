@@ -1179,6 +1179,8 @@
       var scrolled = [0, 0, -1];
       var hljsafter;
 
+      var beforeDeletionLength = 0; // for modern mode cursor
+
       const EDITOR_MODES = {
         LEGACY: 0,
         MODERN: 1
@@ -2251,7 +2253,7 @@
         });
         document.getElementById("cursor").children[1].addEventListener("beforeinput", (e)=>{
           if (e.inputType == "deleteContentBackward") {
-            var beforeDeletionLength = e.target.value.length;
+            beforeDeletionLength = e.target.value.length;
           }
           console.log(e);
         });
