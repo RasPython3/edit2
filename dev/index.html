@@ -2106,6 +2106,7 @@
             }
           } else if ((e.code == "Backspace" || e.key == "Backspace") && !e.isComposing) {
             if (mode == EDITOR_MODES.MODERN) {
+              e.preventDefault();
               if (selecting) {
                 deleteSelected();
                 draw();
@@ -2242,6 +2243,10 @@
           console.log(e.type, e);
           //console.log(document.getElementById("cursor").children[1].selectionStart, document.getElementById("cursor").children[1].selectionEnd);
           if (e.data == null || e.data == undefined) {
+            if (e.inputType == "deleteContentBackward") {
+              let ev = new KeyboardEvent("keydown", {key: "Backspace", isComposing: false});
+              e.target.dispatchEvent(ev);
+            }
             return;
           }
           if (composing) {
@@ -2252,7 +2257,6 @@
             texts[cursor_pos[0]] = UTF8String.fromString(
               texts[cursor_pos[0]].slice(0, cursor_pos[1]) + e.data + texts[cursor_pos[0]].slice(cursor_pos[1])
             );
-            let word;
             let wordStart, wordCursor, wordEnd;
             wordStart = wordCursor = wordEnd = cursor_pos[1] + UTF8String.fromString(e.data).length;
             while (wordStart > 0) {
