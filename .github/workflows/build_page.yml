@@ -43,6 +43,7 @@ jobs:
           else
             git add dev/*;
           fi
+          git status
           git commit -m "[${{ github.ref_name }}] ${{ github.event.head_commit.message }}" -a
       - name: Push changes
         uses: ad-m/github-push-action@master
