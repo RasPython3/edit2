@@ -24,7 +24,7 @@ jobs:
       - name: Clean files
         working-directory: gh-pages
         run: |
-          rm -rf *.html *.js *.css *.html dev/*
+          git rm -rf *.html *.js *.css *.html dev/*
       - name: Copy Files
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
