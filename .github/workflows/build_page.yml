@@ -24,14 +24,14 @@ jobs:
       - name: Clean files
         working-directory: gh-pages
         run: |
-          git rm -rf *.html *.js *.css *.html dev/*
+          git rm -rf *
       - name: Copy Files
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
-            cp -r *.html *.js *.md gh-pages/;
+            cp -r * *.md gh-pages/;
           else
             mkdir gh-pages/dev;
-            cp -r *.html *.js *.md gh-pages/dev/;
+            cp -r * *.md gh-pages/dev/;
           fi
       - name: Commit files
         working-directory: gh-pages
