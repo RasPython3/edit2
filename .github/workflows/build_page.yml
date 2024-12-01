@@ -27,7 +27,7 @@ jobs:
           if [ "${{ github.ref_name }}" = "main" ]; then
             git rm -rf dev;
           else
-            git rm -rf `find * | grep -v "^dev/"`;
+            git rm -rf `find * | grep -v "^dev\(/\|$\)"`;
           fi
       - name: Copy Files
         run: |
