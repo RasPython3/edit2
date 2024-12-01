@@ -363,6 +363,7 @@
         height: 100%;
         opacity: 0;
         cursor: text;
+        touch-action: none;
       }
       #row-num {
         position:absolute;
@@ -2577,7 +2578,7 @@
         setTimeout(()=>{document.getElementById("cursor-input").focus();}, 10);
       });
       sensor.addEventListener("pointermove", (e)=>{
-        if (e.buttons & 1 > 0) {
+        if ((e.buttons & 1) > 0) {
           let pos = getCursorPos(e.offsetX, e.offsetY);
           console.log(e, pos);
           select((selecting?selection:cursor_pos).slice(0, 2), pos);
