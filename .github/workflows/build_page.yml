@@ -34,12 +34,12 @@ jobs:
       - name: Copy Files
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
-            cp -r `find * | grep -v gh-pages` *.md gh-pages/;
+            cp -r `find * | grep -v "^gh-pages\(/\|$\)"` gh-pages/;
           else
             if [ ! -d gh-pages/dev ]; then
               mkdir gh-pages/dev;
             fi
-            cp -r `find * | grep -v "^gh-pages/"` *.md gh-pages/dev/;
+            cp -r `find * | grep -v "^gh-pages\(/\|$\)"` gh-pages/dev/;
           fi
       - name: Commit files
         working-directory: gh-pages
@@ -51,7 +51,6 @@ jobs:
           else
             git add dev/*;
           fi
-          git status
           git commit -m "[${{ github.ref_name }}] ${{ github.event.head_commit.message }}" -a
       - name: Push changes
         uses: ad-m/github-push-action@master
