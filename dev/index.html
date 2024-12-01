@@ -1,0 +1,2689 @@
+<!DOCTYPE html>
+<!--
+  edit2 - https://raspython3.github.io/edit2/
+
+  Copyright RasPython3, Released under the MIT License
+  See https://raspython3.guthub.io/edit2/LICENSE
+
+  Date: 2024-11-24
+-->
+<html lang="ja">
+  <head>
+    <title>TextEditor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="manifest" href="data:application/manifest+json;base64,ew0KICAiaWQiOiJlZGl0Mi5odG1sIiwNCiAgIm5hbWUiOiAiZWRpdDIiLA0KICAic2hvcnRfbmFtZSI6ICJlZGl0MiIsDQogICJkZXNjcmlwdGlvbiI6ICJBbiB0ZXh0IGVkaXRvciB3b3JrcyBvbiB5b3VyIGJyb3dzZXIgd2l0aCBvbmUgSFRNTC4iLA0KICAiaWNvbnMiOiBbDQogICAgew0KICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUIyYVdWM1FtOTRQU0l3SURBZ05qUWdOalFpSUhkcFpIUm9QU0l4TkRSd2VDSWdhR1ZwWjJoMFBTSXhORFJ3ZUNJZ2VHMXNibk05SW1oMGRIQTZMeTkzZDNjdWR6TXViM0puTHpJd01EQXZjM1puSWlCNGJXeHVjenBpZUQwaWFIUjBjSE02THk5aWIzaDVMWE4yWnk1amIyMGlQZzBLSUNBOFpHVm1jejROQ2lBZ0lDQThabWxzZEdWeUlHbGtQU0p2ZFhSc2FXNWxMV1pwYkhSbGNpMHdJaUI0UFNJdE5UQXdKU0lnZVQwaUxUVXdNQ1VpSUhkcFpIUm9QU0l4TURBd0pTSWdhR1ZwWjJoMFBTSXhNREF3SlNJZ1luZzZjSEpsYzJWMFBTSnZkWFJzYVc1bElERWdNU0J5WjJKaEtESTFOU3d5TlRVc01qVTFMREVwSWo0TkNpQWdJQ0FnSUR4bVpVMXZjbkJvYjJ4dloza2dhVzQ5SWxOdmRYSmpaVUZzY0doaElpQnlaWE4xYkhROUltUnBiR0YwWldRaUlHOXdaWEpoZEc5eVBTSmthV3hoZEdVaUlISmhaR2wxY3owaU1TSStQQzltWlUxdmNuQm9iMnh2WjNrK0RRb2dJQ0FnSUNBOFptVkdiRzl2WkNCbWJHOXZaQzFqYjJ4dmNqMGljbWRpWVNneU5UVXNNalUxTERJMU5Td3hLU0lnY21WemRXeDBQU0ptYkc5dlpDSStQQzltWlVac2IyOWtQZzBLSUNBZ0lDQWdQR1psUTI5dGNHOXphWFJsSUdsdVBTSm1iRzl2WkNJZ2FXNHlQU0prYVd4aGRHVmtJaUJ2Y0dWeVlYUnZjajBpYVc0aUlISmxjM1ZzZEQwaWIzVjBiR2x1WlNJK1BDOW1aVU52YlhCdmMybDBaVDROQ2lBZ0lDQWdJRHhtWlUxbGNtZGxQZzBLSUNBZ0lDQWdJQ0E4Wm1WTlpYSm5aVTV2WkdVZ2FXNDlJbTkxZEd4cGJtVWlQand2Wm1WTlpYSm5aVTV2WkdVK0RRb2dJQ0FnSUNBZ0lEeG1aVTFsY21kbFRtOWtaU0JwYmowaVUyOTFjbU5sUjNKaGNHaHBZeUkrUEM5bVpVMWxjbWRsVG05a1pUNE5DaUFnSUNBZ0lEd3ZabVZOWlhKblpUNE5DaUFnSUNBOEwyWnBiSFJsY2o0TkNpQWdQQzlrWldaelBnMEtJQ0E4WTJseVkyeGxJSE4wZVd4bFBTSm1hV3hzT2lCeVoySW9Nakl6TENBeU5ERXNJREkxTlNrN0lpQmplRDBpTXpJaUlHTjVQU0l6TWlJZ2NqMGlNeklpUGp3dlkybHlZMnhsUGcwS0lDQThaeUIwY21GdWMyWnZjbTA5SW0xaGRISnBlQ2d3TGpZeE9EY3dOeXdnTUM0Mk1UZzNNRGNzSUMwd0xqWXhPRGN3Tnl3Z01DNDJNVGczTURjc0lETXlMakF3TURNd01Td2dMVGN1TlRrM09EUTJLU0lnYzNSNWJHVTlJbVpwYkhSbGNqb2dkWEpzS0NOdmRYUnNhVzVsTFdacGJIUmxjaTB3S1RzaVBnMEtJQ0FnSUR4d1lYUm9JSE4wZVd4bFBTSm1hV3hzT2lCeVoySW9PVEFzSURrd0xDQTVNQ2s3SWlCa1BTSk5JREk0SURBZ1NDQXpOaUJCSURnZ09DQXdJREFnTVNBME5DQTRJRllnTkRnZ1NDQXlNQ0JXSURnZ1FTQTRJRGdnTUNBd0lERWdNamdnTUNCYUlpQmllRHB6YUdGd1pUMGljbVZqZENBeU1DQXdJREkwSURRNElEZ2dPQ0F3SURBZ01VQm1NR00zWlRNeE9TSWdZbmc2YjNKcFoybHVQU0l3TGpVZ01DNDJOalkyTmpjaVBqd3ZjR0YwYUQ0TkNpQWdJQ0E4Y0dGMGFDQmtQU0pOSURNNExqWTVJREU1TGpVMU9DQk1JRFV3TGpZNUlETTFMalUxT0NCTUlESTJMalk1SURNMUxqVTFPQ0JNSURNNExqWTVJREU1TGpVMU9DQmFJaUJ6ZEhsc1pUMGlabWxzYkRvZ2NtZGlLREkxTlN3Z01qSXhMQ0F4TURJcE95SWdkSEpoYm5ObWIzSnRQU0p0WVhSeWFYZ29MVEVzSUMwd0xqQXdNREExTWl3Z01DNHdNREF3TlRJc0lDMHhMQ0EzTUM0Mk9EZzVNelFzSURnekxqVTJNRFUwTnlraUlHSjRPbk5vWVhCbFBTSjBjbWxoYm1kc1pTQXlOaTQyT1NBeE9TNDFOVGdnTWpRZ01UWWdNQzQxSURBZ01VQTJNek01TTJObE9DSWdZbmc2YjNKcFoybHVQU0l3TGpVd01EQTJOaUF5TGpBd01EQXpPQ0krUEM5d1lYUm9QZzBLSUNBOEwyYytEUW84TDNOMlp6ND0iLA0KICAgICAgInNpemVzIjogIjE0NHgxNDQiLA0KICAgICAgInB1cnBvc2UiOiJhbnkiLA0KICAgICAgInR5cGUiOiJpbWFnZS9zdmcreG1sIg0KICAgIH0NCiAgXSwNCiAgInN0YXJ0X3VybCI6ImZpbGU6Ly8vaG9tZS9jaHJvbm9zL3UtMGU1MjIzZDllZGFjNjUwNmE1NjA3YTNhNTNmYmQ4MDUzYzYwOTI1Zi9NeUZpbGVzL2hvbWUvZWRpdDIuaHRtbCIsDQogICJkaXNwbGF5IjogImZ1bGxzY3JlZW4iLA0KICAidGhlbWVfY29sb3IiOiAiIzQ0NDQ0NCIsDQogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMyMjIyMjIiDQp9">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHdpZHRoPSI2NHB4IiBoZWlnaHQ9IjY0cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6Yng9Imh0dHBzOi8vYm94eS1zdmcuY29tIj4NCiAgPGRlZnM+DQogICAgPGZpbHRlciBpZD0ib3V0bGluZS1maWx0ZXItMCIgeD0iLTUwMCUiIHk9Ii01MDAlIiB3aWR0aD0iMTAwMCUiIGhlaWdodD0iMTAwMCUiIGJ4OnByZXNldD0ib3V0bGluZSAxIDEgcmdiYSgyNTUsMjU1LDI1NSwxKSI+DQogICAgICA8ZmVNb3JwaG9sb2d5IGluPSJTb3VyY2VBbHBoYSIgcmVzdWx0PSJkaWxhdGVkIiBvcGVyYXRvcj0iZGlsYXRlIiByYWRpdXM9IjEiPjwvZmVNb3JwaG9sb2d5Pg0KICAgICAgPGZlRmxvb2QgZmxvb2QtY29sb3I9InJnYmEoMjU1LDI1NSwyNTUsMSkiIHJlc3VsdD0iZmxvb2QiPjwvZmVGbG9vZD4NCiAgICAgIDxmZUNvbXBvc2l0ZSBpbj0iZmxvb2QiIGluMj0iZGlsYXRlZCIgb3BlcmF0b3I9ImluIiByZXN1bHQ9Im91dGxpbmUiPjwvZmVDb21wb3NpdGU+DQogICAgICA8ZmVNZXJnZT4NCiAgICAgICAgPGZlTWVyZ2VOb2RlIGluPSJvdXRsaW5lIj48L2ZlTWVyZ2VOb2RlPg0KICAgICAgICA8ZmVNZXJnZU5vZGUgaW49IlNvdXJjZUdyYXBoaWMiPjwvZmVNZXJnZU5vZGU+DQogICAgICA8L2ZlTWVyZ2U+DQogICAgPC9maWx0ZXI+DQogIDwvZGVmcz4NCiAgPGNpcmNsZSBzdHlsZT0iZmlsbDogcmdiKDIyMywgMjQxLCAyNTUpOyIgY3g9IjMyIiBjeT0iMzIiIHI9IjMyIj48L2NpcmNsZT4NCiAgPGcgdHJhbnNmb3JtPSJtYXRyaXgoMC42MTg3MDcsIDAuNjE4NzA3LCAtMC42MTg3MDcsIDAuNjE4NzA3LCAzMi4wMDAzMDEsIC03LjU5Nzg0NikiIHN0eWxlPSJmaWx0ZXI6IHVybCgjb3V0bGluZS1maWx0ZXItMCk7Ij4NCiAgICA8cGF0aCBzdHlsZT0iZmlsbDogcmdiKDkwLCA5MCwgOTApOyIgZD0iTSAyOCAwIEggMzYgQSA4IDggMCAwIDEgNDQgOCBWIDQ4IEggMjAgViA4IEEgOCA4IDAgMCAxIDI4IDAgWiIgYng6c2hhcGU9InJlY3QgMjAgMCAyNCA0OCA4IDggMCAwIDFAZjBjN2UzMTkiIGJ4Om9yaWdpbj0iMC41IDAuNjY2NjY3Ij48L3BhdGg+DQogICAgPHBhdGggZD0iTSAzOC42OSAxOS41NTggTCA1MC42OSAzNS41NTggTCAyNi42OSAzNS41NTggTCAzOC42OSAxOS41NTggWiIgc3R5bGU9ImZpbGw6IHJnYigyNTUsIDIyMSwgMTAyKTsiIHRyYW5zZm9ybT0ibWF0cml4KC0xLCAtMC4wMDAwNTIsIDAuMDAwMDUyLCAtMSwgNzAuNjg4OTM0LCA4My41NjA1NDcpIiBieDpzaGFwZT0idHJpYW5nbGUgMjYuNjkgMTkuNTU4IDI0IDE2IDAuNSAwIDFANjMzOTNjZTgiIGJ4Om9yaWdpbj0iMC41MDAwNjYgMi4wMDAwMzgiPjwvcGF0aD4NCiAgPC9nPg0KPC9zdmc+">
+    <script async src="highlightjs-min.js"></script>
+    <!-- <link rel="stylesheet" href="data:text/css;base64,LyohCiAgVGhlbWU6IFZpbUZlZWwKICBEZXNjcmlwdGlvbjogVmltLUZlZWwgaGlnaGxpZ2h0LmpzIHN0eWxlCiAgQXV0aG9yOiAoYykgUmFzUHl0aG9uMwogIE1haW50YWluZXI6IFJhc1B5dGhvbjMKKi8KcHJlIGNvZGUuaGxqcyB7CiAgICBkaXNwbGF5OmJsb2NrOwogICAgb3ZlcmZsb3cteDphdXRvOwogICAgcGFkZGluZzoxZW07CiAgICBtYXJnaW4tdG9wOiAtMGVtOwogICAgbGluZS1oZWlnaHQ6IDEuMmVtOwp9CmNvZGUuaGxqcyB7CiAgICBwYWRkaW5nOjNweCA1cHgKfQouaGxqcyB7CiAgICBiYWNrZ3JvdW5kOiMwMDAwMDA7CiAgICBjb2xvcjojZmZmZmZmCn0KLmhsanMtY29tbWVudCB7CiAgICBjb2xvcjojMDAwMGZmOwogICAgfQouaGxqcy1wdW5jdHVhdGlvbiwuaGxqcy10YWcgewogICAgY29sb3I6I2NjY2E7Cn0KLmhsanMtdGFnIC5obGpzLWF0dHIsLmhsanMtdGFnIC5obGpzLW5hbWUgewogICAgY29sb3I6I2NjYzsKfQouaGxqcy1hdHRyaWJ1dGUsLmhsanMtZG9jdGFnLC5obGpzLWtleXdvcmQsLmhsanMtbWV0YSAuaGxqcy1rZXl3b3JkLC5obGpzLW5hbWUsLmhsanMtc2VsZWN0b3ItdGFnIHsKICAgIGNvbG9yOiNkYjA7CiAgICBmb250LXdlaWdodDo3MDA7Cn0KLmhsanMtZGVsZXRpb24sLmhsanMtbnVtYmVyLC5obGpzLXF1b3RlLC5obGpzLXNlbGVjdG9yLWNsYXNzLC5obGpzLXNlbGVjdG9yLWlkLC5obGpzLXN0cmluZywuaGxqcy10ZW1wbGF0ZS10YWcsLmhsanMtdHlwZSB7CiAgICBjb2xvcjojZjY2Cn0KLmhsanMtc2VjdGlvbiwuaGxqcy10aXRsZSB7CiAgICBjb2xvcjogIzRjYWY1MDsKICAgIGZvbnQtd2VpZ2h0OjcwMDsKfQouaGxqcy1saW5rLC5obGpzLW9wZXJhdG9yLC5obGpzLXJlZ2V4cCwuaGxqcy1zZWxlY3Rvci1hdHRyLC5obGpzLXNlbGVjdG9yLXBzZXVkbywuaGxqcy1zeW1ib2wsLmhsanMtdGVtcGxhdGUtdmFyaWFibGUsLmhsanMtdmFyaWFibGUgewogICAgY29sb3I6I2FhYWFmZjsKfQouaGxqcy1saXRlcmFsIHsKICAgIGNvbG9yOiM2OTU7Cn0KLmhsanMtYWRkaXRpb24sLmhsanMtYnVpbHRfaW4sLmhsanMtYnVsbGV0LC5obGpzLWNvZGUgewogICAgY29sb3I6ICMwMGZmZWQ7CiAgICBmb250LXdlaWdodDogNzAwOwp9Ci5obGpzLW1ldGEgewogICAgY29sb3I6ICM0MWM2ZmY7CiAgICBmb250LXdlaWdodDogNzAwOwp9Ci5obGpzLW1ldGEgLmhsanMtc3RyaW5nIHsKICAgIGNvbG9yOiMzOGE7Cn0KLmhsanMtZW1waGFzaXMgewogICAgZm9udC1zdHlsZTppdGFsaWM7Cn0KLmhsanMtc3Ryb25nIHsKICAgIGZvbnQtd2VpZ2h0OjcwMDsKfQ==">
+    -->
+    <link rel="stylesheet" href="data:text/css;base64,LyohDQogIFRoZW1lOiBXQUFBDQogIERlc2NyaXB0aW9uOiBHb29kIHN0eWxlIGZvciBzb21lIHJlYXNvbi4NCiAgQXV0aG9yOiAoYykgUmFzUHl0aG9uMw0KICBNYWludGFpbmVyOiBSYXNQeXRob24zDQoqLw0KcHJlIGNvZGUuaGxqcyB7DQogICAgZGlzcGxheTpibG9jazsNCiAgICBvdmVyZmxvdy14OmF1dG87DQogICAgcGFkZGluZzoxZW07DQogICAgbWFyZ2luLXRvcDogLTBlbTsNCiAgICBsaW5lLWhlaWdodDogMS4yZW07DQp9DQpjb2RlLmhsanMgew0KICAgIHBhZGRpbmc6M3B4IDVweA0KfQ0KLmhsanMgew0KICAgIGJhY2tncm91bmQ6IzAwMDAwMDsNCiAgICBjb2xvcjojZmZmZmZmDQp9DQouaGxqcy1jb21tZW50IHsNCiAgICBjb2xvcjojMzMzM2NjOw0KICAgIH0NCi5obGpzLXB1bmN0dWF0aW9uLC5obGpzLXRhZyB7DQogICAgY29sb3I6I2NjY2E7DQp9DQouaGxqcy10YWcgLmhsanMtYXR0ciwuaGxqcy10YWcgLmhsanMtbmFtZSB7DQogICAgY29sb3I6I2NjYzsNCn0NCi5obGpzLWF0dHJpYnV0ZSwuaGxqcy1kb2N0YWcsLmhsanMta2V5d29yZCwuaGxqcy1tZXRhIC5obGpzLWtleXdvcmQsLmhsanMtbmFtZSwuaGxqcy1zZWxlY3Rvci10YWcgew0KICAgIGNvbG9yOiNjNmU7DQogICAgZm9udC13ZWlnaHQ6NzAwOw0KfQ0KLmhsanMtZGVsZXRpb24sLmhsanMtbnVtYmVyLC5obGpzLXF1b3RlLC5obGpzLXNlbGVjdG9yLWNsYXNzLC5obGpzLXNlbGVjdG9yLWlkLC5obGpzLXRlbXBsYXRlLXRhZywuaGxqcy10eXBlIHsNCiAgICBjb2xvcjojZDgzOw0KfQ0KLmhsanMtc3RyaW5nIHsNCiAgICBjb2xvcjogI2Y4ODsNCn0NCi5obGpzLXNlY3Rpb24sLmhsanMtdGl0bGUgew0KICAgIGNvbG9yOiAjOWQ2Ow0KICAgIGZvbnQtd2VpZ2h0OjcwMDsNCn0NCi5obGpzLWxpbmssLmhsanMtb3BlcmF0b3IsLmhsanMtcmVnZXhwLC5obGpzLXNlbGVjdG9yLWF0dHIsLmhsanMtc2VsZWN0b3ItcHNldWRvLC5obGpzLXN5bWJvbCwuaGxqcy10ZW1wbGF0ZS12YXJpYWJsZSwuaGxqcy12YXJpYWJsZSB7DQogICAgY29sb3I6I2FhYWFmZjsNCn0NCi5obGpzLWxpdGVyYWwgew0KICAgIGNvbG9yOiMzZWQ7DQp9DQouaGxqcy1hZGRpdGlvbiwuaGxqcy1idWlsdF9pbiwuaGxqcy1idWxsZXQsLmhsanMtY29kZSB7DQogICAgY29sb3I6ICM0ZGI7DQogICAgZm9udC13ZWlnaHQ6IDcwMDsNCn0NCi5obGpzLW1ldGEgew0KICAgIGNvbG9yOiAjM2VkOw0KICAgIGZvbnQtd2VpZ2h0OiA3MDA7DQp9DQouaGxqcy1lbXBoYXNpcyB7DQogICAgZm9udC1zdHlsZTppdGFsaWM7DQp9DQouaGxqcy1zdHJvbmcgew0KICAgIGZvbnQtd2VpZ2h0OjcwMDsNCn0=">
+    <style>
+      * {
+        --theme-text-color: #000000;
+        --theme-subtext-color: #111111;
+        --theme-disabled-text-color: #00000066;
+        --theme-editor-text-color: #000000;
+        --theme-editor-bg: #ffffff;
+        --theme-nav-bg: #eeeeee;
+        --theme-tabs-bg: #ffffff;
+        --theme-tab-tip-bg: #dddddd;
+        --theme-tab-untitled: #666666;
+        --theme-menu-item-bg: #ffffff;
+        --theme-main-color: #ffffff;
+        --theme-sub-color: #000000;
+        --theme-main-hover-color: #ffffff33;
+        --theme-sub-hover-color: #00000033;
+        --nav-height: 36px;
+        --tabs-height: 24px;
+        --bottom-label-height: 24px;
+        --logo-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHdpZHRoPSI2NHB4IiBoZWlnaHQ9IjY0cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6Yng9Imh0dHBzOi8vYm94eS1zdmcuY29tIj4NCiAgPGRlZnM+DQogICAgPGZpbHRlciBpZD0ib3V0bGluZS1maWx0ZXItMCIgeD0iLTUwMCUiIHk9Ii01MDAlIiB3aWR0aD0iMTAwMCUiIGhlaWdodD0iMTAwMCUiIGJ4OnByZXNldD0ib3V0bGluZSAxIDEgcmdiYSgyNTUsMjU1LDI1NSwxKSI+DQogICAgICA8ZmVNb3JwaG9sb2d5IGluPSJTb3VyY2VBbHBoYSIgcmVzdWx0PSJkaWxhdGVkIiBvcGVyYXRvcj0iZGlsYXRlIiByYWRpdXM9IjEiPjwvZmVNb3JwaG9sb2d5Pg0KICAgICAgPGZlRmxvb2QgZmxvb2QtY29sb3I9InJnYmEoMjU1LDI1NSwyNTUsMSkiIHJlc3VsdD0iZmxvb2QiPjwvZmVGbG9vZD4NCiAgICAgIDxmZUNvbXBvc2l0ZSBpbj0iZmxvb2QiIGluMj0iZGlsYXRlZCIgb3BlcmF0b3I9ImluIiByZXN1bHQ9Im91dGxpbmUiPjwvZmVDb21wb3NpdGU+DQogICAgICA8ZmVNZXJnZT4NCiAgICAgICAgPGZlTWVyZ2VOb2RlIGluPSJvdXRsaW5lIj48L2ZlTWVyZ2VOb2RlPg0KICAgICAgICA8ZmVNZXJnZU5vZGUgaW49IlNvdXJjZUdyYXBoaWMiPjwvZmVNZXJnZU5vZGU+DQogICAgICA8L2ZlTWVyZ2U+DQogICAgPC9maWx0ZXI+DQogIDwvZGVmcz4NCiAgPGNpcmNsZSBzdHlsZT0iZmlsbDogcmdiKDIyMywgMjQxLCAyNTUpOyIgY3g9IjMyIiBjeT0iMzIiIHI9IjMyIj48L2NpcmNsZT4NCiAgPGcgdHJhbnNmb3JtPSJtYXRyaXgoMC42MTg3MDcsIDAuNjE4NzA3LCAtMC42MTg3MDcsIDAuNjE4NzA3LCAzMi4wMDAzMDEsIC03LjU5Nzg0NikiIHN0eWxlPSJmaWx0ZXI6IHVybCgjb3V0bGluZS1maWx0ZXItMCk7Ij4NCiAgICA8cGF0aCBzdHlsZT0iZmlsbDogcmdiKDkwLCA5MCwgOTApOyIgZD0iTSAyOCAwIEggMzYgQSA4IDggMCAwIDEgNDQgOCBWIDQ4IEggMjAgViA4IEEgOCA4IDAgMCAxIDI4IDAgWiIgYng6c2hhcGU9InJlY3QgMjAgMCAyNCA0OCA4IDggMCAwIDFAZjBjN2UzMTkiIGJ4Om9yaWdpbj0iMC41IDAuNjY2NjY3Ij48L3BhdGg+DQogICAgPHBhdGggZD0iTSAzOC42OSAxOS41NTggTCA1MC42OSAzNS41NTggTCAyNi42OSAzNS41NTggTCAzOC42OSAxOS41NTggWiIgc3R5bGU9ImZpbGw6IHJnYigyNTUsIDIyMSwgMTAyKTsiIHRyYW5zZm9ybT0ibWF0cml4KC0xLCAtMC4wMDAwNTIsIDAuMDAwMDUyLCAtMSwgNzAuNjg4OTM0LCA4My41NjA1NDcpIiBieDpzaGFwZT0idHJpYW5nbGUgMjYuNjkgMTkuNTU4IDI0IDE2IDAuNSAwIDFANjMzOTNjZTgiIGJ4Om9yaWdpbj0iMC41MDAwNjYgMi4wMDAwMzgiPjwvcGF0aD4NCiAgPC9nPg0KPC9zdmc+");
+      }
+      @media (prefers-color-scheme: dark) {
+        * {
+          --theme-text-color: #ffffff;
+          --theme-subtext-color: #eeeeee;
+          --theme-disabled-text-color: #ffffff66;
+          --theme-editor-text-color: #ffffff;
+          --theme-editor-bg: #000000;
+          --theme-nav-bg: #222222;
+          --theme-tabs-bg: #333333;
+          --theme-tab-tip-bg: #555555;
+          --theme-tab-untitled: #dddddd;
+          --theme-menu-item-bg: #444444;
+          --theme-main-color: #000000;
+          --theme-sub-color: #ffffff;
+          --theme-main-hover-color: #00000033;
+          --theme-sub-hover-color: #ffffff33;
+        }
+      }
+      body {
+        margin: 0;
+      }
+      pop-up {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        min-width: 8em;
+        max-width: 95vw;
+        min-height: 1.5em;
+        width: max-content;
+        border: solid 1px var(--theme-sub-color);
+        border-radius: 2px;
+        background: var(--theme-nav-bg);
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 100;
+      }
+      pop-up[active] {
+        display: inline-flex;
+      }
+      pop-up > div.header {
+        display: inline-flex;
+        width: 100%;
+        height: 1.5em;
+        padding: 0.1em;
+        justify-content: flex-end;
+        box-sizing: border-box;
+      }
+      pop-up > div.header > button {
+        display: inline-block;
+        height: 100%;
+        aspect-ratio: 1;
+        padding: 0;
+        margin: 0;
+        border: none;
+        border-radius: 40%;
+        background: transparent;
+      }
+      pop-up > div.header > button:hover {
+        background: var(--theme-sub-hover-color);
+      }
+      pop-up > div.header > button > span.image {
+        display: inline-block;
+        height: 100%;
+        aspect-ratio: 1;
+        padding: 20%;
+        margin: 0;
+        border: none;
+        background-color: var(--theme-text-color);
+        -webkit-mask-size: contain;
+        -webkit-mask-origin: content-box;
+        -webkit-mask-repeat: no-repeat;
+        box-sizing: border-box;
+        transition: 0.2s transform;
+      }
+      pop-up > div.header > button.close > span.image {
+        -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTYgMTYiIHdpZHRoPSIxNnB4IiBoZWlnaHQ9IjE2cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+DQogIDxkZWZzPjwvZGVmcz4NCiAgPHBvbHlnb24gc3R5bGU9ImZpbGw6IHJnYigyMTYsIDIxNiwgMjE2KTsiIHBvaW50cz0iMCAwIDIgMCA4IDYgMTQgMCAxNiAwIDE2IDIgMTAgOCAxNiAxNCAxNiAxNiAxNCAxNiA4IDEwIDIgMTYgMCAxNiAwIDE0IDYgOCAwIDIiPjwvcG9seWdvbj4NCjwvc3ZnPg==");
+      }
+      pop-up > div.header > button.minimize > span.image {
+        -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTYgMTYiIHdpZHRoPSIxNnB4IiBoZWlnaHQ9IjE2cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+DQogIDxkZWZzPjwvZGVmcz4NCiAgPHBvbHlnb24gc3R5bGU9ImZpbGw6IHJnYigyMTYsIDIxNiwgMjE2KTsiIHBvaW50cz0iOCAzIDAgMTEgMCAxMyAyIDEzIDggNyAxNCAxMyAxNiAxMyAxNiAxMSI+PC9wb2x5Z29uPg0KPC9zdmc+");
+      }
+      pop-up[minimized] > div.header > button.minimize > span.image {
+        -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTYgMTYiIHdpZHRoPSIxNnB4IiBoZWlnaHQ9IjE2cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+DQogIDxkZWZzPjwvZGVmcz4NCiAgPHBvbHlnb24gc3R5bGU9ImZpbGw6IHJnYigyMTYsIDIxNiwgMjE2KTsiIHBvaW50cz0iOCAzIDAgMTEgMCAxMyAyIDEzIDggNyAxNCAxMyAxNiAxMyAxNiAxMSI+PC9wb2x5Z29uPg0KPC9zdmc+");
+        transform: rotate(180deg);
+      }
+      pop-up > div.body {
+        display: inline-block;
+        max-height: 100vh;
+        height: calc(100% - 1.5em);
+        color: var(--theme-text-color);
+        background: var(--theme-menu-item-bg);
+        transition: 0.1s max-height;
+        overflow: scroll;
+      }
+      pop-up[minimized] > div.body {
+        max-height: 0vh;
+      }
+      pop-up > div.body div.buttons {
+        display: inline-flex;
+        width: 100%;
+        padding: 0.5em;
+        justify-content: space-around;
+        box-sizing: border-box;
+      }
+      pop-up > div.body button {
+        display: inline-block;
+        padding-inline: 1em;
+        padding-block: 0.5em;
+        border: none;
+        border-radius: 0.5em;
+      }
+      color-picker {
+        display: inline-flex;
+        min-width: 1rem;
+        height: 1.2rem;
+        border: solid 1px var(--theme-sub-color);
+        border-radius: 0.2rem;
+        justify-content: flex-start;
+        align-items: baseline;
+        box-sizing: border-box;
+      }
+      color-picker > input {
+        width: 0px;
+        height: 0px;
+        padding: 0px;
+        border: 0px;
+        margin: 0px;
+        opacity: 0;
+      }
+      color-picker > label {
+        font-family: monospace;
+      }
+      span.logo {
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-image: var(--logo-image);
+        border: none;
+      }
+      .textarea {
+        position: relative;
+        color: var(--theme-editor-text-color);
+        background: var(--theme-editor-bg);
+        resize: none;
+        overflow: scroll;
+        width: 100%;
+        height: calc(100vh - var(--nav-height) - var(--tabs-height) - var(--bottom-label-height));
+        font-family: monospace;
+        font-size: 1em;
+        box-sizing: border-box;
+      }
+      .rows {
+        width: 2.5em;
+        min-height: calc(100vh - var(--nav-height) - var(--tabs-height) - var(--bottom-label-height));
+        box-sizing: border-box;
+        background-color: #444444;
+      }
+      .wrapper {
+        position: absolute;
+        display: inline-flex;
+        flex-wrap: wrap;
+        width: fit-content;
+        height: fit-content;
+        min-width: calc(100% - 2.5em);
+        margin-left: 2.5em;
+      }
+      .wrapper > .rows {
+         position: sticky;
+         left: 0;
+         width: 2.5em;
+         height: 100%;
+         min-height: calc(100vh - var(--nav-height) - var(--tabs-height) - var(--bottom-label-height));
+         margin-left: -2.5em;
+         z-index: 10;
+         opacity: 0.9;
+       }
+       .wrapper > .rows > ul {
+         margin: 0;
+         padding: 0;
+         padding-right: 0.2em;
+       }
+       .wrapper > .rows > ul > li {
+         width: 100%;
+         height: 1.5em;
+         text-align: right;
+       }
+       .frame {
+         width: 100%;
+         display: flex;
+         flex-wrap: nowrap;
+       }
+      .textarea .frame {
+        width: 100%;
+        display:flex;
+        flex-wrap:wrap;
+      }
+      #bg {
+        width: 100%;
+        height: 100%;
+        padding-left: 5px;
+        box-sizing: border-box;
+        color: #8888FF;
+        background: black;
+      }
+      #code-area {
+        display: flex;
+        flex-direction: column;
+        min-width: 100%;
+        height: 100%;
+        top: 0%;
+        padding-inline: 5px;
+        box-sizing: border-box;
+        margin: 0px;
+        color: white;
+      }
+      #code-area > code {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        height: 1.5em;
+      }
+      #code-area > code * {
+        color: var(--color);
+        background-color: var(--background-color);
+      }
+      #code-area *::selection {
+        mix-blend-mode: difference;
+      }
+      #code-area > code > span, br {
+        display: inline-block;
+      }
+      #code-area > code > br::after {
+        content: ">";
+      }
+      #measure-pos {
+        position: relative;
+        opacity: 0;
+        padding-left: 5px;
+      }
+      #measure-pos span {
+        position: absolute;
+        white-space: pre;
+      }
+      #cursor-area {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0%;
+        padding-inline: 5px;
+        box-sizing: border-box;
+      }
+      #cursor {
+        position: relative;
+        width: 0.5em;
+        height: 1.5em;
+      }
+      #cursor > span {
+        position: absolute;
+        min-width: 100%;
+        width: fit-content;
+        max-width: 1em;;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+        border: 0px;
+        color: black;
+        background: white;
+        overflow: hidden;
+      }
+      #cursor > textarea#cursor-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+        border: 0px;
+        resize: none;
+        font-size: 1em;
+        opacity: 0;
+      }
+      #cursor > input[type="text"]#cursor-compose {
+        position: absolute;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+        border: 0px;
+        opacity: 0;
+      }
+      #cursor > div#cursor-compose-size {
+        position: absolute;
+        display: inline-block;
+        white-space: nowrap;
+        opacity: 0;
+      }
+      #selected-area {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        top: 0%;
+        padding-inline: 5px;
+        margin: 0;
+        line-height: 1.5em;
+        box-sizing: border-box;
+      }
+      #selected-area > code {
+        width: max-content;
+        height: 1.5em;
+        background: white;
+        opacity: 0.4;
+      }
+      #selected-area > code * {
+        display: inline-block;
+        height: 1.5em;
+        color: transparent;
+        background-color: var(--color);
+      }
+      #sensor {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: text;
+      }
+      #row-num {
+        position:absolute;
+        width: 25px;
+        height: 100%;
+        text-align: end;
+        color: #666666;
+        background: #333333;
+      }
+      nav {
+        background-color: var(--theme-nav-bg);
+        height: var(--nav-height);
+        font-size: calc(var(--nav-height) / 2.25);
+        z-index:50
+      }
+      nav > .menu > .item {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 2.25em;
+        min-width: 4em;
+        padding: 0.1em;
+        background-color: transparent;
+        box-sizing: border-box;
+      }
+      nav > .menu > .item > div.label {
+        display: inline-flex;
+        width: 100%;
+        height: 100%;
+        padding-inline: 0.5em;
+        justify-content: center;
+        align-items: center;
+        color: var(--theme-text-color);
+        background-color: transparent;
+        border-radius: 0.5em;
+      }
+      nav > .menu > .item:hover > div.label {
+        background-color: var(--theme-sub-hover-color);
+      }
+      nav > .menu > .item div.drop {
+        position: absolute;
+        display: none;
+        width: max-content;
+        min-width: 8em;
+        padding: 0.25em;
+        border: solid 1px #666666;
+        flex-direction: column;
+        align-items: center;
+        top: 100%;
+        left: 0;
+        margin: 0;
+        background-color: var(--theme-menu-item-bg);
+        box-sizing: border-box;
+        z-index: 50;
+      }
+      nav > .menu > .item:hover > div.drop {
+        display: inline-flex;
+      }
+      nav > .menu > .item div.drop > .child {
+        display: inline-flex;
+        position: relative;
+        min-width: max-content;
+        width: 100%;
+        min-height: 1.75em;
+        padding-block: 0.1em;
+        justify-content: center;
+        align-items: center;
+        color: var(--theme-subtext-color);
+        box-sizing: border-box;
+        white-space: nowrap;
+      }
+      nav > .menu > .item div.drop > .child + .child {
+        border-top: solid 1px #000000;
+        height: calc(1.75em + 1px);
+      }
+      nav > .menu > .item div.drop > .child > button {
+        display: inline-flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        height: 1.75em;
+        border: none;
+        border-radius: 0.25em;
+        color: var(--theme-subtext-color);
+        background-color: transparent;
+      }
+      nav > .menu > .item div.drop > .child > button > .title {
+      }
+      nav > .menu > .item div.drop > .child > button > .sub {
+        font-size: 0.9em;
+        color: var(--theme-sub-hover-color);
+        margin-left: 1em;
+      }
+      nav > .menu > .item div.drop > .child > button[disabled] {
+        color: var(--theme-disabled-text-color);
+      }
+      nav > .menu > .item div.drop > .child > button:not([disabled]):hover {
+        background-color: var(--theme-sub-hover-color);
+      }
+      nav > .menu > .item div.drop .child > div.drop {
+        top: 0;
+        left: 100%;
+      }
+      nav > .menu > .item div.drop .child:hover > div.drop {
+        display: inline-flex;
+      }
+      pop-up#replace p {
+        display: flex;
+        align-items: center;
+      }
+      pop-up#replace input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        margin: 0.1rem;
+        appearance: unset;
+        background-color: #999999;
+        -webkit-mask-origin: content;
+        -webkit-mask-size: cover;
+      }
+      pop-up#replace input[type="checkbox"].large-small {
+        -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTYgMTYiIHdpZHRoPSIxNnB4IiBoZWlnaHQ9IjE2cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+PC9kZWZzPgogIDxwYXRoIGQ9Ik0gMy44NiA5LjQyMiBMIDQuOTc2IDkuNDIyIEwgNC4zODggNy44MTQgWiBNIDUuMTMyIDExLjk1NCBMIDUuNzY4IDExLjk1NCBMIDUuMTY4IDEwLjE2NiBMIDMuNjY4IDEwLjE2NiBMIDMuMDY4IDExLjk1NCBMIDMuNzA0IDExLjk1NCBMIDMuNzA0IDEyLjk2MiBMIDEuMTQ4IDEyLjk2MiBMIDEuMTQ4IDExLjk1NCBMIDEuOTY0IDExLjk1NCBMIDMuNDc2IDcuMjI2IEwgMi4yNjQgNy4yMjYgTCAyLjI2NCA2LjIxOCBMIDUuMDYgNi4yMTggTCA2Ljg2IDExLjk1NCBMIDcuNjUyIDExLjk1NCBMIDcuNjUyIDEyLjk2MiBMIDUuMTMyIDEyLjk2MiBaIE0gMTIuNTg0IDEwLjczIFEgMTEuNTA0IDEwLjQxOCAxMC42NzYgMTAuNDE4IFEgOS44ODQgMTAuNDE4IDkuNjQ0IDEwLjk5NCBRIDkuNTg0IDExLjEyNiA5LjU4NCAxMS4yNDYgUSA5LjU4NCAxMS41NTggMTAuMDY0IDExLjgyMiBRIDEwLjQzNiAxMi4wMzggMTAuODY4IDEyLjAzOCBRIDExLjg0IDEyLjAzOCAxMi41ODQgMTEuMjgyIFogTSAxMy42NjQgMTEuOTU0IEwgMTQuNzkyIDExLjk1NCBMIDE0Ljc5MiAxMi45NjIgTCAxMi41ODQgMTIuOTYyIEwgMTIuNTg0IDEyLjQ0NiBRIDExLjk3MiAxMi45ODYgMTEuMzM2IDEzLjA5NCBRIDExLjEyIDEzLjEzIDEwLjg2OCAxMy4xMyBRIDkuOCAxMy4xMyA5LjA4IDEyLjUwNiBRIDguNDkyIDExLjk5IDguNDkyIDExLjI0NiBRIDguNDkyIDEwLjI1IDkuMzkyIDkuNjk4IFEgOS45NjggOS4zMjYgMTAuNjc2IDkuMzI2IFEgMTEuMzYgOS4zMjYgMTIuNTg0IDkuNjM4IEwgMTIuNTg0IDkuNTE4IFEgMTIuNTg0IDguOTc4IDExLjgyOCA4LjczOCBRIDExLjQyIDguNjA2IDEwLjg0NCA4LjYwNiBRIDEwLjEgOC42MDYgOS4wOTIgOS4wNSBMIDguNzU2IDguMjcgUSA4Ljc1NiA4LjI3IDkuNDY0IDcuOTk0IFEgMTAuMzE2IDcuNzE4IDEwLjg0NCA3LjcxOCBRIDExLjk5NiA3LjcxOCAxMi44OTYgOC4yOTQgUSAxMy42NjQgOC43OTggMTMuNjY0IDkuNDM0IFoiIHRyYW5zZm9ybT0ibWF0cml4KDEuMTExMTY4LCAwLCAwLCAxLjMzODM1MywgLTAuODg5MjY4LCAtNC4zNTQ5NDMpIiBzdHlsZT0iZmlsbDogcmdiKDUxLCA1MSwgNTEpOyB3aGl0ZS1zcGFjZTogcHJlOyI+PC9wYXRoPgo8L3N2Zz4=");
+      }
+      pop-up#replace input[type="checkbox"].regexp {
+        -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTYgMTYiIHdpZHRoPSIxNnB4IiBoZWlnaHQ9IjE2cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+PC9kZWZzPgogIDxwYXRoIGQ9Ik0gMi4wOTYgMTIuNDEgUSAyLjA5NiAxMS45MyAyLjU3NiAxMS42NzggUSAyLjgwNCAxMS41NTggMy4wOCAxMS41NTggUSAzLjY1NiAxMS41NTggMy45NDQgMTIuMDAyIFEgNC4wNjQgMTIuMTk0IDQuMDY0IDEyLjQxIFEgNC4wNjQgMTIuODkgMy41ODQgMTMuMTQyIFEgMy4zNTYgMTMuMjYyIDMuMDggMTMuMjYyIFEgMi41MDQgMTMuMjYyIDIuMjE2IDEyLjgxOCBRIDIuMDk2IDEyLjYyNiAyLjA5NiAxMi40MSBaIE0gMTAuNjUyIDkuMjU0IEwgOC43NDQgOC42NjYgTCA5LjA1NiA3LjYzNCBMIDEwLjk4OCA4LjIyMiBMIDEwLjk4OCA2LjIxOCBMIDEyLjA2OCA2LjIxOCBMIDEyLjA2OCA4LjIyMiBMIDE0LjAzNiA3LjYzNCBMIDE0LjM0OCA4LjY2NiBMIDEyLjQwNCA5LjI1NCBMIDEzLjYxNiAxMC45MjIgTCAxMi43MjggMTEuNTQ2IEwgMTEuNTI4IDkuODc4IEwgMTAuMzUyIDExLjUzNCBMIDkuNDY0IDEwLjkxIFoiIHRyYW5zZm9ybT0ibWF0cml4KDEuMTExMTY4LCAwLCAwLCAxLjMzODM1MywgLTAuODg5MjY4LCAtNC4zNTQ5NDMpIiBzdHlsZT0iZmlsbDogcmdiKDUxLCA1MSwgNTEpOyB3aGl0ZS1zcGFjZTogcHJlOyI+PC9wYXRoPgo8L3N2Zz4=");
+      }
+      pop-up#replace input[type="checkbox"]:checked {
+        background-color: #00ddff;
+      }
+      pop-up#settings section {
+        display: inline-flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .dropin {
+        display: inline-flex;
+        position: absolute;
+        top:0;
+        left:0;
+        width: 100vw;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+        background-color: transparent;
+        -webkit-backdrop-filter: blur(2px);
+        backdrop-filter: blur(2px);
+      }
+      .dropin > .sensor{
+        display: inline-block;
+        position: absolute;
+        top:0;
+        left:0;
+        width: 100vw;
+        height: 100vh;
+        background-color: transparent;
+        z-index: 100;
+      }
+      .dropin[hidden] {
+        display: none;
+      }
+      .dropin > .center {
+        display: inline-flex;
+        width: 50vw;
+        max-width: 75vh;
+        aspect-ratio: 1;
+        justify-content: center;
+        align-items: center;
+        background-color: #ff9966;
+        border-radius: 50%;
+        opacity: 0.8;
+      }
+      .dropin > .center > span {
+        color: var(--theme-text-color);
+        font-size: 2rem;
+        border-radius: 1rem;
+      }
+      .tabs {
+        display: inline-flex;
+        height: var(--tabs-height);
+        padding-top: 0.1em;
+        color: var(--theme-text-color);
+        background-color: var(--theme-tabs-bg);
+        box-sizing: border-box;
+      }
+      .tabs > .tab {
+        background-color: var(--theme-tab-tip-bg);
+        padding-right: 0.5em;
+        padding-left: 0.5em;
+        border-radius: 0.5em 0.5em 0 0;
+      }
+      .hljs-zenkaku {
+        display: inline-block;
+        width: 1em;
+        overflow: visible;
+      }
+    </style>
+    <script>
+      class HTMLPopupElement extends HTMLElement {
+        #header
+        #body
+        #ready
+        #childcache
+        #dragstart
+        constructor() {
+          super();
+          this.#ready = false;
+          this.#body = document.createElement("div");
+          setTimeout(()=>{
+            var children = [...this.children, ...this.#body.children];
+            for (let i of children) {
+              i.remove();
+            }
+            console.log(children);
+            this.#header = document.createElement("div");
+            this.#header.setAttribute("class", "header");
+            var buttons = {close: document.createElement("button"), minimize: document.createElement("button")};
+            for (let i of Object.values(buttons)) {
+              i.appendChild(document.createElement("span"));
+              i.children[0].setAttribute("class", "image");
+            }
+            buttons.close.setAttribute("class", "close");
+            buttons.minimize.setAttribute("class", "minimize");
+            this.#header.append(buttons.minimize, buttons.close);
+            buttons.minimize.addEventListener("click", ()=>{
+              if (this.hasAttribute("minimized")) {
+                this.removeAttribute("minimized");
+              } else {
+                this.setAttribute("minimized", "");
+              }
+            });
+            buttons.close.addEventListener("click", ()=>{
+              this.removeAttribute("active");
+            });
+            this.#body.remove();
+            this.#body = document.createElement("div")
+            this.#body.setAttribute("class", "body");
+            this.#body.append(...children);
+            this.appendChild(this.#header);
+            this.appendChild(this.#body);
+            this.#ready = true;
+            console.log(this);
+            this.addEventListener("mousedown", ()=>{this.raiseFront();});
+            this.#dragstart = (e)=>{
+              console.log(e);
+              if (e.target != this.#header) { return; }
+              e.preventDefault();
+              if (e.type == "touchstart") { e = e.touches[0]; }
+              var rect = this.getBoundingClientRect();
+              var x = rect.x;
+              var y = rect.y;
+              var aborter = new AbortController();
+              var move = (ev)=>{
+                if (ev.type == "touchmove") { ev = ev.touches[0]; }
+                console.log([x + ev.clientX - e.clientX, y + ev.clientY - e.clientY]);
+                this.style.left = x + ev.clientX - e.clientX + "px";
+                this.style.top = y + ev.clientY - e.clientY + "px";
+              };
+              var stop = (ev)=>{
+                aborter.abort();
+              };
+              window.addEventListener("mousemove", move, {signal:aborter.signal});
+              window.addEventListener("mouseup", stop, {signal: aborter.signal});
+              window.addEventListener("touchmove", move, {signal:aborter.signal});
+              window.addEventListener("touchend", stop, {signal: aborter.signal});
+            };
+            this.dispatchEvent(new Event("ready"));
+          }, 0);
+        }
+        get body() {
+          return this.#body;
+        }
+        appendChild(node) {
+          if (node == this.#header || node == this.#body) {
+            super.appendChild(node);
+          } else {
+            this.#body.append(node);
+          }
+        }
+        append(...nodes) {
+          this.#body.append(...nodes);
+        }
+        activate() {
+          this.setAttribute("active", "");
+          if (this.hasAttribute("minimized")) {
+            this.removeAttribute("minimized");
+          }
+        }
+        close() {
+          try {
+            this.removeAttribute("active")
+          } catch {
+            ;
+          }
+          if (this.hasAttribute("minimized")) {
+            this.removeAttribute("minimized");
+          }
+        }
+        static get observedAttributes() {
+          return ["active"];
+        }
+
+        attributeChangedCallback(name, oldValue, newValue) {
+          if (name=="active" && oldValue == null) {
+            var rect = this.getBoundingClientRect();
+            var rect2 = document.body.getBoundingClientRect();
+            this.style.top = (rect2.height - rect.height) / 2 + "px";
+            this.style.left = (rect2.width - rect.width) / 2 + "px";
+            this.raiseFront();
+            this.#header.addEventListener("mousedown", this.#dragstart);
+            this.#header.addEventListener("touchstart", this.#dragstart);
+          } else if (name == "active" && newValue == null) {
+            this.#header.removeEventListener("mousedown", this.#dragstart);
+            this.#header.removeEventListener("touchstart", this.#dragstart);
+          }
+        }
+        raiseFront() {
+          [...this.parentElement.children].filter((i)=>i!=this).reverse().forEach((i)=>{
+            this.parentElement.insertAdjacentElement("afterbegin", i);
+          });
+        }
+      }
+      class HTMLColorPickerElement extends HTMLElement {
+        #input;
+        #label;
+        constructor() {
+          super();
+          setTimeout(()=>{
+            this.#input = document.createElement("input");
+            this.#label = document.createElement("label");
+            this.appendChild(this.#input);
+            this.appendChild(this.#label);
+            this.#input.type = "color";
+            this.style.background = this.#input.value;
+            this.#input.addEventListener("input", (e)=>{
+              let value = this.#input.value;
+              this.style.backgroundColor = value;
+              this.#label.innerText = value;
+              let [red, blue, green] = value.match(/#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/).slice(1).map((i)=>parseInt(i, 16));
+              let brightness = (red + green + blue) / 3;
+              if (brightness  > 127) {
+                this.#label.style.color = "black";
+              } else {
+                this.#label.style.color = "white";
+              }
+            });
+            this.addEventListener("click", (e)=>{this.#input.click();});
+          }, 0);
+        }
+        get value() {
+          return this.#input.value;
+        }
+        set value(value) {
+          this.#input.value = value;
+          this.#input.dispatchEvent(new InputEvent("input"));
+        }
+      }
+      customElements.define("pop-up", HTMLPopupElement);
+      customElements.define("color-picker", HTMLColorPickerElement);
+    </script>
+  </head>
+  <body>
+    <style id="mode-styles">
+      .modern {
+        display: none ! important;
+      }
+      .modern span.hljs-zenkaku {
+        width: 1em;
+      }
+    </style>
+    <form name="editor">
+      <nav>
+        <div class="menu">
+          <div class="item">
+            <div class="label">
+              File
+            </div>
+            <div class="drop">
+              <div class="child">
+                <button name="newtab" type="button">
+                  <span class="title">New</span>
+                  <span class="sub">Ctrl+Alt+N</span>
+                </button>
+              </div>
+              <div class="child">
+                <button name="infile" type="button">
+                  <span class="title">Open</span>
+                  <span class="sub">Ctrl+O</span>
+                </button>
+                <div class="drop">
+                  <label id="file_name" style="font-family:monospace;"></label>
+                </div>
+              </div>
+              <div class="child">
+                <button name="download" type="button">
+                  <span class="title">Save</span>
+                  <span class="sub">Ctrl+S</span>
+                </button>
+              </div>
+              <div class="child">
+                <button name="downloadAs" type="button">
+                  <span class="title">Save as</span>
+                  <span class="sub">Ctrl+Alt+S</span>
+                </button>
+              </div>
+              <div class="child">
+                <button name="base64output" type="button" onclick="alert(456)" disabled>Base64</button>
+              </div>
+              <div class="child">
+                <button name="about" type="button">About</button>
+              </div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="label">Edit</div>
+            <div class="drop">
+              <div class="child">
+                <button name="search" type="button" disabled>Search</button>
+              </div>
+              <div class="child">
+                <button name="replace" type="button">Replace</button>
+              </div>
+              <div class="child">
+                <button name="select-all" type="button" disabled>Select ALL</button>
+              </div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="label">Options</div>
+            <div class="drop">
+              <div class="child">
+                <div style="display: inline-flex; flex-direction: column;">
+                  <span>インデント幅:<label id="indent_label">4</label></span>
+                  <input id="indent_width" type="range" min="1" max="8" value="4">
+                </div>
+              </div>
+              <div class="child">
+                <button name="settings" type="button">Settings</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div style="display:inline-flex;  flex-direction: column; width: 100%">
+        <div class="tabs">
+          <span class="tab untitled">(untitled.txt)</span>
+        </div>
+        <div class="frame legacy" style="position: static;">
+          <div class="rows">
+            <ul>
+            </ul>
+          </div>
+          <textarea name="editarea" class="textarea" wrap="off" width="1vw" height="1vh"></textarea>
+        </div>
+        <div class="frame modern" style="position: static;">
+          <div class="textarea">
+            <div class="wrapper">
+              <div class="rows">
+                <ul>
+                  <li>1</li>
+                </ul>
+              </div>
+              <div class="frame">
+                <span id="font-check" style="display: inline-block!important; position: absolute; top: 0; left: 0; height: 1.5em; z-index: -100;">M</span>
+                <pre id="code-area">
+                  <code></code>
+                </pre>
+              </div>
+              <div class="frame">
+                <div id="measure-pos"></div>
+              </div>
+              <div class="frame">
+                <pre id="selected-area">
+                </pre>
+              </div>
+              <div class="frame">
+                <div id="cursor-area">
+                  <div id="cursor">
+                    <span id="cursor-letter">a</span>
+                    <textarea id="cursor-input" autofocus rows="1" wrap="off"></textarea>
+                    <input type="text" id="cursor-compose"></input>
+                    <div id="cursor-compose-size"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="frame">
+                <div id="sensor">
+                </div>
+              </div>
+              <div class="scroll" style="display: none;">
+                <div id="up">
+                  <svg viewBox="0 0 12 12" width="12px" height="12px" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+                    <defs></defs>
+                    <path d="M 30.065 2.477 L 35.065 8.477 L 25.065 8.477 L 30.065 2.477 Z" style="" transform="matrix(1, -0.000061, 0.000061, 1, -24.065153, 0.525139)" bx:shape="triangle 25.065 2.477 10 6 0.5 0 1@121b476b"></path>
+                  </svg>
+                </div>
+                <div id="nob-area">
+                  <div id="nob"></div>
+                </div>
+                <div id="down">
+                  <svg viewBox="0 0 12 12" width="12px" height="12px" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+                    <defs></defs>
+                    <path d="M 30.065 2.477 L 35.065 8.477 L 25.065 8.477 L 30.065 2.477 Z" style="" transform="matrix(-1, 0.000061, -0.000061, -1, 36.065514, 11.475471)" bx:shape="triangle 25.065 2.477 10 6 0.5 0 1@121b476b"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0px;color:white;background:black;width:100%;padding:0 0 0 1%;font-family:monospace;box-sizing:border-box;height:var(--bottom-label-height);"><挿入></p>
+      </div>
+    </form>
+    <a id="dl" href="blob:null/99be9452-69fb-4f97-910b-6593a139ec2e" download="untitled.txt" hidden></a>
+    <div>
+      <pop-up id="replace">
+        <p>検索する文字列<input name="from" type="text"><input type="checkbox" class="large-small"><input type="checkbox" class="regexp"></p>
+        <p>置換後の文字列<input name="to" type="text"></p>
+        <div class="buttons">
+          <button name="back">もどる</button>
+          <button name="next">すすむ</button>
+          <button name="replace">置き換え</button>
+          <button name="replaceAll" disabled>すべて置き換え</button>
+        </div>
+      </pop-up>
+      <pop-up id="base64Input">
+        <form method="dialog">
+          <h3>Base64 input</h3>
+          <textarea name="base64" style="width: 50vw; height: 30vh; resize:none;"></textarea>
+          <menu>
+            <button value="cancel">Cancel</button>
+            <button id="confirmBtn" value="default">Confirm</button>
+          </menu>
+        </form>
+      </pop-up>
+      <pop-up id="about">
+        <div style="display:inline-flex;">
+          <div style="display: inline-flex; flex-direction: row; margin: 1em;">
+            <span class="logo" style="width: 5em; height: 5em;"></span>
+            <div style="display: inline-flex; flex-direction: column; align-items: center; text-align: center;">
+              <p>edit2.html<br> ver. 2.1.0b1</p>
+              <p>©2021-2024 RasPython3</p>
+            </div>
+          </div>
+          <div style="height:20rem;overflow:scroll;">
+            <p style="white-space:pre-line">
+              Chromebookで開発をしたい。でも、テキストエディタがない。
+              じゃあ、簡易的でいいから作ってしまえ。
+              そして生まれたのが、「TextEditor.html」。「edit2」の前身。
+              最初は、ボタンとテキストボックスだけの、単純なツールから始まりました。
+              使っていくうちに、装飾を付けたくなりました。
+              だから、コピーを作って、なまえを「edit2」に変えて、いじってみた。
+              背景色が変わり、下の「挿入」も、自分の好きなVimをイメージして付けました。
+              でも、なんだか使いにくい。
+              そこで、タブでインデントできるようにしてみました。
+              自動インデントも作りました。
+              ここで、別路線を開拓しようと、限界までVimに近づける「edit4」が
+              開発されていました。
+              edit4は、一から作り直され、テキストボックスではなく、レイヤーシステムや、
+              オリジナルに作ったカーソルが採用されました。
+              見やすさの観点から、highlightjsが導入され、とってもカラフルになりました。
+              長い行は途中で折り返したりもしました。
+              でも、javascriptが書きづらく、非常に動作が重くなって、断念していました。
+              しばらくして、edit2は更に進化をしようとしていました。
+              ボタンの羅列は、メニューバーへと変化しました。
+              行数を表示したくて、スペースを確保したり。
+              もっと使いやすいように、サブウィンドウを実装して。
+              でも、やっぱり、なんだかまだ足りない。
+              最近のテキストエディタは、大抵ハイライトされている。
+              行数はもちろん、かっこを強調表示したりもする。
+              でも、こいつは白黒。ちょっと寂しい。行数の表示も、ちょっと大変そう。
+              そんなとき、ふと思い出した。edit4は、行ごとに分かれている。
+              ハイライトもついていて、かっこの強調だってできそうだ。
+              でも、edit4は重い。折り返し処理のせいもあって、編集どころか、
+              カーソル移動すら、もっさりする。
+              そこで、思いついた。
+              edit2と、edit4を、くっつけてしまえ。
+              ベースはedit2。でも、レイヤーはカーソルは、ほとんどそのままedit4から移植。
+              edit4のjavascriptも一部移植。折り返しは廃止。
+              そんな作業を延々と繰り返して、だいぶ形になってきた。
+              それが、今の「edit2」。
+            </p>
+          </div>
+        </div>
+      </pop-up>
+      <pop-up id="settings">
+        <form method="dialog" style="padding: 0.5em;">
+          <h3>設定</h3>
+          <section>
+            <label>スタイル</label>
+            <select id="editor-mode-setting">
+              <option value="0">レガシーモード</option>
+              <option value="1">モダンモード</option>
+            </select>
+          </section>
+          <section>
+            <label>テーマ</label>
+            <select disabled>
+              <option>OSの設定に合わせる</option>
+              <option>ダークモード</option>
+              <option>ライトモード</option>
+              <option>チョコミントモード</option>
+              <option>ゲーミングモード</option>
+            </select>
+          </section>
+          <section>
+            <label>エディタの文字色/背景色</label>
+            <span>
+              <color-picker name="editor-fg"></color-picker>
+              <color-picker name="editor-bg"></color-picker>
+            </span>
+          </section>
+        </form>
+      </pop-up>
+    </div>
+    <div class="dropin" hidden>
+      <div class="center">
+        <span>ファイルをドロップ</span>
+        <div class="sensor"></div>
+      </div>
+      <div name="sensor" class="sensor"></div>
+    </div>
+    <span id="lookout" style="font-size: 1em; scale: 0; opacity: 0; transition: font-size 0.01ms;"></span>
+    <style>
+      /* for mobile-controller */
+      div[name="mobile-controller"] {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 300px;
+        transform-origin: top left;
+        scale: 1;
+        aspect-ratio: 1.6;
+      }
+      div[name="mobile-controller"] input {
+        font-size: 32px;
+      }
+      div[name="mobile-controller"] > div {
+        display: inline-flex;
+        width: 100%;
+        height: 50%;
+      }
+      div[name="mobile-controller"] > div:nth-child(3) {
+        flex-wrap: nowrap;
+        flex-direction: row;
+        justify-content: space-evenly;
+        border-radius: 2rem 0 0 0;
+        overflow: hidden;
+      }
+      div[name="mobile-controller"] > div:last-child {
+        flex-wrap: wrap;
+        flex-direction: column;
+        justify-content: center;
+      }
+      div[name="mobile-controller"] input[type="checkbox"]:checked + input[type="button"] {
+        color: white;
+        background: #3366ff;
+      }
+      div[name="mobile-controller"] input[type="checkbox"] {
+        display: none;
+      }
+      div[name="mobile-controller"] label[for="hide-softkey"] {
+        position: absolute;
+        top: -0.5em;
+        left: -0.5em;
+        width: 2em;
+        aspect-ratio: 1;
+        border-radius: 1em;
+        color: white;
+        background: gray;
+        font-weight: 800;
+        text-align: center;
+        line-height: 2em;
+      }
+      div[name="mobile-controller"] input#hide-softkey:checked + label[for="hide-softkey"] {
+        top: unset;
+        left: unset;
+        bottom: 0;
+        right:0;
+        rotate: 180deg;
+      }
+      div[name="mobile-controller"] input#hide-softkey:checked + label + div {
+        display: none;
+      }
+      div[name="mobile-controller"] input#hide-softkey:checked + label + div + div {
+        display: none;
+      }
+    </style>
+    <div name="mobile-controller" style="display: none;">
+      <input name="hide-softkey" id="hide-softkey" type="checkbox">
+      <label for="hide-softkey">↓</label>
+      <div>
+        <input name="ctrl" id="ctrl" type="checkbox">
+        <input name="ctrl-btn" type="button" style="height: 100%; width: 20%;" value="Ctrl">
+        <input name="alt" id="alt" type="checkbox">
+        <input name="alt-btn" type="button" style="height: 100%; width: 20%;" value="Alt">
+        <input name="shift" id="shift" type="checkbox">
+        <input name="shift-btn" type="button" style="height: 100%; width: 30%;" value="Shift">
+        <input name="tab" type="button" style="height: 100%; width: 30%;" value="Tab">
+      </div>
+      <div>
+        <input name="left" type="button" style="height: 100%; width: 30%;" value="←">
+        <input name="up" type="button" style="height: 50%; width: 40%;" value="↑">
+        <input name="down" type="button" style=" height: 50%; width: 40%;" value="↓">
+        <input name="right" type="button" style="height: 100%; width: 30%;" value="→">
+      </div>
+    </div>
+  </div>
+    <script>
+      window.addEventListener("load", (e)=>{
+        let sheet = new CSSStyleSheet();
+        sheet.replaceSync([...document.styleSheets[0].cssRules].map((rule)=>{
+          let styles = [];
+          for (let key of [...rule.style]) {
+            let value = rule.style[key];
+            if (key == "background") {
+              key = "background-color";
+            }
+            if (key == "color" || key == "background-color") {
+              key = "--" + key;
+            }
+            styles.push(key + ":" + value + ";")
+          }
+          return rule.selectorText+"{"+styles.join("")+"}"
+        }).join(""));
+        document.adoptedStyleSheets = [sheet];
+      });
+    </script>
+    <script>
+      class UTF8String {
+        constructor(string) {
+          this.string = string;
+          this.byteLengths = [];
+          for (let m of string.matchAll(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g)) {
+            Object.defineProperty(this, this.byteLengths.length, {
+              value: m[0],
+              writable: false
+            });
+            this.byteLengths.push((this.byteLengths.at(-1) || 0) + m[0].length);
+          }
+          this.match = this.string.match.bind(this);
+          this.matchAll = this.string.matchAll.bind(this);
+          this.replace = this.string.replace.bind(this);
+          this.split = this.string.split.bind(this);
+        }
+        static fromString(string) {
+          return new this(string);
+        }
+        isFullSize(index) {
+          let ch = this.at(index);
+          if (ch == undefined) {
+            return false;
+          }
+          return ch.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/) != null;
+        }
+        at(index) {
+          if (index == 0) {
+            return this.string.slice(0, this.byteLengths.at(0) || undefined);
+          } else if (-1 * this.byteLengths.length <= index && index < this.byteLengths.length) {
+            return this.slice(index, index!=-1?index+1:undefined);
+          } else {
+            return undefined;
+          }
+        }
+        slice(indexStart, indexEnd=undefined) {
+          let start, end;
+          if (indexStart != undefined && indexStart != 0) {
+            start = this.byteLengths.at(Math.max(Math.min(this.byteLengths.length, indexStart), -1*this.byteLengths.length) - 1) || 0;
+          } else  {
+            start = 0;
+          }
+          if (indexEnd != undefined) {
+            if (indexEnd != 0) {
+              end = this.byteLengths.at(Math.max(Math.min(this.byteLengths.length, indexEnd), -1*this.byteLengths.length) - 1) || 0;
+            } else  {
+              end = 0;
+            }
+          }
+          return this.string.slice(start, end);
+        }
+        valueOf() {
+          return this.string;
+        }
+        toString() {
+          return this.string;
+        }
+        get length() {
+          return this.byteLengths.length;
+        }
+      }
+    </script>
+    <script type="text/javascript">
+      var texts = [new UTF8String("")];
+      var codes = [""];
+      var reader;
+      var filename = "untitled.txt";
+      var form = document.forms.editor;
+      var wrapper = document.getElementsByClassName("wrapper")[0];
+      var f_handle;
+      var result;
+      var indent = 4;
+      var edited = false;
+      var cursor_pos = [0,0,0,0,0]; //[行のインデックス, 行の中のバイトインデックス, ]
+      var composing_text;
+      var composing = false;
+      var selecting = false;
+      var handling = false;
+      var row = 0;
+      var rows = document.getElementsByClassName("rows")[1].children[0];
+      var scrollend;
+      //var lh = 14;
+      var fontsize = [16, 24];
+      var lang = "text"
+      var scrolled = [0, 0, -1];
+      var hljsafter;
+
+      const EDITOR_MODES = {
+        LEGACY: 0,
+        MODERN: 1
+      }
+
+      var softkeyStatus = {
+        indexInLine: -1,
+        ignoreSelectionChangeEvent: false,
+        ctrlKey: false,
+        shiftKey: false,
+        altKey: false
+      };
+
+      var settings = {
+        indent: 4,
+        mode: EDITOR_MODES.LEGACY,
+        theme: 0,
+        textFg: "#ffffff",
+        textBg: "#000000"
+      };
+
+      var mode = EDITOR_MODES.LEGACY
+
+      const css = document.getElementById("mode-styles");
+
+      var lookout = document.getElementById("lookout");
+      var fontcheck = document.getElementById("font-check");
+      var sensor = document.getElementById("sensor");
+
+      lookout.addEventListener("transitionstart", (e)=>{
+        if (e.propertyName == "font-size") {
+          confFontSize();
+        }
+      });
+
+      function confFontSize() {
+        // following is a contermeasure for the problem that small digits are rounded off automatically.
+        fontcheck.innerText = "M".repeat(1000);
+        let rect = fontcheck.getBoundingClientRect();
+        fontcheck.innerText = "M"; // leaving it without undoing stresses the browser
+        fontsize = [rect.width / 1000, rect.height];
+        document.querySelector("div#cursor").style.width = fontsize[0] + "px";
+        document.querySelector("div#cursor  > span").style.maxWidth = fontsize[0]*2 + "px";
+        css.sheet.cssRules[1].style.width = fontsize[0]*2 + "px";
+        //lh = rect.height;
+      }
+      confFontSize();
+
+      function loadSettings() {
+        let data;
+        try {
+          let jsonData = localStorage.getItem("settings");
+          if (jsonData) {
+            data = JSON.parse(jsonData);
+          }
+        } catch {
+          return false;
+        }
+        if (!data) {
+          // try to save
+          try {
+            localStorage.setItem("settings", JSON.stringify(settings));
+          } catch {
+            ;
+          }
+        }
+        settings = {...settings, ...data};
+        document.getElementById("editor-mode-setting").selectedIndex = settings.mode;
+        document.getElementById("editor-mode-setting").dispatchEvent(new InputEvent("input"));
+        indent = settings.indent;
+        document.getElementById("indent_width").value = indent;
+        document.getElementById("indent_width").dispatchEvent(new InputEvent("input"));
+        document.querySelector("color-picker[name=\"editor-fg\"]").value = settings.textFg;
+        document.querySelector("color-picker[name=\"editor-fg\"]").dispatchEvent(new InputEvent("input"));
+        document.querySelector("color-picker[name=\"editor-bg\"]").value = settings.textBg;
+        document.querySelector("color-picker[name=\"editor-bg\"]").dispatchEvent(new InputEvent("input"));
+        return true;
+      }
+
+      function updateSettings(data) {
+        try {
+          settings = {...settings, ...data};
+        } catch {
+          return false;
+        }
+        try {
+          localStorage.setItem("settings", JSON.stringify(settings));
+        } catch {
+          ;
+        }
+        return true;
+      }
+
+      async function startup() {
+        try {
+          form.editarea.focus();
+          cursor_move();
+        } catch {}
+        loadSettings();
+        modeChange();
+        // mobile controller
+        let ismobile = true;
+        if (navigator.userAgent.match(/.* Mobile/) || (navigator.userAgentData && navigator.userAgentData.mobile)) {
+          ismobile = true;
+        } else {
+          try {
+            if ((await navigator.keyboard.getLayoutMap()).size == 0) {
+              // would use software keyboard
+              ismobile = true;
+            }
+          } catch {}
+        }
+        if (ismobile) {
+          // enable additional emulative keyboard
+          let softkey = document.querySelector("div[name=\"mobile-controller\"]");
+          form.editarea.addEventListener("selectionchange", (e)=>{
+            if (!softkeyStatus.ignoreSelectionChangeEvent) {
+              softkeyStatus.indexInLine = -1;
+            }
+          });
+          softkey.addEventListener("pointerdown", (e)=>{
+            e.preventDefault();
+          });
+          softkey.querySelectorAll("input").forEach((el)=>{
+            if (el.name.endsWith("-btn")) {
+              el.addEventListener("click", (e)=>{
+                softkey.querySelector("input#" + e.target.name.match(/^(.*)-btn$/)[1]).click();
+              });
+              return;
+            }
+            el.addEventListener("click", (e)=>{
+              if (document.activeElement != form.editarea && document.activeElement != document.getElementById("cursor").children[1]) {
+                return; //if (document.activeElement == e.)
+              }
+              //console.log(document.activeElement);
+              let ev;
+              let common_options = {
+                bubbles: true,
+                cancelable:true,
+                ctrlKey:softkeyStatus.ctrlKey,
+                shiftKey:softkeyStatus.shiftKey,
+                altKey:softkeyStatus.altKey
+              };
+              if (e.target.name == "up") {
+                ev = new KeyboardEvent("keydown", {key:"ArrowUp", code:"ArrowUp", ...common_options});
+              } else if (e.target.name == "down") {
+                ev = new KeyboardEvent("keydown", {key:"ArrowDown", code:"ArrowDown", ...common_options});
+              } else if (e.target.name == "left") {
+                ev = new KeyboardEvent("keydown", {key:"ArrowLeft", code:"ArrowLeft", ...common_options});
+              } else if (e.target.name == "right") {
+                ev = new KeyboardEvent("keydown", {key:"ArrowRight", code:"ArrowRight", ...common_options});
+              } else if (e.target.name == "ctrl") {
+                softkeyStatus.ctrlKey = e.target.checked;
+                common_options.ctrlKey = softkeyStatus.ctrlKey;
+                ev = new KeyboardEvent((e.target.checked?"keydown":"keyup"), {key:"Control", code:"ControlLeft", ...common_options});
+              } else if (e.target.name == "shift") {
+                softkeyStatus.shiftKey = e.target.checked;
+                common_options.shiftKey = softkeyStatus.shiftKey;
+                ev = new KeyboardEvent((e.target.checked?"keydown":"keyup"), {key:"Shift", code:"ShiftLeft", ...common_options});
+              } else if (e.target.name == "alt") {
+                softkeyStatus.altKey = e.target.checked;
+                common_options.altKey = softkeyStatus.altKey;
+                ev = new KeyboardEvent((e.target.checked?"keydown":"keyup"), {key:"Alt", code:"AltLeft", ...common_options});
+              } else if (e.target.name == "tab") {
+                ev = new KeyboardEvent("keydown", {key:"Tab", code:"Tab", ...common_options});
+              }
+              if (ev) {
+                if ((mode==EDITOR_MODES.LEGACY?form.editarea:document.getElementById("cursor").children[1]).dispatchEvent(ev)) {
+                  // e.preventDefault was not called by any listeners
+                  if (mode == EDITOR_MODES.LEGACY && ["up", "down", "left", "right"].includes(e.target.name)) {
+                    let selectStart = form.editarea.selectionStart;
+                    let selectEnd = form.editarea.selectionEnd;
+                    let selectDir = form.editarea.selectionDirection;
+                    let selectStartLine = 0;
+                    let selectStartInLine = 0;
+                    let selectEndLine = 0;
+                    let selectEndInLine = 0;
+                    let lineLengths = [];
+                    let fullsizeCharIndexes = [[]];
+                    let count = 0;
+                    let lineLength = 0;
+                    for (let match of form.editarea.value.matchAll(/([\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[\x00-\x7f]/g)) {
+                      if (count < selectEnd) {
+                        if (match[0] == "\n") {
+                          if (count < selectStart) {
+                            selectStartInLine = 0;
+                            selectStartLine++;
+                          }
+                          selectEndInLine = 0;
+                          selectEndLine++;
+                        } else {
+                          if (count < selectStart) {
+                            selectStartInLine++;
+                          }
+                          selectEndInLine++;
+                        }
+                      }
+                      if (match[0] == "\n") {
+                        lineLengths.push(lineLength);
+                        fullsizeCharIndexes.push([]);
+                        lineLength = 0;
+                      } else {
+                        if (match[1]) {
+                          fullsizeCharIndexes.at(-1).push(lineLength);
+                        }
+                        lineLength++;
+                      }
+                      count++;
+                    }
+                    if (selectDir == "backward") {
+                      [selectStartLine, selectEndLine, selectStartInLine, selectEndInLine] = [selectEndLine, selectStartLine, selectEndInLine, selectStartInLine];
+                    }
+                    if (softkeyStatus.indexInLine == -1) {
+                      softkeyStatus.indexInLine = selectEndInLine;
+                    }
+                    console.log([selectStartLine, selectEndLine, selectStartInLine, selectEndInLine, selectDir]);
+                    lineLengths.push(lineLength);
+                    if (ev.key == "ArrowUp") {
+                      if (!document.querySelector("div[name=\"mobile-controller\"] input#shift").checked) {
+                        selectEndLine = selectStartLine = selectEndLine-1;
+                        if (selectEndLine < 0) {
+                          selectEndInLine = selectStartInLine = 0;
+                          selectEndLine = selectStartLine = 0;
+                        } else {
+                          if (lineLengths.at(selectEndLine)+fullsizeCharIndexes.at(selectEndLine).length < softkeyStatus.indexInLine) {
+                            selectEndInLine = lineLengths.at(selectEndLine);
+                          } else {
+                            selectEndInLine = 0;
+                            let lookslike=0;
+                            for (let i=0; i < lineLengths.at(selectEndLine); i++) {
+                              lookslike += fullsizeCharIndexes.at(selectEndLine).includes(i)?2:1;
+                              if (softkeyStatus.indexInLine >= lookslike) {
+                                selectEndInLine++;
+                              } else {
+                                break;
+                              }
+                            }
+                          }
+                          selectStartInLine = selectEndInLine;
+                        }
+                      } else {
+                        selectEndLine = selectEndLine-1;
+                        if (selectEndLine < 0) {
+                          selectEndInLine = 0;
+                          selectEndLine = 0;
+                        } else {
+                          if (lineLengths.at(selectEndLine)+fullsizeCharIndexes.at(selectEndLine).length < softkeyStatus.indexInLine) {
+                            selectEndInLine = lineLengths.at(selectEndLine);
+                          } else {
+                            selectEndInLine = 0;
+                            let lookslike=0;
+                            for (let i=0; i < lineLengths.at(selectEndLine); i++) {
+                              lookslike += fullsizeCharIndexes.at(selectEndLine).includes(i)?2:1;
+                              if (softkeyStatus.indexInLine >= lookslike) {
+                                selectEndInLine++;
+                              } else {
+                                break;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    } else if (ev.key == "ArrowDown") {
+                      if (!document.querySelector("div[name=\"mobile-controller\"] input#shift").checked) {
+                        selectEndLine = selectStartLine = selectEndLine+1;
+                        if (selectEndLine > lineLengths.length-1) {
+                          selectEndInLine = selectStartInLine = lineLengths.at(-1);
+                          selectEndLine = selectStartLine = lineLengths.length-1;
+                        } else {
+                          if (lineLengths.at(selectEndLine)+fullsizeCharIndexes.at(selectEndLine).length < softkeyStatus.indexInLine) {
+                            selectEndInLine = lineLengths.at(selectEndLine);
+                          } else {
+                            selectEndInLine = 0;
+                            let lookslike=0;
+                            for (let i=0; i < lineLengths.at(selectEndLine); i++) {
+                              lookslike += fullsizeCharIndexes.at(selectEndLine).includes(i)?2:1;
+                              if (softkeyStatus.indexInLine >= lookslike) {
+                                selectEndInLine++;
+                              } else {
+                                break;
+                              }
+                            }
+                          }
+                          selectStartInLine = selectEndInLine;
+                        }
+                      } else {
+                        selectEndLine = selectEndLine+1;
+                        if (selectEndLine > lineLengths.length-1) {
+                          selectEndInLine = lineLengths.at(-1);
+                          selectEndLine = lineLengths.length-1;
+                        } else {
+                          if (lineLengths.at(selectEndLine)+fullsizeCharIndexes.at(selectEndLine).length < softkeyStatus.indexInLine) {
+                            selectEndInLine = lineLengths.at(selectEndLine);
+                          } else {
+                            selectEndInLine = 0;
+                            let lookslike=0;
+                            for (let i=0; i < lineLengths.at(selectEndLine); i++) {
+                              lookslike += fullsizeCharIndexes.at(selectEndLine).includes(i)?2:1;
+                              if (softkeyStatus.indexInLine >= lookslike) {
+                                selectEndInLine++;
+                              } else {
+                                break;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    } else if (ev.key == "ArrowLeft") {
+                      if (!document.querySelector("div[name=\"mobile-controller\"] input#shift").checked) {
+                        if (selectStartLine != selectEndLine || selectStartInLine != selectEndInLine) {
+                          if (selectDir == "forward") {
+                            selectEndLine = selectStartLine;
+                            selectEndInLine = selectStartInLine;
+                          } else {
+                            selectStartLine = selectEndLine;
+                            selectStartInLine = selectEndInLine;
+                          }
+                        } else {
+                          if (selectEndInLine == 0) {
+                            if (selectEndLine > 0) {
+                              softkeyStatus.indexInLine = selectEndInLine = selectStartInLine = lineLengths.at(selectEndLine-1);
+                              selectEndLine = selectStartLine = selectEndLine-1;
+                            }
+                          } else {
+                            softkeyStatus.indexInLine = selectEndInLine = selectStartInLine = selectEndInLine-1;
+                          }
+                        }
+                      } else {
+                        if (selectEndInLine == 0) {
+                          if (selectEndLine > 0) {
+                            softkeyStatus.indexInLine = selectEndInLine = lineLengths.at(selectEndLine-1);
+                            selectEndLine = selectEndLine-1;
+                          }
+                        } else {
+                          softkeyStatus.indexInLine = selectEndInLine = selectEndInLine-1;
+                        }
+                      }
+                    } else if (ev.key == "ArrowRight") {
+                      if (!document.querySelector("div[name=\"mobile-controller\"] input#shift").checked) {
+                        if (selectStartLine != selectEndLine || selectStartInLine != selectEndInLine) {
+                          if (selectDir == "forward") {
+                            selectStartLine = selectEndLine;
+                            selectStartInLine = selectEndInLine;
+                          } else {
+                            selectEndLine = selectStartLine;
+                            selectEndInLine = selectStartInLine;
+                          }
+                        } else {
+                          if (selectEndInLine >= lineLengths.at(selectEndLine)) {
+                            if (selectEndLine < lineLengths.length-1) {
+                              softkeyStatus.indexInLine = selectEndInLine = selectStartInLine = 0;
+                              selectEndLine = selectStartLine = selectEndLine+1;
+                            }
+                          } else {
+                            softkeyStatus.indexInLine = selectEndInLine = selectStartInLine = selectEndInLine+1;
+                          }
+                        }
+                      } else {
+                        if (selectEndInLine >= lineLengths.at(selectEndLine+1)) {
+                          if (selectEndLine  < lineLengths.length-1) {
+                            softkeyStatus.indexInLine = selectEndInLine = 0;
+                            selectEndLine = selectEndLine+1;
+                          }
+                        } else {
+                          softkeyStatus.indexInLine = selectEndInLine = selectEndInLine+1;
+                        }
+                      }
+                    }
+                    softkeyStatus.ignoreSelectionChangeEvent = true;
+                    if (selectStartLine > selectEndLine || selectStartLine == selectEndLine && selectStartInLine > selectEndInLine) {
+                      form.editarea.selectionStart = lineLengths.slice(0, selectEndLine).reduce((a, i)=>a+i+1, 0) + selectEndInLine;
+                      form.editarea.selectionEnd = lineLengths.slice(0, selectStartLine).reduce((a, i)=>a+i+1, 0) + selectStartInLine;
+                      form.editarea.selectionDirection = "backward";
+                    } else if (selectStartLine == selectEndLine && selectStartInLine == selectEndInLine) {
+                      form.editarea.selectionStart = lineLengths.slice(0, selectStartLine).reduce((a, i)=>a+i+1, 0) + selectStartInLine;
+                      form.editarea.selectionEnd = form.editarea.selectionStart;
+                      form.editarea.selectionDirection = "forward";
+                    } else {
+                      form.editarea.selectionStart = lineLengths.slice(0, selectStartLine).reduce((a, i)=>a+i+1, 0) + selectStartInLine;
+                      form.editarea.selectionEnd = lineLengths.slice(0, selectEndLine).reduce((a, i)=>a+i+1, 0) + selectEndInLine;
+                      form.editarea.selectionDirection = "forward";
+                    }
+                    setTimeout(10, ()=>{softkeyStatus.ignoreSelectionChangeEvent = false;});
+                  } else {
+                    // must be already handled
+                  }
+                }
+              }
+            });
+          });
+          let callback = (e)=>{
+            console.log(e);
+            try {
+              let w = Math.min(window.visualViewport.width, window.visualViewport.height / 1.5, 300);
+              let h = w / 1.6;
+              softkey.style.top = (window.visualViewport.offsetTop + window.visualViewport.height - h) + "px";
+              softkey.style.left = (window.visualViewport.offsetLeft + window.visualViewport.width - w) + "px";
+              softkey.style.scale = w / 300;
+            } catch (e) {
+              console.error(e);
+            }
+          };
+          window.visualViewport.addEventListener("resize", callback);
+          window.visualViewport.addEventListener("scroll", callback);
+          callback(null);
+          softkey.style.display = "";
+        }
+      }
+
+      /* function getId(id):
+        return document.getElementById(id);
+      } */
+
+      document.getElementById("editor-mode-setting").addEventListener("input", (e)=>modeChange());
+
+      function modeChange() {
+        mode = Number(document.getElementById("editor-mode-setting").selectedOptions[0].value || 0);
+        updateSettings({mode: mode});
+        if (mode == EDITOR_MODES.LEGACY) {
+          css.sheet.cssRules[0].selectorText = ".modern";
+        } else if (mode == EDITOR_MODES.MODERN) {
+          css.sheet.cssRules[0].selectorText = ".legacy";
+          confFontSize();
+          wrapper.style.height = fontsize[1] * texts.length + "px";
+        }
+      }
+
+      css.addEventListener("DOMContentLoaded", (e)=>modeChange());
+
+      document.getElementById("indent_width").addEventListener("input", (e) => {
+        indent = parseInt(document.getElementById("indent_width").value);
+        document.getElementById("indent_label").innerText = indent;
+        updateSettings({indent: indent});
+      });
+      document.getElementById("indent_width").value = 4;
+
+      document.querySelector("color-picker[name=\"editor-fg\"]").addEventListener("input", (e)=>{
+        css.sheet.addRule("*", "--theme-editor-text-color: " + e.target.value + ";");
+        updateSettings({textFg: e.target.value});
+      })
+
+      document.querySelector("color-picker[name=\"editor-bg\"]").addEventListener("input", (e)=>{
+        css.sheet.addRule("*", "--theme-editor-bg: " + e.target.value + ";");
+        updateSettings({textBg: e.target.value});
+      })
+
+      function open_file(e) {
+        var wait;
+        let result;
+        if (File.prototype.isPrototypeOf(e)) {
+          f_handle = undefined;
+          result = new Promise((resolve, reject)=>{resolve(e);});
+        } else if (window.FileSystemFileHandle != undefined && FileSystemFileHandle.prototype.isPrototypeOf(e)) {
+          f_handle = e;
+          result = e.getFile()
+        } else if (window.showOpenFilePicker != undefined) {
+          wait = showOpenFilePicker().then((e)=>{
+            f_handle = e[0];
+            result = e[0].getFile();
+          });
+        } else {
+          f_handle = undefined;
+          result = new Promise((resolve, reject)=>{
+            document.querySelectorAll("input[type=\"file\"][name=\"file-input\"]").forEach((el)=>{
+              // make sure that all old file input elements are removed
+              el.remove();
+            });
+            let input = document.createElement("input");
+            input.setAttribute("type", "file");
+            input.setAttribute("name", "file-input");
+            input.style.display = "none";
+            document.body.appendChild(input);
+            input.addEventListener("input", (e)=>{
+              resolve(e.target.files[0]);
+              e.target.remove();
+            });
+            input.addEventListener("cancel", (e)=>{
+              // attention: some browsers don't support this event
+              reject();
+            });
+            input.click();
+          });
+        }
+        if (!wait) {
+          wait = new Promise((resolve, reject)=>{resolve(undefined);});
+        }
+        wait.then(async (e)=>{
+          try {
+            result = await result;
+          } catch (error) {
+            if (error.name == "AbortError") {
+              return;
+            }
+          }
+          filename = document.title = result.name;
+          lang = filename.match("(?:(?<=\.)[a-zA-Z1-9]+)?$")[0];
+          if (hljs.getLanguage(lang) == undefined) {
+            lang = "text";
+          }
+          //FileReaderのインスタンスを作成する
+          let reader = new FileReader();
+          //読み込んだファイルの中身を取得する
+          reader.readAsText(result);
+          //ファイルの中身を取得後に処理を行う
+          reader.addEventListener("load", function() {
+            //ファイルの中身をtextarea内に表示する
+            //form.editarea.textContent = reader.result;
+            form.editarea.value = reader.result;
+            texts = [];
+            for (let line of reader.result.matchAll(/(?<=^|\n)[^\n]*(?:\n|$)/g)) {
+              texts.push(UTF8String.fromString(line[0]));
+            }
+            wrapper.style.height = fontsize[1] * texts.length + "px";
+            codes = Array(texts.length);
+            //document.getElementById("code-area")
+            document.getElementById("code-area").replaceChildren();
+            rows.replaceChildren();
+            for (let i=0; i < Math.min(50, texts.length); i++) {
+              rows.appendChild(((el)=>{el.innerText=i+1; return el;})(document.createElement("li")));
+            }
+            codes.splice(0, 50,  hljs.highlight(reader.result, {language:lang}).value.replaceAll(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/g, (match, offset, string)=>{return "<span class=\"hljs-zenkaku\">"+match+"</span>"}).replaceAll(/\n/g, (match, offset, string)=>{m = string.slice(Math.max(0, offset-1024), offset).match(/(?<start><(?<tag>[^ \/>]+)[^>]*?>)[^<>]*$/); if (m != undefined) {return "</"+m.groups.tag+">\n"+m.groups.start} else {return "\n"}}).split("\n").slice(0, 50).map((code)=>{let el=document.createElement("code");el.innerHTML=code; document.getElementById("code-area").appendChild(el);return code;}));
+            setTimeout(()=>{
+              let tmp_codes = hljs.highlight(reader.result, {language:lang}).value.replaceAll(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/g, (match, offset, string)=>{return "<span class=\"hljs-zenkaku\">"+match+"</span>"}).replaceAll(/\n/g, (match, offset, string)=>{m = string.slice(Math.max(0, offset-1024), offset).match(/(?<start><(?<tag>[^ \/>]+)[^>]*?>)[^<>]*$/); if (m != undefined) {return "</"+m.groups.tag+">\n"+m.groups.start} else {return "\n"}}).split("\n");
+              codes = tmp_codes;
+              for (let i = row; i < codes.length; i++) {
+                let el = document.getElementById("code-area").children[i-row];
+                if (el != undefined) {
+                  el.innerHTML = codes[i];
+                }
+              }
+            }, 1);
+          }, {once: true});
+          document.getElementById("file_name").innerText = filename;
+          document.querySelectorAll(".tabs")[0].children[0].innerText = filename;
+        });
+      }
+      function save_file(e, another=false) {
+        function callback(w) {
+          if (mode == EDITOR_MODES.LEGACY) {
+            w.write(form.editarea.value);
+          } else if (mode == EDITOR_MODES.MODERN) {
+            w.write(texts.join("\n"));
+          }
+          w.close();
+          edited = false;
+        }
+        if (f_handle && !another) {
+          (new Promise((resolve,reject)=>{resolve(f_handle)})).then((e)=>{e.createWritable().then(callback)})
+        } else if (window.showSaveFilePicker != undefined) {
+          showSaveFilePicker({suggestedName:filename}).then((e)=>{
+            f_handle = e;
+            e.createWritable().then(callback);
+            e.getFile().then((e)=>{document.getElementById("file_name").innerText = filename = e.name;});
+          })
+        } else {
+          /* 今後、互換性確保でまた使うかも? -> 使いました */
+          // Fall in compatibility mode
+          let blob;
+          if (mode == EDITOR_MODES.LEGACY) {
+            blob = new Blob([form.editarea.value], {type: "text/plain"});
+          } else if (mode == EDITOR_MODES.MODERN) {
+            blob = new Blob([texts.join("\n")], {type: "text/plain"});
+          }
+          let a = document.createElement("a");
+          let url = URL.createObjectURL(blob);
+          a.download = filename;
+          a.href = url
+          a.style.display = "none";
+          document.body.appendChild(a);
+          a.click();
+          window.addEventListener("pagehide", (e)=>{URL.revokeObjectURL(url);}, {once:true, passive:true});
+        }
+      }
+      function getCursoredNode(r=cursor_pos[0], c=cursor_pos[1]) {
+        let l = [0, ]; //-codes[cursor_pos[0]].startsWith("<"),];
+        let i = 0;
+        let i2 = 0;
+        let i4 = [0, ];
+        let i5 = 0;
+        let tags = [];
+        let last = 1;
+        while (i2 <= c && i <= codes[r].length) {
+            let i3 = [...((codes[r]+"\n").slice(i, i+50).match(/^(?:[^<>&]|(?:&[^<>;]+;))*/) || [""])[0].matchAll(/&[^;]+;|.|\n/g)];
+            if (i3.length > 0) {
+              i2 += i3.length;
+              if (i2 > c + 1) {
+                i3 = i3.slice(0, c+1-i2)
+                i2 = c + 1;
+              }
+              let len = i3.join("").length;
+              l.push(l.pop() + (last != 0));
+              i += len;
+              i4 = i4.map((i)=>i+len);
+              i5 += len;
+              last = 0;
+            } else {
+              last = 1;
+              i3 = codes[r].slice(i, i+50).match(/^<(?<slash>\/?)(?<tag>[^ >]+)(?: (?<style>style=(?:'[^']*'|"[^"]*"))| (?<class>class=(?:'[^']*'|"[^"]*")))*>/);
+              if (i3 == undefined) {
+                break;
+              } else if (i3.groups.slash) {
+                l.pop();
+                i4.pop();
+                i4 = i4.map((i)=>i+i3[0].length);
+                tags.pop();
+                l.push(l.pop() + 1);
+              } else {
+                l.push(0);
+                tags.push(i3[0]);
+                i4 = [...i4.map((i)=>i+i3[0].length), 0];
+              }
+              i += i3[0].length;
+              i5 = 0;
+            }
+          }
+          var node = document.querySelector("#code-area").children[r-row];
+          l.pop();
+          for (let i of l) {
+            node = node?node.childNodes[i]:node;
+            //console.log(node);
+          }
+        return [node, i5, l, i4, tags];
+      }
+      function cursor_move(x=0, y=0) {
+        cursor_pos[0] += y;
+        cursor_pos[1] += x;
+        if (cursor_pos[0] < 0) {
+          cursor_pos[0] = 0;
+        } else if (cursor_pos[0] >= texts.length) {
+          cursor_pos[0] = texts.length - 1;
+        }
+        if (cursor_pos[1] < 0) {
+          if (cursor_pos[0] > 0) {
+            x = 0;
+            y--;
+            cursor_pos[0]--;
+            cursor_pos[1] = texts[cursor_pos[0]].length;
+          } else {
+            cursor_pos[1] = 0;
+          }
+        } else if (x > 0 && cursor_pos[1] > texts[cursor_pos[0]].length) {
+          if (cursor_pos[0] < texts.length - 1) {
+            x = 0;
+            y++;
+            cursor_pos[0]++;
+            cursor_pos[1] = 0;
+          }
+        }
+        if (x || y) {
+          if ((cursor_pos[0] - 4) * fontsize[1] < document.querySelector(".modern div.textarea").scrollTop) {
+            document.querySelector(".modern div.textarea").scrollBy(0, (cursor_pos[0] - 4) * fontsize[1] - document.querySelector(".modern div.textarea").scrollTop);
+          } else if ((cursor_pos[0] + 4) * fontsize[1] > document.querySelector(".modern div.textarea").scrollTop + document.querySelector(".modern").getBoundingClientRect().height) {
+            document.querySelector(".modern div.textarea").scrollBy(0, (cursor_pos[0] + 4) * fontsize[1] - document.querySelector(".modern div.textarea").scrollTop - document.querySelector(".modern").getBoundingClientRect().height);
+          }
+        }
+        //document.getElementById("cursor").scrollIntoView();
+        //console.log(texts[cursor_pos[0]]);
+        sp = document.createElement("span");
+        cursor_pos[2] = ((textarr)=>{
+          var arr = [];
+          for (let i = 0; i < cursor_pos[1]; i++) {
+            if (i < textarr.length) {
+              arr.push(textarr.isFullSize(i));
+            } else {
+              if (x) {
+                cursor_pos[1] = i;
+                if (x < 0) {
+                  cursor_pos[1] += x;
+                }
+                arr = arr.slice(0, cursor_pos[1]);
+              }
+              break;
+            }
+          };
+          return arr;
+        })(texts[cursor_pos[0]]).reduce((total, i)=>{if (i) {return total+2} else {return total+1}}, 0);
+        if (texts[cursor_pos[0]]) {
+          //console.log(texts[cursor_pos[0]].slice(0, cursor_pos[1]));
+          //console.log(2);
+          document.getElementById("cursor-letter").innerText = texts[cursor_pos[0]][cursor_pos[1]] ||" "; //[cursor_pos[1]];
+          //console.log(3);
+        } else {
+          document.getElementById("cursor-letter").innerText = " ";
+        }
+        //sp.innerText = (texts[cursor_pos[0]].match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).slice(0, cursor_pos[1]).join("") || "";
+        //sp.style.top = (1.5*cursor_pos[0]) + "em";
+        //document.getElementById("measure-pos").children = [];
+        //document.getElementById("measure-pos").appendChild(sp);
+        //cursor_pos[3] = (sp.clientWidth/parseFloat(getComputedStyle(document.documentElement).fontSize))/0.5;
+        sp.remove();
+        cursor_pos[2] *= (cursor_pos[2] >= 0);
+        //cursor_pos[2] = cursor_pos[0];
+        //cursor_pos[4] = (texts.slice(0, cursor_pos[0]).join("\n").match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).length + cursor_pos[1] + (cursor_pos[0] != 0);
+        document.getElementById("cursor").style.top = (1.5*cursor_pos[0]) + "em";
+        document.getElementById("cursor").style.left = (fontsize[0]*cursor_pos[2]) + "px";
+        var node = getCursoredNode()[0];
+        if (node.nodeType == Node.TEXT_NODE) {
+          node = node.parentNode;
+        }
+        style = window.getComputedStyle(node);
+        document.getElementById("cursor-letter").style.color = "var(--theme-editor-bg)";
+        document.getElementById("cursor-letter").style.background = style.color;
+        document.getElementById("cursor-letter").style.fontWeight = style.fontWeight;
+        return;
+        if (texts[cursor_pos[0]].length > cursor_pos[0]) {
+          for (let i = 0; i < document.getElementById("code-area").children[0].childNodes.length; i++) {
+            if (document.getElementById("code-area").children[0].childNodes[i].nodeName == "#text") {
+              l.push(document.getElementById("code-area").children[0].childNodes[i].data);
+            } else if (document.getElementById("code-area").children[0].childNodes[i].nodeName == "BR" && document.getElementById("code-area").children[0].childNodes[i].className != "ghost") {
+              l.push("\n");
+            } else {
+              l.push(document.getElementById("code-area").children[0].childNodes[i].innerText);
+            }
+            if (cursor_pos[4] <= l.join("").length-1) {
+              let style = getComputedStyle(document.getElementById("code-area").children[0].childNodes[i]) || {color:"var(--theme-editor-bg)"};
+              console.log(document.getElementById("code-area").children[0].childNodes[i]);
+              document.getElementById("cursor-letter").style.color = theme.background;
+              document.getElementById("cursor-letter").style.background = style.color;
+              document.getElementById("cursor-letter").style.fontWeight = style.fontWeight;
+              break;
+            }
+          }
+        } else {
+          document.getElementById("cursor-letter").setAttribute("style", "");
+        }
+      }
+      function deleteSelected() {
+        if (!selecting || mode != EDITOR_MODES.MODERN) {
+          return;
+        }
+        let deleted;
+        if (selection[0] < selection[2] || selection[0] == selection[2] && selection[1] <= selection[3]) {
+          deleted = [...selection];
+        } else {
+          deleted = [selection[2], selection[3], selection[0], selection[1]];
+        }
+        texts[deleted[0]] = UTF8String.fromString(texts[deleted[0]].slice(0, deleted[1]) + texts[deleted[2]].slice(deleted[3]));
+        codes[deleted[0]] = hljs.highlight(texts[deleted[0]], {language:lang}).value.replaceAll(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/g, (match, offset, string)=>{return "<span class=\"hljs-zenkaku\">"+match+"</span>"});
+        if (deleted[2] - deleted[0] > 0) {
+          texts.splice(deleted[0]+1, deleted[2] - deleted[0]);
+          codes.splice(deleted[0]+1, deleted[2] - deleted[0]);
+        }
+        for (let i=deleted[2]; i>=deleted[0]; i--) { // from later to earlier
+          if (i >= row && i <= row + document.querySelector("#code-area").children.length) {
+            let el = document.querySelector("#code-area").children[i-row];
+            let rownum = document.querySelector(".modern div.rows > ul").lastChild;
+            if (i == deleted[0]) {
+              el.innerHTML = codes[deleted[0]];
+              //rownum.innerText = i+1;
+            } else if (row <= i && i < row + document.querySelector("#code-area").children.length) {
+              if (codes.length > row+document.querySelector("#code-area").children.length+deleted[0]-i) {
+                el.innerHTML = codes[row+document.querySelector("#code-area").children.length+deleted[0]-i];
+                //rownum.innerText = row+document.querySelector("#code-area").children.length;
+                document.querySelector("#code-area").insertAdjacentElement("beforeend", el);
+                //document.querySelector(".modern div.rows > ul").insertAdjacentElement("beforeend", rownum);
+                //row--; // FIXME!!!!!
+              } else if (row > 0) {
+                el.innerHTML = codes[row-1];
+                rownum.innerText = row;
+                document.querySelector("#code-area").insertAdjacentElement("afterbegin", el);
+                document.querySelector(".modern div.rows > ul").insertAdjacentElement("afterbegin", rownum);
+                row--; // FIXME!!!!!
+              } else {
+                el.remove();
+                rownum.remove();
+              }
+            } else if (el) {
+              el.innerHTML = codes[row+document.querySelector("#code-area").children.length];
+              //rownum.innerText = row+document.querySelector("#code-area").children.length+1;
+              document.querySelector("#code-area").insertAdjacentElement("beforeend", el);
+              //document.querySelector(".modern div.rows > ul").insertAdjacentElement("beforeend", rownum);
+            }
+          }
+        }
+        cursor_pos[0] = deleted[0];
+        cursor_pos[1] = deleted[1];
+        select(cursor_pos.slice(0, 2), cursor_pos.slice(0, 2));
+        cursor_move();
+        draw();
+      }
+      function handle_keydown(e) {
+        if (e.key == "Process") {
+          return;
+        };
+        if (e.keyCode < 32 || e.keyCode == 127) { // FIXME e.keyCode is now deprecated!
+          //if (e.keyCode == 13 && mode == EDITOR_MODES.MODERN) {
+          //  let arr = [...texts[cursor_pos[0]].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g)];
+          //  texts.splice(cursor_pos[0], 2, arr.slice(0, cursor_pos[0]).join(""), "");
+          //  texts[cursor_pos[0]+1] = arr.slice(cursor_pos[0]).join("");
+          //  cursor_pos[0] += 1;
+          if ((e.code == "Tab" || e.key == "Tab") && !e.isComposing) {
+            if (mode == EDITOR_MODES.LEGACY) {
+              let orgpos = [form.editarea.selectionStart, form.editarea.selectionEnd];
+              let pos = orgpos.sort(((a,b)=>{
+                return a - b
+              }
+              ));
+              while (pos[0] > 0 && form.editarea.value[pos[0]-1] != "\n") {
+                pos[0]--;
+              }
+              while (pos[1] < form.editarea.value.length-1 && form.editarea.value[pos[1]] != "\n") {
+                pos[1]++;
+              }
+               counts = [];
+              form.editarea.value = form.editarea.value.slice(0, pos[0]) + form.editarea.value.slice(pos[0], pos[1]).split("\n").map((line)=>{
+                if (!e.shiftKey) {
+                  counts.push(indent);
+                  return " ".repeat(indent)+line;
+                } else {
+                  let r = new RegExp("[ ]{" + indent + "}|[ ]*");
+                  counts.push(line.match(r)[0].length);
+                  return line.replace(r, "");
+                }
+              }).join("\n") + form.editarea.value.slice(pos[1]);
+              console.log(counts)
+              form.editarea.selectionStart = orgpos[0] + (!e.shiftKey?indent:0);
+              form.editarea.selectionEnd = orgpos[1] + counts.reduce((a,i)=>a+i,0) * (!e.shiftKey?1:-1);
+              e.preventDefault();
+            } else if (EDITOR_MODES.MODERN) {
+              e.preventDefault();
+              for (let i=selection[0]; selection[0]<=selection[2]?i <= selection[2]:i >= selection[2]; i+=(selection[0]<=selection[2]?1:-1)) {
+                if (!e.shiftKey) {
+                  texts[i] = UTF8String.fromString(" ".repeat(indent) + texts[i]);
+                  codes[i] = " ".repeat(indent) + codes[i];
+                  if (cursor_pos[0] == i) {
+                    cursor_pos[1] += indent;
+                  }
+                  if (selection[0] == i) {
+                    selection[1] += indent;
+                  }
+                  if (selection[2] == i) {
+                    selection[3] += indent;
+                  }
+                } else {
+                  texts[i] = UTF8String.fromString(texts[i].replace(new RegExp("[ ]{" + indent + "}|[ ]*"), ""));
+                  let k = 0;
+                  let count = 0;
+                  while (count < indent) {
+                    if (codes[i][k] == "<") {
+                      while (k < codes[i].length) {
+                        if (codes[i][k] == ">") {
+                          break;
+                        }
+                        k++;
+                      }
+                      k++;
+                    } else {
+                      if (codes[i][k] != " ") {
+                        break;
+                      } else {
+                        codes[i] = codes[i].slice(0, k) + codes[i].slice(k+1);
+                        count++;
+                      }
+                    }
+                  }
+                  if (cursor_pos[0] == i) {
+                    cursor_pos[1] -= count;
+                  }
+                  if (selection[0] == i) {
+                    selection[1] -= count;
+                  }
+                  if (selection[2] == i) {
+                    selection[3] -= count;
+                  }
+                }
+                if (i >= row && i < row + document.getElementById("code-area").children.length) {
+                  document.getElementById("code-area").children[i-row].innerHTML = codes[i];
+                }
+                select([selection[0], Math.max(0, selection[1])], [selection[2], Math.max(0, selection[3])]); // avoid negative
+                cursor_move();
+              }
+            }
+          } else if ((e.code == "Enter" || e.key == "Enter") && !e.isComposing) {
+            if (mode == EDITOR_MODES.LEGACY) {
+              pos = [form.editarea.selectionStart, form.editarea.selectionEnd].sort(((a,b)=>{
+                return a - b
+              }
+              ));
+              spaces = "";
+              lookfor = form.editarea.value.slice(0, pos[1]);
+              lookfor = lookfor.slice(lookfor.lastIndexOf("\n") + 1);
+              console.log(lookfor);
+              for (let i of lookfor) {
+                if (i != " " && i != "\t") {
+                  break;
+                }
+                spaces = spaces + i;
+              }
+              form.editarea.value = form.editarea.value.slice(0, pos[0]) + "\n" + spaces + form.editarea.value.slice(pos[1]);
+              form.editarea.selectionStart = form.editarea.selectionEnd = pos[0] + spaces.length + 1;
+              e.preventDefault();
+            } else if (mode == EDITOR_MODES.MODERN) {
+              if (selecting) {
+                deleteSelected();
+              }
+              spaces = texts[cursor_pos[0]].match(/^[ \t]*/)[0].slice(0, cursor_pos[1]);
+              let newline = spaces;
+              let len = (codes[cursor_pos[0]].match("^(?:(?:<[^>]+>)*(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])(?:<[^>]+>)?){"+cursor_pos[1]+"}") || [""])[0].length;
+              let tags = getCursoredNode(cursor_pos[0], cursor_pos[1])[4];
+              let tagends = tags.map((i)=>"</"+i.match(/^<[^ >]+[ >]/)[0].slice(1, -1)+">");
+              newline += tags.join("") + codes[cursor_pos[0]].slice(len);
+              codes[cursor_pos[0]] = codes[cursor_pos[0]].slice(0, len) + tagends.join("");
+              codes.splice(cursor_pos[0]+1, 0, newline);
+              document.getElementById("code-area").children[cursor_pos[0]-row].innerHTML = codes[cursor_pos[0]];
+              newline = UTF8String.fromString(spaces + texts[cursor_pos[0]].slice(cursor_pos[1]));
+              texts[cursor_pos[0]] = UTF8String.fromString(texts[cursor_pos[0]].slice(0, cursor_pos[1]));
+              texts.splice(cursor_pos[0]+1, 0, newline);
+              if (texts.length >= document.getElementById("code-area").children.length) {
+                //let node = document.createElement("code");
+                //node.innerHTML = codes[cursor_pos[0]+1];
+                //document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
+              } else if (row + document.getElementById("code-area").children.length <= texts.length) {
+                //let node = document.getElementById("code-area").children[0];
+                //node.innerHTML = codes[cursor_pos[0]+1];
+                //document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
+                //row += 1;
+              } else {
+                //let node = [...document.getElementById("code-area").children].at(-1);
+                //node.innerHTML = codes[cursor_pos[0]+1];
+                //document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
+              }
+              cursor_pos[0] += 1;
+              cursor_pos[1] = spaces.length;
+              draw();
+            }
+          } else if ((e.code == "Backspace" || e.key == "Backspace") && !e.isComposing) {
+            if (mode == EDITOR_MODES.MODERN) {
+              if (selecting) {
+                deleteSelected();
+                draw();
+                cursor_move();
+                return;
+              }
+              let arr2;
+              if (cursor_pos[1] == 0) {
+                if (cursor_pos[0] > 0) {
+                  cursor_pos[1] = (texts[cursor_pos[0] - 1].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g) || []).length;
+                  texts[cursor_pos[0] - 1] = UTF8String.fromString(texts[cursor_pos[0] - 1] + texts.splice(cursor_pos[0], 1)[0]);
+                  codes[cursor_pos[0] - 1] = codes[cursor_pos[0] - 1] + codes.splice(cursor_pos[0], 1)[0];
+                  let node = document.getElementById("code-area").children[cursor_pos[0]-row];
+                  let rownum = document.querySelector(".modern div.rows > ul").children[cursor_pos[0]-row];
+                  document.getElementById("code-area").children[cursor_pos[0]-1-row].innerHTML = codes[cursor_pos[0] - 1];
+                  console.log(node);
+                  if (texts.length <= document.getElementById("code-area").children.length) {
+                    node.remove();
+                    rownum.remove();
+                  } else if (row + document.getElementById("code-area").children.length >= texts.length) {
+                    document.getElementById("code-area").insertAdjacentElement("afterbegin", node);
+                    document.querySelector(".modern div.rows > ul").insertAdjacentElement("afterbegin", rownum);
+                    node.innerHTML = codes[row-1];
+                    rownum.innerText = row;
+                    row -= 1;
+                  } else {
+                    document.getElementById("code-area").insertAdjacentElement("beforeend", node);
+                    document.querySelector(".modern div.rows > ul").insertAdjacentElement("beforeend", rownum);
+                    node.innerHTML = codes[row + document.getElementById("code-area").children.length - 1];
+                    rownum.innerText = row + document.getElementById("code-area").children.length;
+                  }
+                  cursor_pos[0] -= 1;
+                  draw();
+                }
+              } else {
+                let len = 1
+                if (texts[cursor_pos[0]].slice(cursor_pos[1]-indent, cursor_pos[1]) == " ".repeat(indent)) {
+                  len = indent;
+                }
+                cursor_pos[1] -= len;
+                let [node, index, l] = getCursoredNode();
+                console.log(node, index, l, len, cursor_pos[1]);
+                let tlen = texts[cursor_pos[0]].slice(cursor_pos[1], cursor_pos[1]+len).length;
+                texts[cursor_pos[0]] = UTF8String.fromString(texts[cursor_pos[0]].slice(0, cursor_pos[1]) + texts[cursor_pos[0]].slice(cursor_pos[1]+len));
+                arr2 = node.innerText.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g) || [];
+                let i = 0;
+                let i2 = codes[cursor_pos[0]].match(/^(?:<[^>]+>)*/)[0].length;
+                while (i < cursor_pos[1]) {
+                  i2 += (codes[cursor_pos[0]].slice(i2).match(/^(?:<[^>]+>)*(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])(?:<[^>]+>)*/) || [""])[0].length;
+                  i += 1;
+                }
+                console.log(i2, i2+tlen*16, codes[cursor_pos[0]].slice(i2, i2+tlen*16));
+                tlen = (codes[cursor_pos[0]].slice(i2, i2+tlen*16).match(/(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).slice(0, tlen).join("").length;
+                codes[cursor_pos[0]] = (codes[cursor_pos[0]].slice(0, i2) + codes[cursor_pos[0]].slice(i2 + tlen)).replace(/<([^\/> ]+)[^>]*><\/\1[^>]+>/g, "");
+                if (node.innerText.length == 0) {
+                  while (node.innerText.length == 0 && node.tagName != "CODE") {
+                    node = node.parentNode;
+                  }
+                  if (node.tagName == "CODE") {
+                    node.replaceChildren();
+                  } else {
+                    node.remove();
+                  }
+                }
+                while (node.tagName != "CODE") {
+                  node = node.parentNode;
+                }
+                node.innerHTML = codes[cursor_pos[0]];
+              }
+            } else if (mode == EDITOR_MODES.LEGACY) {
+              pos = [form.editarea.selectionStart, form.editarea.selectionEnd].sort(((a,b)=>{
+                return a - b
+              }
+              ));
+              if (pos[0] != pos[1]) {
+                return
+              }
+              for (let i = pos[0]; (i >= 0 && i > pos[0] - indent); i--) {
+                console.log(form.editarea.value[i - 1])
+                if (form.editarea.value[i - 1] != " ") {
+                  return
+                }
+              }
+              form.editarea.value = form.editarea.value.slice(0, pos[0] - indent) + form.editarea.value.slice(pos[1]);
+              form.editarea.selectionStart = form.editarea.selectionEnd = pos[0] - indent;
+              e.preventDefault();
+            }
+          }
+        }
+        if (mode == EDITOR_MODES.MODERN) {
+          cursor_move();
+          //e.preventDefault();
+        }
+      }
+      document.getElementById("cursor").children[1].addEventListener("compositionstart", (e)=>{
+          console.log(e.type, e);
+          composing = true;
+          document.getElementById("cursor").children[1].style.color = "var(--theme-editor-text-color)";
+          document.getElementById("cursor").children[1].style.backgroundColor = "var(--theme-editor-bg)";
+          document.getElementById("cursor").children[1].style.opacity = "1";
+        });
+        document.getElementById("cursor").children[1].addEventListener("compositionupdate", (e)=>{
+          console.log(e.type, e);
+          document.getElementById("cursor-compose-size").innerText = e.data;
+          document.getElementById("cursor").children[1].style.width = document.getElementById("cursor-compose-size").clientWidth + "px";
+        });
+        document.getElementById("cursor").children[1].addEventListener("compositionend", (e)=>{
+          console.log(e.type, e);
+          composing = false;
+          if (e.data != null) {
+            ev = new InputEvent("input", {data: e.data, isComposing:false});
+            e.target.dispatchEvent(ev);
+          }
+          document.getElementById("cursor").children[1].style.opacity = "";
+          document.getElementById("cursor").children[1].value = "";
+        });
+        document.getElementById("cursor").children[1].addEventListener("paste", (e)=>{
+          e.preventDefault();
+          console.log(e);
+          let text = (event.clipboardData || window.clipboardData).getData("text");
+          let first = true;
+          let ev;
+          for (let i of text.split("\n")) {
+            if (first) {
+              first = false;
+              ev = new KeyboardEvent("keydown", {code:"Enter", isComposing:false});
+              handle_keydown(ev);
+            }
+            ev = new InputEvent("input", {data: i, isComposing:false});
+            e.target.dispatchEvent(ev);
+          }
+        });
+        document.getElementById("cursor").children[1].addEventListener("input", (e)=>{
+          console.log(e.type, e);
+          //console.log(document.getElementById("cursor").children[1].selectionStart, document.getElementById("cursor").children[1].selectionEnd);
+          if (e.data == null || e.data == undefined) {
+            return;
+          }
+          if (composing) {
+            return; // don't handle for now
+            // FIXME: following line does not work
+            //composing_text = [...text.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).slice(0, cursor_pos[4]), e.data, ...text.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).slice(cursor_pos[4])].join("");
+          } else {
+            texts[cursor_pos[0]] = UTF8String.fromString(
+              texts[cursor_pos[0]].slice(0, cursor_pos[1]) + e.data + texts[cursor_pos[0]].slice(cursor_pos[1])
+            );
+            document.getElementById("cursor").children[1].value = "";
+            //cursor_pos[1] += (e.data.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).length;
+          }
+          var [node, index, l, index2, tags] = getCursoredNode();
+          console.log([node, l, index, index2]);
+          escaped = hljs.highlight(e.data, {language:"text"}).value.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/g, "<span class=\"hljs-zenkaku\">$&</span>");
+          let i = 0;
+          let i2 = codes[cursor_pos[0]].match(/^(?:<[^>]+>)*/)[0].length;
+          while (i < cursor_pos[1]) {
+            i2 += (codes[cursor_pos[0]].slice(i2).match(/^(?:<[^>]+>)*(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])(?:<\/[^>]+>)*/) || [""])[0].length;
+            i += 1;
+          }
+          if (codes[cursor_pos[0]][i2] == "<") {
+            console.log(node, codes[cursor_pos[0]].slice(0, index2[0]));
+            console.log(codes[cursor_pos[0]].slice(0, i2));
+            let offset = -(node.tagName?node.outerHTML.match(/^<[^>]+>/)[0].length+index2.pop():index2.pop())
+            index2 = index2.map((i)=>i+offset);
+            node = node.parentNode;
+            console.log(index2);
+          } else if (node.innerHTML.length > 0 && index2.at(-1) > 0) {
+            index2.push(-(node.innerHTML.slice(0, index2.at(-1)).match(/(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])$/)[0].length) + index2.pop());
+          } else {
+            index2.push(0);
+          }
+          if (i2 < codes[cursor_pos[0]].length) {
+            node.innerHTML = ((html)=>html.slice(0, index2.at(-1)) + escaped + html.slice(index2.at(-1)))(node.innerHTML.replace(/(?:>|^)[^<>]+(?:<|$)/g, (m)=>">".repeat(m[0]==">")+m.replace(/[<>]/g, "").replace(/(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g, (m)=>m[0]=="&"?m:hljs.highlight(m, {language:"text"}).value)+"<".repeat(m.at(-1)=="<")));
+          } else {
+            node.innerHTML += escaped;
+          }
+          if (!composing) {
+            codes[cursor_pos[0]] = codes[cursor_pos[0]].slice(0, i2)+escaped+codes[cursor_pos[0]].slice(i2);
+            cursor_pos[1] += e.data.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).length;
+            node.innerHTML = codes[cursor_pos[0]];
+          } else {
+            node.innerHTML = codes[cursor_pos[0]].slice(0, i2)+escaped+codes[cursor_pos[0]].slice(i2);
+          }
+          cursor_move();
+        });
+        document.getElementById("cursor").children[1].addEventListener("keyup", (e)=>{
+        });
+        document.getElementById("cursor").children[1].addEventListener("keydown", (e)=>{
+          console.log(e.type, e);
+          if (composing) { return; }
+          let prev_pos = [cursor_pos[0], cursor_pos[1]];
+          if (e.key == "ArrowLeft") {
+            if (e.shiftKey || !selecting) {
+              cursor_move(-1, 0);
+            } else {
+              [cursor_pos[0], cursor_pos[1]] = (selection[0]<selection[2]||selection[0]==selection[2]&&selection[1]<selection[3])?selection.slice(0, 2):selection.slice(2, 4);
+              cursor_move();
+            }
+          } else if (e.key == "ArrowUp") {
+            cursor_move(0, -1);
+          } else if (e.key == "ArrowRight") {
+            if (e.shiftKey || !selecting) {
+              cursor_move(1, 0);
+            } else {
+              [cursor_pos[0], cursor_pos[1]] = (selection[0]<selection[2]||selection[0]==selection[2]&&selection[1]<selection[3])?selection.slice(2, 4):selection.slice(0, 2);
+              cursor_move();
+            }
+          } else if (e.key == "ArrowDown") {
+            cursor_move(0, 1);
+          } else {
+            handle_keydown(e);
+            cursor_move();
+            return;
+          }
+          if (e.shiftKey) {
+            select((selecting?selection:prev_pos).slice(0, 2), cursor_pos.slice(0, 2));
+          } else {
+            select(cursor_pos.slice(0, 2), cursor_pos.slice(0, 2));
+          }
+        });
+      window.addEventListener("dragenter", (e)=>{
+        console.log(e);
+        if (e.dataTransfer.types.some((i)=>i.startsWith("fs/")||i=="Files")) {
+          console.log([e.dataTransfer, e.dataTransfer.files.length, [...e.dataTransfer.types]]);
+          document.getElementsByClassName("dropin")[0].removeAttribute("hidden");
+        }
+      });
+      document.getElementsByClassName("dropin")[0].children.sensor.addEventListener("dragover", (e)=>{
+        e.preventDefault();
+        console.log([e.dataTransfer, e.dataTransfer.files.length, [...e.dataTransfer.types]]);
+      });
+      document.getElementsByClassName("dropin")[0].children.sensor.addEventListener("drop", async (e)=>{
+        e.preventDefault();
+        console.log(e);
+        console.log([e.dataTransfer, e.dataTransfer.files.length, [...e.dataTransfer.types]]);
+        document.getElementsByClassName("dropin")[0].setAttribute("hidden", "");
+        console.log([...e.dataTransfer.files]);
+        if (DataTransferItem.prototype.getAsFileSystemHandle != undefined) {
+          open_file(await e.dataTransfer.items[0].getAsFileSystemHandle());
+        } else {
+          open_file(e.dataTransfer.files[0]);
+        }
+      });
+      document.getElementsByClassName("dropin")[0].children.sensor.addEventListener("dragleave", (e)=>{
+        e.preventDefault();
+        document.getElementsByClassName("dropin")[0].setAttribute("hidden", "");
+      });
+      form.infile.addEventListener("click", open_file);
+      form.download.addEventListener("click", save_file);
+      form.downloadAs.addEventListener("click", (e)=>{save_file(e, true);});
+      form.replace.addEventListener("click", ()=>{document.getElementById("replace").setAttribute("active", "");});
+      form.about.addEventListener("click", ()=>{document.getElementById("about").setAttribute("active", "");});
+      form.settings.addEventListener("click", ()=>{document.getElementById("settings").setAttribute("active", "");});
+      form.editarea.addEventListener("input", (e) => {
+        if (!edited) { edited = true; }
+      });
+      window.addEventListener("keydown", (e) => {
+        console.log(e)
+        if (e.code=="KeyO" && (e.ctrlKey || softkeyStatus.altKey)) {
+          open_file();
+          e.preventDefault();
+        } else if (e.code=="KeyS" && (e.ctrlKey || softkeyStatus.ctrlKey)) {
+          save_file();
+          e.preventDefault();
+        } else if (e.code=="KeyN" && (e.ctrlKey || softkeyStatus.ctrlKey) && (e.altKey || softkeyStatus.altKey)) {
+          window.open(location.href, window.name);
+          e.preventDefault();
+        } else if (e.target != form.editarea) {
+          if (mode == EDITOR_MODES.MODERN) {
+            let pos = (selection[0]<selection[2]||selection[0]==selection[2]&&selection[1]<selection[3])?selection:selection.slice(2)+selection.slice(0, 2);
+            if (e.code == "KeyA" && (e.ctrlKey || softkeyStatus.ctrlKey)) {
+              select([0, 0], [texts.length-1, texts.at(-1).match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]??/g).length]);
+              cursor_move();
+            } else if (selecting && (e.code == "KeyC" || e.code == "KeyX") && (e.ctrlKey || softkeyStatus.ctrlKey)) {
+              let text;
+              if (pos[0] == pos[2]) {
+                text = texts[pos[0]].slice(pos[1], pos[3]);
+              } else {
+                text = texts[pos[0]].slice(pos[1]);
+                for (let i = pos[0] + 1; i < pos[2]; i++) {
+                  text += "\n" + texts[i];
+                }
+                text += "\n" + texts[pos[2]].slice(0, pos[3]);
+              }
+              navigator.clipboard.writeText(text);
+              if (e.code == "KeyX") {
+                deleteSelected();
+              }
+            }  
+          }
+        } else {
+          handle_keydown(e);
+        }
+      })
+      function draw(v=0) {
+        document.querySelector(".modern .wrapper").style.height = texts.length * fontsize[1] + "px";
+        let box = document.getElementById("code-area");
+        scrollTop = wrapper.parentNode.scrollTop;
+        let lines = Math.ceil(document.querySelector(".modern").getBoundingClientRect().height / fontsize[1]) + 20;
+        let linesDiff = lines - box.children.length;
+        if (linesDiff > 0) {
+          let tops = [];
+          let bottoms = [];
+          let rows_tops = [];
+          let rows_bottoms = [];
+          for (let i=0; i < linesDiff && row+box.children.length+i < codes.length; i++) {
+            let el = document.createElement("code");
+            el.innerHTML = codes[row+box.children.length+i] || "";
+            rows_bottoms.push(((rowel)=>{rowel.innerText = row+rows.children.length+i+1; return rowel;})(document.createElement("li")));
+            bottoms.push(el);
+          }
+          for (let i=1; i <= linesDiff - bottoms.length && row >= i; i++) {
+            let el = document.createElement("code");
+            el.innerHTML = codes[row-i] || "";
+            rows_tops.push(((rowel)=>{rowel.innerText = row-i+1; return rowel;})(document.createElement("li")));
+            tops.push(el);
+          }
+          for (let i=0; i < bottoms.length; i++) {
+            box.insertAdjacentElement("beforeend", bottoms[i]);
+            rows.insertAdjacentElement("beforeend", rows_bottoms[i]);
+          }
+          for (let i=tops.length-1; i >= 0; i--) {
+            box.insertAdjacentElement("afterbegin", tops[i]);
+            rows.insertAdjacentElement("afterbegin", rows_tops[i]);
+          }
+          row -= tops.length;
+        } else if (linesDiff > 0) {
+          for (let i=-1; i >= linesDiff; i--) {
+            box.children[box.children.length+linesDiff].remove();
+            rows.children[box.children.length+linesDiff].remove();
+          }
+        }
+        if (fontsize[1]*(row+5) - scrollTop > 0) {
+          console.log("awawaw");
+          let tops = [];
+          let bottoms = [];
+          let rows_tops = [];
+          let rows_bottoms = [];
+          for (let i = 1; i < Math.ceil(row+10 - scrollTop/fontsize[1]) && row >= i; i++) {
+            if (box.children.length+tops.length-i < 0) {break;}
+            let el = document.createElement("code");
+            el.innerHTML = codes[row-i] || "";
+            rows_tops.push(((rowel)=>{rowel.innerText = row-i+1; return rowel;})(document.createElement("li")));
+            tops.push(el);
+            bottoms.push(box.children.length-i)
+          }
+          //console.log([tops.length, bottoms.length]);
+          for (let i=0; i < tops.length; i++) {
+            box.insertAdjacentElement("afterbegin", tops[i]);
+            rows.insertAdjacentElement("afterbegin", rows_tops[i]);
+          }
+          for (let i of bottoms) {
+            try {
+              box.children[tops.length+i].remove();
+              rows.children[rows_tops.length+i].remove();
+            } catch(e) {}
+          }
+          row -= tops.length;
+          box.style.paddingTop = row * fontsize[1] + "px";
+          rows.style.paddingTop = row * fontsize[1] + "px";
+          //box.scrollTop += tops.length * fontsize[1];
+        }
+        if (fontsize[1]*(row+15) - scrollTop < 0) {
+          console.log("wawawa");
+          let tops = [];
+          let bottoms = [];
+          let rows_tops = [];
+          let rows_bottoms = [];
+          for (let i = 0; i < Math.floor(scrollTop/fontsize[1] - row - 10); i++) {
+            console.log(i, box.children.length+bottoms.length);
+            if (i > box.children.length+bottoms.length) {break;}
+            if (row+box.children.length+i >= texts.length) {break;}
+            tops.push(i);
+            let el = document.createElement("code");
+            el.innerHTML = codes[row+box.children.length+i] || "";
+            rows_bottoms.push(((rowel)=>{rowel.innerText = row+rows.children.length+i+1; return rowel;})(document.createElement("li")));
+            bottoms.push(el);
+          }
+          tops = tops.reverse();
+          for (let i=0; i < bottoms.length; i++) {
+            box.insertAdjacentElement("beforeend", bottoms[i]);
+            rows.insertAdjacentElement("beforeend", rows_bottoms[i]);
+          }
+          for (let i of tops) {
+            try {
+              box.children[i].remove();
+              rows.children[i].remove();
+            } catch {}
+          }
+          row += tops.length;
+          box.style.paddingTop = row * fontsize[1] + "px";
+          rows.style.paddingTop = row * fontsize[1] + "px";
+        }
+      }
+      function getCursorPos(x, y) {
+        var pos = [Math.floor(y / fontsize[1]), 0];
+        let index = Math.round(x / fontsize[0]);
+        let i = 0;
+        let result = -1;
+        while (result < index) {
+          result++;
+          if (result < texts[pos[0]].length) {
+            if (texts[pos[0]].isFullSize(result)) {
+              if (i + 2 < index) {
+                i += 2;
+              } else { break; }
+            } else {
+              if (i + 1 < index) {
+                i += 1;
+              } else { break; }
+            }
+          } else {
+            break;
+          }
+        }
+        pos[1] = result;
+        return pos;
+      }
+      function select(start, end) {
+        selection = [...start, ...end];
+        if (start[0] > end[0] || start[0] == end[0] && start[1] > end[1]) {
+          [start, end] = [end, start];
+        }
+        if (start[0] == end[0] && start[1] == end[1]) {
+          selecting = false;
+          document.getElementById("selected-area").replaceChildren();
+          return;
+        }
+        selecting = true;
+        let header = document.createElement("code");
+        let footer;
+        let [node, index, l, index2, tags] = getCursoredNode(...start);
+        let [node2, index3, l2, index4, tags2] = getCursoredNode(...end);
+        let els = [];
+        els.push(header);
+        header.style.marginLeft = "calc(" + fontsize[0] + "px * " + [...(function*(){
+          for (let i=0; i < start[1]; i++) {
+            if (i >= texts[start[0]].length) {
+              break;
+            }
+            yield texts[start[0]].isFullSize(i)?2:1;
+          }
+        })()].reduce((total, i)=>total+i, 0) + ")";
+        if (start[0] == end[0]) {
+          header.innerHTML = tags.join("") + codes[start[0]].slice(index2[0] - (codes[start[0]].slice(0, index2[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length, index4[0] - (codes[end[0]].slice(0, index4[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length).replace(/<[^/][^>]+><\/[^>]+>/g, "");
+        } else {
+          header.innerHTML = tags.join("") + codes[start[0]].slice(index2[0] - (codes[start[0]].slice(0, index2[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length).replace(/<[^/][^>]+><\/[^>]+>/g, "") + " ";
+          footer = document.createElement("code");
+          footer.innerHTML = (codes[end[0]].slice(0, index4[0] - (codes[end[0]].slice(0, index4[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length) + tags2.map((i)=>"</"+i.match(/^<[^ >]+/)[0].slice(1)+">").join("")).replace(/<[^/][^>]+><\/[^>]+>/g, "");
+        }
+        for (let i = start[0] + 1; i < end[0]; i++) {
+          els.push(document.createElement("code"));
+          els.at(-1).innerHTML = codes[i].replace(/<[^/][^>]+><\/[^>]+>/g, "") + " ";
+        }
+        if (footer) {
+          els.push(footer);
+        }
+        document.getElementById("selected-area").style.paddingTop = "calc(1.5em * " + start[0] + ")";
+        document.getElementById("selected-area").replaceChildren(...els);
+      }
+      sensor.addEventListener("pointerdown", (e)=>{
+        console.log([e.offsetX, e.offsetY]);
+        let pos = getCursorPos(e.offsetX, e.offsetY);
+        if (e.shiftKey) {
+          select((selecting?selection:cursor_pos).slice(0, 2), pos);
+        } else {
+          select(pos, pos);
+        }
+        [cursor_pos[0], cursor_pos[1]] = pos;
+        cursor_move();
+        setTimeout(()=>{document.getElementById("cursor-input").focus();}, 10);
+      });
+      sensor.addEventListener("pointermove", (e)=>{
+        if (e.buttons & 1 > 0) {
+          let pos = getCursorPos(e.offsetX, e.offsetY);
+          console.log(e, pos);
+          select((selecting?selection:cursor_pos).slice(0, 2), pos);
+          [cursor_pos[0], cursor_pos[1]] = pos;
+          cursor_move();
+        }
+      });
+      window.addEventListener("resize", (e)=>draw());
+      wrapper.parentNode.addEventListener("scroll", (e)=>{
+        console.log(e);
+        if (handling) {return;}
+        handling = true;
+        var scrollv;
+        if (scrolled[2] == -1) {
+          scrollv = 0;
+        } else {
+          scrollv = (e.target.scrollTop-scrolled[1])*10/(e.timeStamp - scrolled[2]);
+        }
+        scrolled[1] = e.target.scrollTop;
+        scrolled[2] = e.timeStamp;
+        //console.log(scrollv/fontsize[1]);
+        try {
+          clearTimeout(scrollend);
+        } catch {}
+        draw(scrollv);
+        scrollend = setTimeout(()=>{draw();}, 100);
+        handling = false;
+      });
+      wrapper.parentNode.addEventListener("scrollend", (e)=>{
+        scrolled[2] = -1;
+      });
+      for (let popup of document.getElementsByTagName("pop-up")) {
+        if (popup.id == "replace") {
+          popup.addEventListener("ready", ()=>{
+            popup.index = 0;
+            popup.last = null;
+            popup.selectWord = ()=>{
+              popup.last = [popup.body.children[0].children.from.value, popup.body.children[1].children.to.value, popup.body.children[0].getElementsByClassName("large-small")[0].checked, popup.body.children[0].getElementsByClassName("regexp")[0].checked];
+              var words;
+              if (popup.body.children[0].getElementsByClassName("regexp")[0].checked) {
+                words = [...form.editarea.value.matchAll(new RegExp(popup.body.children[0].children.from.value, popup.body.children[0].getElementsByClassName("large-small")[0].checked?"g":"gi"))];
+              } else {
+                var word = popup.body.children[0].children.from.value;
+                if (popup.body.children[0].getElementsByClassName("large-small")[0].checked) {
+                  word = word.toLowerCase();
+                }
+                words = [...form.editarea.value].map((i)=>popup.body.children[0].getElementsByClassName("large-small")[0].checked?i:i.toLowerCase()).reduce((s, i, index, array)=>{
+                  if (s[1] > index) {
+                  } else if (array.slice(index, index+word.length).join("") == word) {
+                    s[0].push([s[2].slice(index, index+word.length)]);
+                    s[0].at(-1).groups = undefined;
+                    s[0].at(-1).input = s[2];
+                    s[0].at(-1).index = index;
+                    s[1] = index+word.length;
+                  }
+                  return s;
+                }, [[], -1, form.editarea.value])[0];
+              }
+              popup.index = Math.min(Math.max(popup.index, 0), words.length-1);
+              word = words[popup.index];
+              form.editarea.selectionStart = word.index;
+              form.editarea.selectionEnd = word.index + word[0].length;
+              form.editarea.focus();
+              popup.focus();
+              popup.words = words;
+            };
+            popup.body.children[2].children.back.addEventListener("click", (e)=>{
+              popup.index -= 1;
+              popup.selectWord();
+            });
+            popup.body.children[2].children.next.addEventListener("click", (e)=>{
+              popup.index += 1;
+              popup.selectWord();
+            });
+            popup.body.children[2].children.replace.addEventListener("click", (e)=>{
+              popup.selectWord();
+              var word = popup.words[popup.index];
+              var neww = popup.body.children[1].children.to.value.replaceAll("\\n", "\n");
+              if (popup.body.children[0].getElementsByClassName("regexp")[0].checked) {
+                form.editarea.value = form.editarea.value.slice(0, word.index)+neww.replaceAll(/\\(?<number>[0-9]+)/g, (i, [...p], offset, string, groups)=>word[parseInt(groups.number)-1])+form.editarea.value.slice(word.index+word[0].length);
+              } else {
+                form.editarea.value = form.editarea.value.slice(0, word.index)+neww+form.editarea.value.slice(word.index+word[0].length);
+              }
+            });
+            popup.body.children[2].children.replaceAll.addEventListener("click", (e)=>{
+              popup.selectWord();
+              
+            });
+          });
+        }
+      }
+      window.addEventListener("beforeunload", (e)=>{
+        if (edited || !document.hasFocus()) {
+          alert("not saved!!!")
+          e.preventDefault();
+          e.returnValue = "";
+          return "";
+        }
+      });
+      window.addEventListener("load", startup);
+    </script>
+    <div hidden>
+      <p>
+        ver. 2.1.0b1
+        update: 2024.11.19 09:29
+      </p>
+    </div>
+  </body>
+</html>
