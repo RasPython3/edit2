@@ -28,10 +28,10 @@ jobs:
       - name: Copy Files
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
-            cp -r * *.md gh-pages/;
+            cp -r `find * | grep -v gh-pages` *.md gh-pages/;
           else
             mkdir gh-pages/dev;
-            cp -r * *.md gh-pages/dev/;
+            cp -r `find * | grep -v gh-pages` *.md gh-pages/dev/;
           fi
       - name: Commit files
         working-directory: gh-pages
