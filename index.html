@@ -2585,6 +2585,9 @@
           cursor_move();
         }
       });
+      sensor.addEventListener("touchend", (e)=>{
+        e.preventDefault();
+      });
       window.addEventListener("resize", (e)=>draw());
       wrapper.parentNode.addEventListener("scroll", (e)=>{
         console.log(e);
