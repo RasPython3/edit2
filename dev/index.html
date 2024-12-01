@@ -2265,7 +2265,7 @@
               let i = 0;
               let count = beforeDeletionLength ? beforeDeletionLength - e.target.value.length : 0;
               while (count > 0) {
-                count -= texts[cursor_pos[0]][cursor_pos[1] - i].length;
+                count -= texts[cursor_pos[0]][cursor_pos[1] - 1 - i].length;
                 i++;
               }
               let ev = new KeyboardEvent("keydown", {key: "Backspace", isComposing: false});
