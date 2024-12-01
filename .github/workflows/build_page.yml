@@ -25,9 +25,11 @@ jobs:
         working-directory: gh-pages
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
-            git rm -rf dev;
-          else
             git rm -rf `find * | grep -v "^dev\(/\|$\)"`;
+          else
+            if [ -d gh-pages/dev ]; then
+              git rm -rf dev;
+            fi
           fi
       - name: Copy Files
         run: |
