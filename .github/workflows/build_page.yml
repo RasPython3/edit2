@@ -1,0 +1,52 @@
+name: build_page
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  build_page:
+    runs-on: ubuntu-latest
+    name: publish
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Checkout GitHub Pages
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - name: Clean files
+        working-directory: gh-pages
+        run: |
+          rm -rf *.html *.js *.css *.html dev/*
+      - name: Copy Files
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            cp -r *.html *.js *.md gh-pages/;
+          else
+            mkdir gh-pages/dev;
+            cp -r *.html *.js *.md gh-pages/dev/;
+          fi
+      - name: Commit files
+        working-directory: gh-pages
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            git add *;
+          else
+            git add dev/*;
+          fi
+          git commit -m "[${{ github.ref_name }}] ${{ github.event.head_commit.message }}" -a
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          directory: gh-pages
+          branch: gh-pages
