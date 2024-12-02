@@ -2161,7 +2161,6 @@
                 cursor_pos[1] -= len;
                 let [node, index, l] = getCursoredNode();
                 console.log(node, index, l, len, cursor_pos[1]);
-                let tlen = texts[cursor_pos[0]].slice(cursor_pos[1], cursor_pos[1]+len).length;
                 texts[cursor_pos[0]] = UTF8String.fromString(texts[cursor_pos[0]].slice(0, cursor_pos[1]) + texts[cursor_pos[0]].slice(cursor_pos[1]+len));
                 arr2 = node.innerText.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g) || [];
                 let i = 0;
@@ -2170,8 +2169,8 @@
                   i2 += (codes[cursor_pos[0]].slice(i2).match(/^(?:<[^>]+>)*(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])(?:<[^>]+>)*/) || [""])[0].length;
                   i += 1;
                 }
-                console.log(i2, i2+tlen*16, codes[cursor_pos[0]].slice(i2, i2+tlen*16));
-                tlen = (codes[cursor_pos[0]].slice(i2, i2+tlen*16).match(/(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).slice(0, tlen).join("").length;
+                console.log(i2, i2+len*16, codes[cursor_pos[0]].slice(i2, i2+len*16));
+                let tlen = (codes[cursor_pos[0]].slice(i2, i2+len*16).match(/(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).slice(0, len).join("").length;
                 codes[cursor_pos[0]] = (codes[cursor_pos[0]].slice(0, i2) + codes[cursor_pos[0]].slice(i2 + tlen)).replace(/<([^\/> ]+)[^>]*><\/\1[^>]+>/g, "");
                 if (node.innerText.length == 0) {
                   while (node.innerText.length == 0 && node.tagName != "CODE") {
