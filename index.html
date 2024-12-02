@@ -2260,6 +2260,9 @@
         document.getElementById("cursor").children[1].addEventListener("input", (e)=>{
           console.log(e.type, e);
           //console.log(document.getElementById("cursor").children[1].selectionStart, document.getElementById("cursor").children[1].selectionEnd);
+          if (e.inputType == "insertCompositionText") {
+            return;
+          }
           if (e.data == null || e.data == undefined) {
             if (e.inputType == "deleteContentBackward") {
               let i = 0;
