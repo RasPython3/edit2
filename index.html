@@ -2237,17 +2237,21 @@
         document.getElementById("cursor").children[1].addEventListener("paste", (e)=>{
           e.preventDefault();
           console.log(e);
-          let text = (event.clipboardData || window.clipboardData).getData("text");
-          let first = true;
-          let ev;
-          for (let i of text.split("\n")) {
-            if (first) {
-              first = false;
+          let text = new UTF8String((event.clipboardData || window.clipboardData).getData("text"));
+          console.log(text);
+          let i = 0;
+          while (i < text.length) {
+            let ev;
+            if (text[i] == "\r" && text[i+1] == "\n") {
               ev = new KeyboardEvent("keydown", {code:"Enter", isComposing:false});
-              handle_keydown(ev);
+              i++;
+            } else if (text[i] == "\n") {
+              ev = new KeyboardEvent("keydown", {code:"Enter", isComposing:false});
+            } else {
+              ev = new InputEvent("input", {data: text[i], isComposing:false});
             }
-            ev = new InputEvent("input", {data: i, isComposing:false});
             e.target.dispatchEvent(ev);
+            i++;
           }
         });
         document.getElementById("cursor").children[1].addEventListener("beforeinput", (e)=>{
