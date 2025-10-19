@@ -2144,7 +2144,7 @@
         //cursor_pos[2] = cursor_pos[0];
         //cursor_pos[4] = (texts.slice(0, cursor_pos[0]).join("\n").match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).length + cursor_pos[1] + (cursor_pos[0] != 0);
         document.getElementById("cursor").style.top = (1.5*cursor_pos[0]) + "em";
-        document.getElementById("cursor").style.left = (fontsize[0]*cursor_pos[2]) + "px";
+        document.getElementById("cursor").style.left = (0.5*cursor_pos[2]) + "em";
         var node = getCursoredNode()[0];
         if (node?.nodeType == Node.TEXT_NODE) {
           node = node.parentNode;
