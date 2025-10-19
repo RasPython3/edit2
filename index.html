@@ -2425,8 +2425,8 @@
               if (cursor_pos[1] == 0) {
                 if (cursor_pos[0] > 0) {
                   cursor_pos[1] = texts[cursor_pos[0] - 1].length;
-                  texts[cursor_pos[0] - 1] = UTF8String.fromString(texts[cursor_pos[0] - 1] + texts.splice(cursor_pos[0], 1)[0]);
-                  codes.lines.splice(cursor_pos[0] - 1, 1, codes.lines[cursor_pos[0] - 1] + codes.lines[cursor_pos[0]]);
+                  texts.splice(cursor_pos[0] - 1, 2, UTF8String.fromString(texts[cursor_pos[0] - 1].toString() + texts.splice(cursor_pos[0], 1).toString()));
+                  codes.lines.splice(cursor_pos[0] - 1, 2, codes.lines[cursor_pos[0] - 1].concat(codes.lines[cursor_pos[0]]));
                   codes.regen();
                   let node = document.getElementById("code-area").children[cursor_pos[0]-row];
                   let rowul = document.querySelector(".modern div.rows > ul");
