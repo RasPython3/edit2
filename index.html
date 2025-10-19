@@ -2548,22 +2548,63 @@
         document.getElementById("cursor").children[1].addEventListener("paste", (e)=>{
           e.preventDefault();
           console.log(e);
-          let text = new UTF8String((event.clipboardData || window.clipboardData).getData("text"));
-          console.log(text);
-          let i = 0;
-          while (i < text.length) {
-            let ev;
-            if (text.slice(i, i+1).toString() == "\r\n") {
-              ev = new KeyboardEvent("keydown", {code:"Enter", isComposing:false});
-              //i++;
-            } else if (text.slice(i, i+1).toString() == "\n") {
-              ev = new KeyboardEvent("keydown", {code:"Enter", isComposing:false});
-            } else {
-              ev = new InputEvent("input", {data: text.slice(i, i+1), isComposing:false});
-            }
-            e.target.dispatchEvent(ev);
-            i++;
+          let text = (event.clipboardData || window.clipboardData).getData("text");
+          let data = text.split(/\r?\n/g);
+
+          let node = getCursoredNode()[0];
+
+          if (data.length > 1) {
+            texts.splice(cursor_pos[0], 1,
+              new UTF8String(texts[cursor_pos[0]].slice(0, cursor_pos[1]).toString() + data[0]),
+              ...data.slice(1, -1).map((t)=>new UTF8String(t)),
+              new UTF8String(data.at(-1) + texts[cursor_pos[0]].slice(cursor_pos[1]).toString())
+            );
+          } else {
+            texts.splice(cursor_pos[0], 1,
+              new UTF8String(texts[cursor_pos[0]].slice(0, cursor_pos[1]).toString() + data[0] + texts[cursor_pos[0]].slice(cursor_pos[1]).toString()),
+            );
           }
+
+          let indexes = [0];
+          let k = 0;
+          while (indexes.length > 0) {
+            let {p, c} = indexes.reduce(({p, c}, index)=>{
+              return {p:c, c:c.children[index]};
+            }, {p:undefined, c:{children: codes.lines[cursor_pos[0]]}});
+            if (c) {
+              console.log(c);
+              if (UTF8String.prototype.isPrototypeOf(c)) {
+                if (c.length < cursor_pos[1] - k) {
+                  k += c.length;
+                } else {
+                  p.children[indexes.at(-1)] = new c.constructor(c.slice(0, cursor_pos[1] - k).toString() + text.replace(/\r\n/g, "\n") + c.slice(cursor_pos[1] - k).toString());
+                  break;
+                }
+                indexes.push(indexes.pop()+1);
+              } else {
+                indexes.push(0);
+              }
+            } else {
+              if (indexes.length > 1) {
+                indexes.splice(-2, 2, indexes.at(-2)+1);
+              } else {
+                p.children.push(new HljsUTF8String(text.replace(/\r\n/g, "\n")));
+                break;
+              }
+            }
+          }
+          codes.regen();
+          while (node && node.tagName != "CODE") {
+            node = node ? node.parentElement : node;
+          }
+          for (let i = 0; node && i < data.length; i++) {
+            node.innerHTML = codes.values[cursor_pos[0]+i] || "";
+            node = node.nextElementSibling;
+          }
+          cursor_pos[0] += data.length - 1;
+          cursor_pos[1] = (new UTF8String(data.at(-1))).length + (data.length > 1 ? 0 : cursor_pos[1]);
+          draw();
+          cursor_move();
         });
         document.getElementById("cursor").children[1].addEventListener("beforeinput", (e)=>{
           if (e.inputType == "deleteContentBackward") {
