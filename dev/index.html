@@ -258,6 +258,7 @@
         display: inline-block;
         width: 100%;
         height: 1.5em;
+        line-height: 1.5em;
       }
       #code-area > code * {
         color: var(--color);
@@ -300,6 +301,7 @@
         width: fit-content;
         max-width: 1em;;
         height: 100%;
+        line-height: 1.5em;
         padding: 0px;
         margin: 0px;
         border: 0px;
@@ -355,6 +357,9 @@
         height: 1.5em;
         color: transparent;
         background-color: var(--color);
+      }
+      #selected-area > code:not(:last-child) {
+        padding-right: 0.5em;
       }
       #sensor {
         position: absolute;
@@ -730,8 +735,69 @@
       .modern {
         display: none ! important;
       }
+      .modern span.hljs-attention {
+        outline: dashed 1px red;
+        outline-offset: -1px;
+      }
+      .modern span.hljs-zerowidth {
+        width: 0.5em;
+        margin-left: -0.25em;
+        margin-right: -0.25em;
+      }
       .modern span.hljs-zenkaku {
         width: 1em;
+      }
+      .modern span.hljs-hankaku {
+        width: 0.5em;
+      }
+      .modern span.hljs-verywide {
+        min-width: 0.5em;
+        max-width: 7em;
+      }
+      .modern span.hljs-verywide.w-0 {
+        width: 0em;
+      }
+      .modern span.hljs-verywide.w-1 {
+        width: 0.5em;
+      }
+      .modern span.hljs-verywide.w-2 {
+        width: 1em;
+      }
+      .modern span.hljs-verywide.w-3 {
+        width: 1.5em;
+      }
+      .modern span.hljs-verywide.w-4 {
+        width: 2em;
+      }
+      .modern span.hljs-verywide.w-5 {
+        width: 2.5em;
+      }
+      .modern span.hljs-verywide.w-6 {
+        width: 3em;
+      }
+      .modern span.hljs-verywide.w-7 {
+        width: 3.5em;
+      }
+      .modern span.hljs-verywide.w-8 {
+        width: 4em;
+      }
+      .modern span.hljs-verywide.w-9 {
+        width: 4.5em;
+      }
+      .modern span.hljs-verywide.w-10 {
+        width: 5em;
+      }
+      .modern span.hljs-verywide.w-11 {
+        width: 5.5em;
+      }
+      .modern span.hljs-verywide.w-12 {
+        width: 6em;
+      }
+      .modern span.hljs-verywide.w-13 {
+        width: 6.5em;
+      }
+      .modern span.hljs-verywide.w-14 {
+        width: 7em;
       }
     </style>
     <form name="editor">
@@ -1092,71 +1158,263 @@
       });
     </script>
     <script>
-      class UTF8String {
-        constructor(string) {
-          this.string = string;
-          this.byteLengths = [];
-          for (let m of string.matchAll(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/g)) {
-            Object.defineProperty(this, this.byteLengths.length, {
-              value: m[0],
-              writable: false
-            });
-            this.byteLengths.push((this.byteLengths.at(-1) || 0) + m[0].length);
+      if (window.Intl) {
+        _seg = new Intl.Segmenter(options={granularity: "grapheme"})
+      } else {
+        _seg = {
+          segment: (input)=>{
+            let result = {};
+            result[Symbol.iterator] = ()=>{
+              let iter = {count: 0, index: 0};
+              iter.next = ()=>{
+                let m = input.slice(index).match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]/);
+                let i = m ? {
+                  segment: m[0],
+                  index: iter.index,
+                  input: input,
+                  isWordLike: false
+                } : undefined;
+                iter.index += m ? m[0].length : 0;
+                iter.count += m ? 1 : 0;
+                return {
+                  value: i, done: m == undefined
+                }
+              };
+              return iter;
+            };
+            result.containing = (index)=>{
+              for (let seg of result) {
+                if (seg.index + segment.length <= index) {
+                  return seg;
+                }
+              }
+            };
+            return result;
           }
-          this.match = this.string.match.bind(this);
-          this.matchAll = this.string.matchAll.bind(this);
-          this.replace = this.string.replace.bind(this);
-          this.split = this.string.split.bind(this);
+        };
+      }
+
+      class UTF8Char {
+        static _ctx = document.createElement('canvas').getContext('2d');
+
+        constructor(char) {
+          this.char = char;
+        }
+        get isCombining() {
+          return this.char.match(/^\p{M}$/u) != undefined;
+        }
+        get width() {
+          if (this.char == "\t") {
+            return indent || 1;
+          } else if (this.char.charCodeAt(0) < 20) {
+            return 2;
+          } else if (this.char.charCodeAt(0) <= 0x7f) {
+            return 1;
+          }
+          UTF8Char._ctx.font = "16px monospace";
+          return Math.ceil(UTF8Char._ctx.measureText(this.char).width / 8);
+        }
+        toString() {
+          return this.char;
+        }
+      }
+
+      class UTF8String extends Array {
+        constructor(string) {
+          super();
+          this._string = string;
+          this._gen();
+        }
+        _gen() {
+          for (let seg of _seg.segment(this._string)) {
+            seg.segment.split(/(?=\p{M})/gu).forEach((ch)=>{
+              this.push(new UTF8Char(ch));
+            });
+          }
         }
         static fromString(string) {
           return new this(string);
         }
+        charWidthAt(index) {
+          return this.at(index).width;
+        }
+        charCodeAt(index) {
+          return this.at(index)?.char.charCodeAt(0);
+        }
         isFullSize(index) {
-          let ch = this.at(index);
-          if (ch == undefined) {
-            return false;
-          }
-          return ch.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/) != null;
+          return this.charWidthAt(index) > 1;
         }
-        at(index) {
-          if (index == 0) {
-            return this.string.slice(0, this.byteLengths.at(0) || undefined);
-          } else if (-1 * this.byteLengths.length <= index && index < this.byteLengths.length) {
-            return this.slice(index, index!=-1?index+1:undefined);
-          } else {
-            return undefined;
-          }
-        }
-        slice(indexStart, indexEnd=undefined) {
-          let start, end;
-          if (indexStart != undefined && indexStart != 0) {
-            start = this.byteLengths.at(Math.max(Math.min(this.byteLengths.length, indexStart), -1*this.byteLengths.length) - 1) || 0;
-          } else  {
-            start = 0;
-          }
-          if (indexEnd != undefined) {
-            if (indexEnd != 0) {
-              end = this.byteLengths.at(Math.max(Math.min(this.byteLengths.length, indexEnd), -1*this.byteLengths.length) - 1) || 0;
-            } else  {
-              end = 0;
-            }
-          }
-          return this.string.slice(start, end);
-        }
-        valueOf() {
-          return this.string;
+        slice(start, end) {
+          return new this.constructor(super.slice(start, end).join(""));
         }
         toString() {
-          return this.string;
+          return this.join("");
         }
-        get length() {
-          return this.byteLengths.length;
+        includes() {
+          return this._string.includes.bind(this._string);
+        }
+        replace(pattern, replacement) {
+          return new this.constructor(this._string.replace(pattern, replacement));
+        }
+        match(regexp) {
+          return this._string.match(regexp);
+        }
+      }
+    </script>
+    <script>
+      class HljsUTF8String extends UTF8String {
+        get children() {
+          let result = [];
+          this.forEach((ch)=>{
+            if (ch.char == "\t") {
+              result.push({
+                scope: "verywide hljs-tab w-" + ch.width,
+                children: [ch.char]
+              });
+            } else if (ch.char.charCodeAt(0) < 0x20) {
+              result.push({
+                scope: "zenkaku hljs-attention",
+                children: [String.fromCharCode(ch.char.charCodeAt(0) + 0x2400)]
+              });
+            } else if (ch.isCombining && result.length) {
+              if ("string" === typeof result.at(-1)) {
+                result.push(ch.char);
+              } else {
+                result.at(-1).children.push(ch.char);
+              }
+            } else {
+              let spaceAttention = ch.char.match(/^\s+$/) != undefined && ch != " ";
+              if (ch.width == 1 && !spaceAttention) {
+                result.push(ch.char);
+              } else if (ch.width == 1) {
+                result.push({
+                  scope: "hankaku" + (spaceAttention ? " hljs-attention" : ""),
+                  children: [ch.char]
+                });
+              } else if (ch.width == 2) {
+                result.push({
+                  scope: "zenkaku" + (spaceAttention ? " hljs-attention" : ""),
+                  children: [ch.char]
+                });
+              } else if (ch.width == 0) {
+                result.push({
+                  scope: "zerowidth hljs-attention",
+                  children: [ch.char]
+                });
+              } else {
+                result.push({
+                  scope: "verywide w-" + ch.width + (spaceAttention ? " hljs-attention" : ""),
+                  children: [ch.char]
+                });
+              }
+            }
+          });
+          return result;
+        }
+      }
+
+      class HljsCustomPlugin {
+        constructor(options) {}
+
+        process(root, obj, scopes, flags) {
+          if (obj.scope) {
+            scopes.push(obj.scope);
+          }
+          if (obj.children) {
+            let index;
+            for (index = 0; !flags.abort && index < obj.children.length; index++) {
+              let child = obj.children.at(index);
+              if (obj == root) {
+                flags.root_index = index;
+              }
+              if (UTF8String.prototype.isPrototypeOf(child)) {
+                child = child.toString();
+              }
+              if (typeof child === "string") {
+                if (child.length == 0) {
+                  obj.children.splice(index, 1);
+                  index--;
+                  continue;
+                }
+                let splitted = child.toString().split("\n");
+                obj.children[index] = new HljsUTF8String(splitted.at(0));
+                if (splitted.length > 1) {
+                  root.children.splice(flags.root_index+1, 0, ...splitted.slice(1, -1).map(function(t){
+                    return scopes.reduceRight(function(accum, scope){
+                      return {scope: scope, children: [accum]};
+                    }, new HljsUTF8String(t));
+                  }).reduce((accum, cur)=>{
+                    accum.push(cur, "\n");
+                    return accum;
+                  }, ["\n"]));
+                  flags.root_index += splitted.length * 2 - 3;
+                  root.children.splice(flags.root_index+1, 0, splitted.at(-1));
+                  if (obj != root) {
+                    flags.abort = true;
+                  } else {
+                    index = flags.root_index;
+                  }
+                }
+              } else {
+                this.process(root, child, scopes, flags);
+                if (flags.abort && obj == root) {
+                  flags.abort = false;
+                  index = flags.root_index;
+                }
+              }
+            }
+            if (flags.abort) {
+              root.children[flags.root_index+1] = {
+                scope: obj.scope, children: [root.children[flags.root_index+1], ...obj.children.splice(index)]
+              };
+            }
+          }
+          scopes.pop();
+        }
+
+        'after:highlight'(result) {
+          if (result._emitter) {
+            this.process(result._emitter.rootNode, result._emitter.rootNode, [], {root_index: 0, abort: false});
+            result._emitter.rootNode.children = result._emitter.rootNode.children.reduce((accum, cur)=>{
+              if (accum.length > 0 && UTF8String.prototype.isPrototypeOf(accum.at(-1))) {
+                if (UTF8String.prototype.isPrototypeOf(cur)) {
+                  accum.splice(-1, 1, new (accum.at(-1)).constructor(accum.at(-1).toString() + cur.toString()));
+                } else if (accum.at(-1).length == 0) {
+                  accum.splice(-1, 1, cur);
+                } else {
+                  accum.push(cur);
+                }
+              } else {
+                accum.push(cur);
+              }
+              return accum;
+            }, []);
+            result.value = result._emitter.toHTML();
+            result.values = result.value.split("\n");
+            result.lines = [[]];
+            result._emitter.rootNode.children.forEach((obj)=>{
+              if (obj == "\n") {
+                result.lines.push([]);
+              } else {
+                result.lines.at(-1).push(obj);
+              }
+            });
+            result.lines.forEach((line)=>{
+              if (line.length == 0) {
+                line.push(new UTF8String(""));
+              }
+            });
+            result.regen = result.regen ? result.regen : ()=>{
+              result._emitter.rootNode.children = result.lines.flatMap((line)=>[new UTF8String("\n"), ...line]).slice(1);
+              this['after:highlight'](result);
+            };
+          }
         }
       }
     </script>
     <script type="text/javascript">
       var texts = [new UTF8String("")];
-      var codes = [""];
+      var codes = {values:[""], lines:[[new UTF8String("")]]};
       var reader;
       var filename = "untitled.txt";
       var form = document.forms.editor;
@@ -1279,6 +1537,8 @@
           form.editarea.focus();
           cursor_move();
         } catch {}
+        hljs.addPlugin(new HljsCustomPlugin());
+        codes = hljs.highlight("", {language: "text"});
         loadSettings();
         modeChange();
         // mobile controller
@@ -1694,24 +1954,22 @@
               texts.push(UTF8String.fromString(line[0]));
             }
             wrapper.style.height = fontsize[1] * texts.length + "px";
-            codes = Array(texts.length);
+            codes.values = Array(texts.length);
             //document.getElementById("code-area")
             document.getElementById("code-area").replaceChildren();
             rows.replaceChildren();
             for (let i=0; i < Math.min(50, texts.length); i++) {
               rows.appendChild(((el)=>{el.innerText=i+1; return el;})(document.createElement("li")));
             }
-            codes.splice(0, 50,  hljs.highlight(reader.result, {language:lang}).value.replaceAll(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/g, (match, offset, string)=>{return "<span class=\"hljs-zenkaku\">"+match+"</span>"}).replaceAll(/\n/g, (match, offset, string)=>{m = string.slice(Math.max(0, offset-1024), offset).match(/(?<start><(?<tag>[^ \/>]+)[^>]*?>)[^<>]*$/); if (m != undefined) {return "</"+m.groups.tag+">\n"+m.groups.start} else {return "\n"}}).split("\n").slice(0, 50).map((code)=>{let el=document.createElement("code");el.innerHTML=code; document.getElementById("code-area").appendChild(el);return code;}));
-            setTimeout(()=>{
-              let tmp_codes = hljs.highlight(reader.result, {language:lang}).value.replaceAll(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/g, (match, offset, string)=>{return "<span class=\"hljs-zenkaku\">"+match+"</span>"}).replaceAll(/\n/g, (match, offset, string)=>{m = string.slice(Math.max(0, offset-1024), offset).match(/(?<start><(?<tag>[^ \/>]+)[^>]*?>)[^<>]*$/); if (m != undefined) {return "</"+m.groups.tag+">\n"+m.groups.start} else {return "\n"}}).split("\n");
-              codes = tmp_codes;
-              for (let i = row; i < codes.length; i++) {
-                let el = document.getElementById("code-area").children[i-row];
-                if (el != undefined) {
-                  el.innerHTML = codes[i];
-                }
+            let highlighted = hljs.highlight(reader.result, {language:lang});
+            console.log(highlighted);
+            codes = highlighted; //highlighted.values;
+            for (let i = row; i < codes.values.length; i++) {
+              let el = document.getElementById("code-area").children[i-row];
+              if (el != undefined) {
+                el.innerHTML = codes.values[i];
               }
-            }, 1);
+            }
           }, {once: true});
           document.getElementById("file_name").innerText = filename;
           document.querySelectorAll(".tabs")[0].children[0].innerText = filename;
@@ -1755,54 +2013,49 @@
         }
       }
       function getCursoredNode(r=cursor_pos[0], c=cursor_pos[1]) {
-        let l = [0, ]; //-codes[cursor_pos[0]].startsWith("<"),];
-        let i = 0;
-        let i2 = 0;
-        let i4 = [0, ];
-        let i5 = 0;
-        let tags = [];
-        let last = 1;
-        while (i2 <= c && i <= codes[r].length) {
-            let i3 = [...((codes[r]+"\n").slice(i, i+50).match(/^(?:[^<>&]|(?:&[^<>;]+;))*/) || [""])[0].matchAll(/&[^;]+;|.|\n/g)];
-            if (i3.length > 0) {
-              i2 += i3.length;
-              if (i2 > c + 1) {
-                i3 = i3.slice(0, c+1-i2)
-                i2 = c + 1;
-              }
-              let len = i3.join("").length;
-              l.push(l.pop() + (last != 0));
-              i += len;
-              i4 = i4.map((i)=>i+len);
-              i5 += len;
-              last = 0;
-            } else {
-              last = 1;
-              i3 = codes[r].slice(i, i+50).match(/^<(?<slash>\/?)(?<tag>[^ >]+)(?: (?<style>style=(?:'[^']*'|"[^"]*"))| (?<class>class=(?:'[^']*'|"[^"]*")))*>/);
-              if (i3 == undefined) {
-                break;
-              } else if (i3.groups.slash) {
-                l.pop();
-                i4.pop();
-                i4 = i4.map((i)=>i+i3[0].length);
-                tags.pop();
-                l.push(l.pop() + 1);
+        let indexes = [0];
+        let k = 0;
+        while (k <= c) {
+          let {p, cur} = indexes.reduce(({p, cur}, index)=>{
+            return {p:c, cur:cur.children[index]};
+          }, {p:undefined, cur:{children: codes.lines[r]}});
+          if (cur) {
+            if (UTF8String.prototype.isPrototypeOf(cur)) {
+              if (cur.length <= c - k) {
+                k += cur.length;
               } else {
-                l.push(0);
-                tags.push(i3[0]);
-                i4 = [...i4.map((i)=>i+i3[0].length), 0];
+                break;
               }
-              i += i3[0].length;
-              i5 = 0;
+              indexes.push(indexes.pop()+1);
+            } else {
+              indexes.push(0);
+            }
+          } else {
+            if (indexes.length > 1) {
+              indexes.splice(-2, 2, indexes.at(-2)+1);
+            } else {
+              indexes.splice(0, 1);
+              break;
             }
           }
-          var node = document.querySelector("#code-area").children[r-row];
-          l.pop();
-          for (let i of l) {
-            node = node?node.childNodes[i]:node;
-            //console.log(node);
-          }
-        return [node, i5, l, i4, tags];
+        }
+        console.log(indexes);
+
+        var node = document.querySelector("#code-area").children[r-row];
+        indexes.pop();//l.pop();
+        for (let i of indexes) {
+          node = node ? node.childNodes[i] : node;
+          /*node = node
+            ? Array.from(node.childNodes).filter((n)=>
+              !(
+                n.classList?.contains("hljs-hankaku") ||
+                n.classList?.contains("hljs-zenkaku") ||
+                n.classList?.contains("hljs-verywide")
+              ))[i]
+            : node;*/
+          //console.log(node);
+        }
+        return [node,];//[node, i5, l, i4, tags];
       }
       function cursor_move(x=0, y=0) {
         cursor_pos[0] += y;
@@ -1829,6 +2082,9 @@
             cursor_pos[1] = 0;
           }
         }
+        while (texts[cursor_pos[0]][cursor_pos[1]]?.isCombining) {
+          cursor_pos[1] += x > 0 ? 1 : -1;
+        }
         if (x || y) {
           if ((cursor_pos[0] - 4) * fontsize[1] < document.querySelector(".modern div.textarea").scrollTop) {
             document.querySelector(".modern div.textarea").scrollBy(0, (cursor_pos[0] - 4) * fontsize[1] - document.querySelector(".modern div.textarea").scrollTop);
@@ -1843,7 +2099,7 @@
           var arr = [];
           for (let i = 0; i < cursor_pos[1]; i++) {
             if (i < textarr.length) {
-              arr.push(textarr.isFullSize(i));
+              arr.push(textarr.charWidthAt(i));
             } else {
               if (x) {
                 cursor_pos[1] = i;
@@ -1856,11 +2112,21 @@
             }
           };
           return arr;
-        })(texts[cursor_pos[0]]).reduce((total, i)=>{if (i) {return total+2} else {return total+1}}, 0);
+        })(texts[cursor_pos[0]]).reduce((total, i)=>total+i, 0);
         if (texts[cursor_pos[0]]) {
           //console.log(texts[cursor_pos[0]].slice(0, cursor_pos[1]));
           //console.log(2);
-          document.getElementById("cursor-letter").innerText = texts[cursor_pos[0]][cursor_pos[1]] ||" "; //[cursor_pos[1]];
+          // handle combining marks
+          let len = 1;
+          while (texts[cursor_pos[0]][cursor_pos[1]+len]?.isCombining) {
+            len++;
+          }
+          let ch = texts[cursor_pos[0]].slice(cursor_pos[1], cursor_pos[1] + len) || " ";
+          console.log(ch);
+          if (ch.charCodeAt(0) < 0x20 && ch != "\t") {
+            ch = String.fromCharCode(ch.charCodeAt(0) + 0x2400);
+          }
+          document.getElementById("cursor-letter").innerText = ch; //[cursor_pos[1]];
           //console.log(3);
         } else {
           document.getElementById("cursor-letter").innerText = " ";
@@ -1877,7 +2143,7 @@
         document.getElementById("cursor").style.top = (1.5*cursor_pos[0]) + "em";
         document.getElementById("cursor").style.left = (fontsize[0]*cursor_pos[2]) + "px";
         var node = getCursoredNode()[0];
-        if (node.nodeType == Node.TEXT_NODE) {
+        if (node?.nodeType == Node.TEXT_NODE) {
           node = node.parentNode;
         }
         style = window.getComputedStyle(node);
@@ -1918,27 +2184,28 @@
           deleted = [selection[2], selection[3], selection[0], selection[1]];
         }
         texts[deleted[0]] = UTF8String.fromString(texts[deleted[0]].slice(0, deleted[1]) + texts[deleted[2]].slice(deleted[3]));
-        codes[deleted[0]] = hljs.highlight(texts[deleted[0]], {language:lang}).value.replaceAll(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/g, (match, offset, string)=>{return "<span class=\"hljs-zenkaku\">"+match+"</span>"});
+        codes.lines[deleted[0]] = hljs.highlight(texts[deleted[0]], {language:lang}).lines[0];
         if (deleted[2] - deleted[0] > 0) {
           texts.splice(deleted[0]+1, deleted[2] - deleted[0]);
-          codes.splice(deleted[0]+1, deleted[2] - deleted[0]);
+          codes.lines.splice(deleted[0]+1, deleted[2] - deleted[0]);
         }
+        codes.regen();
         for (let i=deleted[2]; i>=deleted[0]; i--) { // from later to earlier
           if (i >= row && i <= row + document.querySelector("#code-area").children.length) {
             let el = document.querySelector("#code-area").children[i-row];
             let rownum = document.querySelector(".modern div.rows > ul").lastChild;
             if (i == deleted[0]) {
-              el.innerHTML = codes[deleted[0]];
+              el.innerHTML = codes.values[deleted[0]];
               //rownum.innerText = i+1;
             } else if (row <= i && i < row + document.querySelector("#code-area").children.length) {
-              if (codes.length > row+document.querySelector("#code-area").children.length+deleted[0]-i) {
-                el.innerHTML = codes[row+document.querySelector("#code-area").children.length+deleted[0]-i];
+              if (codes.values.length > row+document.querySelector("#code-area").children.length+deleted[0]-i) {
+                el.innerHTML = codes.values[row+document.querySelector("#code-area").children.length+deleted[0]-i];
                 //rownum.innerText = row+document.querySelector("#code-area").children.length;
                 document.querySelector("#code-area").insertAdjacentElement("beforeend", el);
                 //document.querySelector(".modern div.rows > ul").insertAdjacentElement("beforeend", rownum);
                 //row--; // FIXME!!!!!
               } else if (row > 0) {
-                el.innerHTML = codes[row-1];
+                el.innerHTML = codes.values[row-1];
                 rownum.innerText = row;
                 document.querySelector("#code-area").insertAdjacentElement("afterbegin", el);
                 document.querySelector(".modern div.rows > ul").insertAdjacentElement("afterbegin", rownum);
@@ -1948,7 +2215,7 @@
                 rownum.remove();
               }
             } else if (el) {
-              el.innerHTML = codes[row+document.querySelector("#code-area").children.length];
+              el.innerHTML = codes.values[row+document.querySelector("#code-area").children.length];
               //rownum.innerText = row+document.querySelector("#code-area").children.length+1;
               document.querySelector("#code-area").insertAdjacentElement("beforeend", el);
               //document.querySelector(".modern div.rows > ul").insertAdjacentElement("beforeend", rownum);
@@ -2004,7 +2271,8 @@
               for (let i=selection[0]; selection[0]<=selection[2]?i <= selection[2]:i >= selection[2]; i+=(selection[0]<=selection[2]?1:-1)) {
                 if (!e.shiftKey) {
                   texts[i] = UTF8String.fromString(" ".repeat(indent) + texts[i]);
-                  codes[i] = " ".repeat(indent) + codes[i];
+                  codes.lines[i].splice(0, 0, " ".repeat(indent))
+                  codes.regen();
                   if (cursor_pos[0] == i) {
                     cursor_pos[1] += indent;
                   }
@@ -2015,27 +2283,33 @@
                     selection[3] += indent;
                   }
                 } else {
-                  texts[i] = UTF8String.fromString(texts[i].replace(new RegExp("[ ]{" + indent + "}|[ ]*"), ""));
+                  let m = texts[i].match(new RegExp("[ ]{0," + indent + "}"));
+                  let count = m[0].length;
+                  texts[i] = texts[i].slice(count);
+                  let indexes = [0];
                   let k = 0;
-                  let count = 0;
-                  while (count < indent) {
-                    if (codes[i][k] == "<") {
-                      while (k < codes[i].length) {
-                        if (codes[i][k] == ">") {
+                  while (k < count) {
+                    let {p, c} = indexes.reduce(({p, c}, index)=>{
+                      return {p:c, c:c.children[index]};
+                    }, {p:undefined, c:{children: codes.lines[i]}});
+                    if (c) {
+                      if (UTF8String.prototype.isPrototypeOf(c)) {
+                        if (c.length <= count - k) {
+                          k += c.length;
+                          p.children[indexes.at(-1)] = "";
+                        } else {
+                          p.children[indexes.at(-1)] = c.slice(count - k);
                           break;
                         }
-                        k++;
-                      }
-                      k++;
-                    } else {
-                      if (codes[i][k] != " ") {
-                        break;
+                        indexes.push(indexes.pop()+1);
                       } else {
-                        codes[i] = codes[i].slice(0, k) + codes[i].slice(k+1);
-                        count++;
+                        indexes.push(0);
                       }
+                    } else {
+                      indexes.splice(-2, 2, indexes.at(-2)+1);
                     }
                   }
+                  codes.regen();
                   if (cursor_pos[0] == i) {
                     cursor_pos[1] -= count;
                   }
@@ -2047,7 +2321,7 @@
                   }
                 }
                 if (i >= row && i < row + document.getElementById("code-area").children.length) {
-                  document.getElementById("code-area").children[i-row].innerHTML = codes[i];
+                  document.getElementById("code-area").children[i-row].innerHTML = codes.values[i];
                 }
                 select([selection[0], Math.max(0, selection[1])], [selection[2], Math.max(0, selection[3])]); // avoid negative
                 cursor_move();
@@ -2077,39 +2351,58 @@
                 deleteSelected();
               }
               spaces = texts[cursor_pos[0]].match(/^[ \t]*/)[0].slice(0, cursor_pos[1]);
-              let newline = spaces;
-              let len = (codes[cursor_pos[0]].match("^(?:(?:<[^>]+>)*(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])(?:<[^>]+>)?){"+cursor_pos[1]+"}") || [""])[0].length;
-              let tags = ((data)=>{
-                let result = [...data[4]];
-                for (let i = data[3].length-1; i > 0; i--) {
-                  if (data[3][i] == 1) {
-                    result.pop();
+
+              let indexes = [0];
+              let k = 0;
+              while (k <= cursor_pos[1] && k <= texts[cursor_pos[0]].length) {
+                let {p, c} = indexes.reduce(({p, c}, index)=>{
+                  return {p:c, c:c.children[index]};
+                }, {p:undefined, c:{children: codes.lines[cursor_pos[0]]}});
+                if (c) {
+                  if (UTF8String.prototype.isPrototypeOf(c)) {
+                    if (c.length < Math.min(texts[cursor_pos[0]].length - 1, cursor_pos[1]) - k) {
+                      k += c.length;
+                    } else {
+                      p.children[indexes.at(-1)] = new c.constructor(c.slice(0, cursor_pos[1] - k).toString() + "\n" + spaces + c.slice(cursor_pos[1] - k).toString());
+                      break;
+                    }
+                    indexes.push(indexes.pop()+1);
                   } else {
-                    break;
+                    if (c.scope) {
+                      scopes.push(c.scope);
+                    }
+                    indexes.push(0);
                   }
+                } else {
+                  indexes.splice(-2, 2, indexes.at(-2)+1);
                 }
-                return result;
-              })(getCursoredNode(cursor_pos[0], cursor_pos[1]+1));
-              let tagends = tags.map((i)=>"</"+i.match(/^<[^ >]+[ >]/)[0].slice(1, -1)+">");
-              newline += tags.join("") + codes[cursor_pos[0]].slice(len);
-              codes[cursor_pos[0]] = codes[cursor_pos[0]].slice(0, len) + tagends.join("");
-              codes.splice(cursor_pos[0]+1, 0, newline);
-              document.getElementById("code-area").children[cursor_pos[0]-row].innerHTML = codes[cursor_pos[0]];
-              newline = UTF8String.fromString(spaces + texts[cursor_pos[0]].slice(cursor_pos[1]));
+              }
+              codes.regen();
+              let i = 0;
+              let el;
+              do {
+                el = document.getElementById("code-area").children[cursor_pos[0]-row+i];
+                if (el) {
+                  el.innerHTML = codes.values[cursor_pos[0]+i] || "";
+                  i++;
+                }
+              } while (el);
+
+              let newline = UTF8String.fromString(spaces + texts[cursor_pos[0]].slice(cursor_pos[1]));
               texts[cursor_pos[0]] = UTF8String.fromString(texts[cursor_pos[0]].slice(0, cursor_pos[1]));
               texts.splice(cursor_pos[0]+1, 0, newline);
               if (texts.length >= document.getElementById("code-area").children.length) {
                 //let node = document.createElement("code");
-                //node.innerHTML = codes[cursor_pos[0]+1];
+                //node.innerHTML = codes.values[cursor_pos[0]+1];
                 //document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
               } else if (row + document.getElementById("code-area").children.length <= texts.length) {
                 //let node = document.getElementById("code-area").children[0];
-                //node.innerHTML = codes[cursor_pos[0]+1];
+                //node.innerHTML = codes.values[cursor_pos[0]+1];
                 //document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
                 //row += 1;
               } else {
                 //let node = [...document.getElementById("code-area").children].at(-1);
-                //node.innerHTML = codes[cursor_pos[0]+1];
+                //node.innerHTML = codes.values[cursor_pos[0]+1];
                 //document.getElementById("code-area").insertBefore(node, document.getElementById("code-area").children[cursor_pos[0]-row+1]);
               }
               cursor_pos[0] += 1;
@@ -2128,12 +2421,13 @@
               let arr2;
               if (cursor_pos[1] == 0) {
                 if (cursor_pos[0] > 0) {
-                  cursor_pos[1] = (texts[cursor_pos[0] - 1].match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g) || []).length;
+                  cursor_pos[1] = texts[cursor_pos[0] - 1].length;
                   texts[cursor_pos[0] - 1] = UTF8String.fromString(texts[cursor_pos[0] - 1] + texts.splice(cursor_pos[0], 1)[0]);
-                  codes[cursor_pos[0] - 1] = codes[cursor_pos[0] - 1] + codes.splice(cursor_pos[0], 1)[0];
+                  codes.lines.splice(cursor_pos[0] - 1, 1, codes.lines[cursor_pos[0] - 1] + codes.lines[cursor_pos[0]]);
+                  codes.regen();
                   let node = document.getElementById("code-area").children[cursor_pos[0]-row];
                   let rownum = document.querySelector(".modern div.rows > ul").children[cursor_pos[0]-row];
-                  document.getElementById("code-area").children[cursor_pos[0]-1-row].innerHTML = codes[cursor_pos[0] - 1];
+                  document.getElementById("code-area").children[cursor_pos[0]-1-row].innerHTML = codes.values[cursor_pos[0] - 1];
                   console.log(node);
                   if (texts.length <= document.getElementById("code-area").children.length) {
                     node.remove();
@@ -2141,13 +2435,13 @@
                   } else if (row + document.getElementById("code-area").children.length >= texts.length) {
                     document.getElementById("code-area").insertAdjacentElement("afterbegin", node);
                     document.querySelector(".modern div.rows > ul").insertAdjacentElement("afterbegin", rownum);
-                    node.innerHTML = codes[row-1];
+                    node.innerHTML = codes.values[row-1];
                     rownum.innerText = row;
                     row -= 1;
                   } else {
                     document.getElementById("code-area").insertAdjacentElement("beforeend", node);
                     document.querySelector(".modern div.rows > ul").insertAdjacentElement("beforeend", rownum);
-                    node.innerHTML = codes[row + document.getElementById("code-area").children.length - 1];
+                    node.innerHTML = codes.values[row + document.getElementById("code-area").children.length - 1];
                     rownum.innerText = row + document.getElementById("code-area").children.length;
                   }
                   cursor_pos[0] -= 1;
@@ -2159,19 +2453,35 @@
                   len = indent;
                 }
                 cursor_pos[1] -= len;
-                let [node, index, l] = getCursoredNode();
-                console.log(node, index, l, len, cursor_pos[1]);
+                let node = getCursoredNode()[0];
+                //console.log(node, index, l, len, cursor_pos[1]);
                 texts[cursor_pos[0]] = UTF8String.fromString(texts[cursor_pos[0]].slice(0, cursor_pos[1]) + texts[cursor_pos[0]].slice(cursor_pos[1]+len));
-                arr2 = node.innerText.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g) || [];
-                let i = 0;
-                let i2 = codes[cursor_pos[0]].match(/^(?:<[^>]+>)*/)[0].length;
-                while (i < cursor_pos[1]) {
-                  i2 += (codes[cursor_pos[0]].slice(i2).match(/^(?:<[^>]+>)*(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])(?:<[^>]+>)*/) || [""])[0].length;
-                  i += 1;
+                
+                let indexes = [0];
+                let k = 0;
+                while (k <= cursor_pos[1]) {
+                  let {p, c} = indexes.reduce(({p, c}, index)=>{
+                    return {p:c, c:c.children[index]};
+                  }, {p:undefined, c:{children: codes.lines[cursor_pos[0]]}});
+                  if (c) {
+                    if (UTF8String.prototype.isPrototypeOf(c)) {
+                      if (c.length < cursor_pos[1] - k) {
+                        k += c.length;
+                      } else {
+                        p.children[indexes.at(-1)] = new c.constructor(c.slice(0, cursor_pos[1] - k).toString() + c.slice(cursor_pos[1] - k + 1).toString());
+                        node.innerText = p.children[indexes.at(-1)].toString();
+                        break;
+                      }
+                      indexes.push(indexes.pop()+1);
+                    } else {
+                      indexes.push(0);
+                    }
+                  } else {
+                    indexes.splice(-2, 2, indexes.at(-2)+1);
+                  }
                 }
-                console.log(i2, i2+len*16, codes[cursor_pos[0]].slice(i2, i2+len*16));
-                let tlen = (codes[cursor_pos[0]].slice(i2, i2+len*16).match(/(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).slice(0, len).join("").length;
-                codes[cursor_pos[0]] = (codes[cursor_pos[0]].slice(0, i2) + codes[cursor_pos[0]].slice(i2 + tlen)).replace(/<([^\/> ]+)[^>]*><\/\1[^>]+>/g, "");
+                codes.regen();
+
                 if (node.innerText.length == 0) {
                   while (node.innerText.length == 0 && node.tagName != "CODE") {
                     node = node.parentNode;
@@ -2185,7 +2495,7 @@
                 while (node.tagName != "CODE") {
                   node = node.parentNode;
                 }
-                node.innerHTML = codes[cursor_pos[0]];
+                node.innerHTML = codes.values[cursor_pos[0]];
               }
             } else if (mode == EDITOR_MODES.LEGACY) {
               pos = [form.editarea.selectionStart, form.editarea.selectionEnd].sort(((a,b)=>{
@@ -2222,7 +2532,7 @@
         document.getElementById("cursor").children[1].addEventListener("compositionupdate", (e)=>{
           console.log(e.type, e);
           document.getElementById("cursor-compose-size").innerText = e.data;
-          document.getElementById("cursor").children[1].style.width = document.getElementById("cursor-compose-size").clientWidth + "px";
+          document.getElementById("cursor").children[1].style.width = Math.ceil(document.getElementById("cursor-compose-size").clientWidth) + "px";
         });
         document.getElementById("cursor").children[1].addEventListener("compositionend", (e)=>{
           console.log(e.type, e);
@@ -2237,17 +2547,21 @@
         document.getElementById("cursor").children[1].addEventListener("paste", (e)=>{
           e.preventDefault();
           console.log(e);
-          let text = (event.clipboardData || window.clipboardData).getData("text");
-          let first = true;
-          let ev;
-          for (let i of text.split("\n")) {
-            if (first) {
-              first = false;
+          let text = new UTF8String((event.clipboardData || window.clipboardData).getData("text"));
+          console.log(text);
+          let i = 0;
+          while (i < text.length) {
+            let ev;
+            if (text.slice(i, i+1).toString() == "\r\n") {
               ev = new KeyboardEvent("keydown", {code:"Enter", isComposing:false});
-              handle_keydown(ev);
+              //i++;
+            } else if (text.slice(i, i+1).toString() == "\n") {
+              ev = new KeyboardEvent("keydown", {code:"Enter", isComposing:false});
+            } else {
+              ev = new InputEvent("input", {data: text.slice(i, i+1), isComposing:false});
             }
-            ev = new InputEvent("input", {data: i, isComposing:false});
             e.target.dispatchEvent(ev);
+            i++;
           }
         });
         document.getElementById("cursor").children[1].addEventListener("beforeinput", (e)=>{
@@ -2308,18 +2622,68 @@
             document.getElementById("cursor").children[1].selectionStart = document.getElementById("cursor").children[1].selectionEnd = wordCursor;
             //cursor_pos[1] += (e.data.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).length;
           }
-          var [node, index, l, index2, tags] = getCursoredNode();
-          console.log([node, l, index, index2]);
-          escaped = hljs.highlight(e.data, {language:"text"}).value.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF]/g, "<span class=\"hljs-zenkaku\">$&</span>");
-          let i = 0;
-          let i2 = codes[cursor_pos[0]].match(/^(?:<[^>]+>)*/)[0].length;
-          while (i < cursor_pos[1]) {
-            i2 += (codes[cursor_pos[0]].slice(i2).match(/^(?:<[^>]+>)*(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])(?:<\/[^>]+>)*/) || [""])[0].length;
-            i += 1;
+
+          //var [node, index, l, index2, tags] = getCursoredNode();
+          //console.log([node, l, index, index2]);
+          var node = getCursoredNode()[0];
+          //escaped = hljs.highlight(e.data, {language:"text"}).value;
+
+          let indexes = [0];
+          let k = 0;
+          while (k <= cursor_pos[1]) {
+            let {p, c} = indexes.reduce(({p, c}, index)=>{
+              return {p:c, c:c.children[index]};
+            }, {p:undefined, c:{children: codes.lines[cursor_pos[0]]}});
+            if (c) {
+              if (UTF8String.prototype.isPrototypeOf(c)) {
+                if (c.length < cursor_pos[1] - k) {
+                  k += c.length;
+                } else {
+                  let tmptxt = c.slice(0, cursor_pos[1] - k).toString() + e.data + c.slice(cursor_pos[1] - k).toString();
+                  let process = (accum, cur)=>{
+                    if (typeof cur === "string") {
+                      return accum + cur;
+                    } else if (cur == c) {
+                      return accum + tmptxt;
+                    } else if (cur.scope) {
+                      return accum + "<span class=\"hljs-"+cur.scope+"\">" + cur.children.reduce(process) + "</span>";
+                    }
+                  };
+                  console.log(p.children.reduce(process, ""));
+                  if (node) {
+                    node.innerHTML = p.children.reduce(process, "");
+                  }
+                  if (!composing) {
+                    p.children[indexes.at(-1)] = new c.constructor(tmptxt);
+                    cursor_pos[1] += p.children[indexes.at(-1)].length - c.length;
+                    codes.regen();
+                    while (node?.tagName != "CODE") {
+                      node = node.parentNode;
+                    }
+                    if (node) {
+                      node.innerHTML = codes.values[cursor_pos[0]];
+                    }
+                  }
+                  break;
+                }
+                indexes.push(indexes.pop()+1);
+              } else {
+                indexes.push(0);
+              }
+            } else {
+              indexes.splice(-2, 2, indexes.at(-2)+1);
+            }
           }
-          if (codes[cursor_pos[0]][i2] == "<") {
-            console.log(node, codes[cursor_pos[0]].slice(0, index2[0]));
-            console.log(codes[cursor_pos[0]].slice(0, i2));
+
+          //let i = 0;
+          //let i2 = codes.values[cursor_pos[0]].match(/^(?:<[^>]+>)*/)[0].length;
+          //while (i < cursor_pos[1]) {
+          //  i2 += (codes.values[cursor_pos[0]].slice(i2).match(/^(?:<[^>]+>)*(?:(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])(?:<\/[^>]+>)*/) || [""])[0].length;
+          //  i += 1;
+          //}
+          /*if (codes.values[cursor_pos[0]][i2] == "<") {
+            console.log(node, codes.values[cursor_pos[0]].slice(0, index2[0]));
+            console.log(codes.values[cursor_pos[0]].slice(0, i2));
             let offset = -(node.tagName?node.outerHTML.match(/^<[^>]+>/)[0].length+index2.pop():index2.pop())
             index2 = index2.map((i)=>i+offset);
             node = node.parentNode;
@@ -2329,18 +2693,18 @@
           } else {
             index2.push(0);
           }
-          if (i2 < codes[cursor_pos[0]].length) {
+          if (i2 < codes.values[cursor_pos[0]].length) {
             node.innerHTML = ((html)=>html.slice(0, index2.at(-1)) + escaped + html.slice(index2.at(-1)))(node.innerHTML.replace(/(?:>|^)[^<>]+(?:<|$)/g, (m)=>">".repeat(m[0]==">")+m.replace(/[<>]/g, "").replace(/(?:&[^;]+;)|[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g, (m)=>m[0]=="&"?m:hljs.highlight(m, {language:"text"}).value)+"<".repeat(m.at(-1)=="<")));
           } else {
             node.innerHTML += escaped;
           }
           if (!composing) {
-            codes[cursor_pos[0]] = codes[cursor_pos[0]].slice(0, i2)+escaped+codes[cursor_pos[0]].slice(i2);
+            codes.values[cursor_pos[0]] = codes.values[cursor_pos[0]].slice(0, i2)+escaped+codes.values[cursor_pos[0]].slice(i2);
             cursor_pos[1] += e.data.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF])/g).length;
-            node.innerHTML = codes[cursor_pos[0]];
+            node.innerHTML = codes.values[cursor_pos[0]];
           } else {
-            node.innerHTML = codes[cursor_pos[0]].slice(0, i2)+escaped+codes[cursor_pos[0]].slice(i2);
-          }
+            node.innerHTML = codes.values[cursor_pos[0]].slice(0, i2)+escaped+codes.values[cursor_pos[0]].slice(i2);
+          }*/
           cursor_move();
         });
         document.getElementById("cursor").children[1].addEventListener("keyup", (e)=>{
@@ -2429,7 +2793,7 @@
           if (mode == EDITOR_MODES.MODERN) {
             let pos = (selection[0]<selection[2]||selection[0]==selection[2]&&selection[1]<selection[3])?selection:selection.slice(2)+selection.slice(0, 2);
             if (e.code == "KeyA" && (e.ctrlKey || softkeyStatus.ctrlKey)) {
-              select([0, 0], [texts.length-1, texts.at(-1).match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF]??/g).length]);
+              select([0, 0], [texts.length-1, texts.at(-1).length]);
               cursor_move();
             } else if (selecting && (e.code == "KeyC" || e.code == "KeyX") && (e.ctrlKey || softkeyStatus.ctrlKey)) {
               let text;
@@ -2463,15 +2827,15 @@
           let bottoms = [];
           let rows_tops = [];
           let rows_bottoms = [];
-          for (let i=0; i < linesDiff && row+box.children.length+i < codes.length; i++) {
+          for (let i=0; i < linesDiff && row+box.children.length+i < codes.values.length; i++) {
             let el = document.createElement("code");
-            el.innerHTML = codes[row+box.children.length+i] || "";
+            el.innerHTML = codes.values[row+box.children.length+i] || "";
             rows_bottoms.push(((rowel)=>{rowel.innerText = row+rows.children.length+i+1; return rowel;})(document.createElement("li")));
             bottoms.push(el);
           }
           for (let i=1; i <= linesDiff - bottoms.length && row >= i; i++) {
             let el = document.createElement("code");
-            el.innerHTML = codes[row-i] || "";
+            el.innerHTML = codes.values[row-i] || "";
             rows_tops.push(((rowel)=>{rowel.innerText = row-i+1; return rowel;})(document.createElement("li")));
             tops.push(el);
           }
@@ -2499,7 +2863,7 @@
           for (let i = 1; i < Math.ceil(row+10 - scrollTop/fontsize[1]) && row >= i; i++) {
             if (box.children.length+tops.length-i < 0) {break;}
             let el = document.createElement("code");
-            el.innerHTML = codes[row-i] || "";
+            el.innerHTML = codes.values[row-i] || "";
             rows_tops.push(((rowel)=>{rowel.innerText = row-i+1; return rowel;})(document.createElement("li")));
             tops.push(el);
             bottoms.push(box.children.length-i)
@@ -2532,7 +2896,7 @@
             if (row+box.children.length+i >= texts.length) {break;}
             tops.push(i);
             let el = document.createElement("code");
-            el.innerHTML = codes[row+box.children.length+i] || "";
+            el.innerHTML = codes.values[row+box.children.length+i] || "";
             rows_bottoms.push(((rowel)=>{rowel.innerText = row+rows.children.length+i+1; return rowel;})(document.createElement("li")));
             bottoms.push(el);
           }
@@ -2560,15 +2924,10 @@
         while (result < index) {
           result++;
           if (result < texts[pos[0]].length) {
-            if (texts[pos[0]].isFullSize(result)) {
-              if (i + 2 < index) {
-                i += 2;
-              } else { break; }
-            } else {
-              if (i + 1 < index) {
-                i += 1;
-              } else { break; }
-            }
+            let w = texts[pos[0]].charWidthAt(result)
+            if (i + w < index) {
+              i += w;
+            } else { break; }
           } else {
             break;
           }
@@ -2589,8 +2948,8 @@
         selecting = true;
         let header = document.createElement("code");
         let footer;
-        let [node, index, l, index2, tags] = getCursoredNode(...start);
-        let [node2, index3, l2, index4, tags2] = getCursoredNode(...end);
+        //let [node, index, l, index2, tags] = getCursoredNode(...start);
+        //let [node2, index3, l2, index4, tags2] = getCursoredNode(...end);
         let els = [];
         els.push(header);
         header.style.marginLeft = "calc(" + fontsize[0] + "px * " + [...(function*(){
@@ -2598,19 +2957,93 @@
             if (i >= texts[start[0]].length) {
               break;
             }
-            yield texts[start[0]].isFullSize(i)?2:1;
+            yield texts[start[0]].charWidthAt(i);
           }
         })()].reduce((total, i)=>total+i, 0) + ")";
+        
+        let dummy = hljs.highlight("", {language: "text"});
+        dummy.lines = codes.lines.slice(start[0], end[0]+1).map((line)=>{
+          return line.map((ch)=>{
+            if (UTF8String.prototype.isPrototypeOf(ch)) {
+              return ch;
+            } else {
+              return {};
+            }
+          });
+        });
+
+        let indexes = [0];
+        let targetStart = true;
+        let k = 0;
+        while (targetStart || indexes.length > 0) {
+          let {p, c} = indexes.reduce(({_p, _c, p, c}, index)=>{
+            if (c.children == undefined) {
+              c.scope = _c.scope;
+              c.children = _c.children.map((ch)=>{
+                if (UTF8String.prototype.isPrototypeOf(ch)) {
+                  return ch;
+                } else {
+                  return {};
+                }
+              });
+            }
+            return {_p: _c, _c: _c.children[index], p:c, c:c.children[index]};
+          }, {
+            _p:undefined,
+            _c:{children: codes.lines[targetStart ? start[0] : end[0]]},
+            p:undefined,
+            c:{children: dummy.lines[targetStart ? 0 : end[0] - start[0]]},
+          });
+          if (c) {
+            console.log(c);
+            if (UTF8String.prototype.isPrototypeOf(c)) {
+              if (targetStart && c.length < start[1] - k || !targetStart && end[1] - k < 0) {
+                p.children[indexes.at(-1)] = "";
+              } else if (targetStart) {
+                if (start[0] == end[0]) {
+                  targetStart = false;
+                  p.children[indexes.at(-1)] = c.slice(Math.max(0, start[1] - k), end[1] - k);
+                } else {
+                  p.children[indexes.at(-1)] = start[1] - k > 0 ? c.slice(start[1] - k) : c;
+                }
+              } else if (c.length >= end[1] - k) {
+                p.children[indexes.at(-1)] = c.slice(0, end[1] - k);
+              }
+              k += c.length;
+              indexes.push(indexes.pop()+1);
+            } else {
+              indexes.push(0);
+            }
+          } else {
+            if (indexes.length > 1) {
+              indexes.splice(-2, 2, indexes.at(-2)+1);
+            } else {
+              if (targetStart && start[0] < end[0]) {
+                targetStart = false;
+                indexes.splice(0, indexes.length, 0);
+                k = 0;
+                continue;
+              }
+              break;
+            }
+          }
+        }
+        dummy.regen();
+        console.log(dummy);
+
         if (start[0] == end[0]) {
-          header.innerHTML = tags.join("") + codes[start[0]].slice(index2[0] - (codes[start[0]].slice(0, index2[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length, index4[0] - (codes[end[0]].slice(0, index4[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length).replace(/<[^/][^>]+><\/[^>]+>/g, "");
+          header.innerHTML = dummy.values[0].replace(/<[^/][^>]+><\/[^>]+>/g, "");
+          //header.innerHTML = tags.join("") + codes.values[start[0]].slice(index2[0] - (codes.values[start[0]].slice(0, index2[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length, index4[0] - (codes.values[end[0]].slice(0, index4[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length).replace(/<[^/][^>]+><\/[^>]+>/g, "");
         } else {
-          header.innerHTML = tags.join("") + codes[start[0]].slice(index2[0] - (codes[start[0]].slice(0, index2[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length).replace(/<[^/][^>]+><\/[^>]+>/g, "") + " ";
+          header.innerHTML = dummy.values[0].replace(/<[^/][^>]+><\/[^>]+>/g, "");
+          //header.innerHTML = tags.join("") + codes.values[start[0]].slice(index2[0] - (codes.values[start[0]].slice(0, index2[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length).replace(/<[^/][^>]+><\/[^>]+>/g, "") + " ";
           footer = document.createElement("code");
-          footer.innerHTML = (codes[end[0]].slice(0, index4[0] - (codes[end[0]].slice(0, index4[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length) + tags2.map((i)=>"</"+i.match(/^<[^ >]+/)[0].slice(1)+">").join("")).replace(/<[^/][^>]+><\/[^>]+>/g, "");
+          footer.innerHTML = dummy.values.at(-1).replace(/<[^/][^>]+><\/[^>]+>/g, "");
+          //footer.innerHTML = (codes.values[end[0]].slice(0, index4[0] - (codes.values[end[0]].slice(0, index4[0]).match(/(?:(?:&[^;]+;)|(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x01-\x7E\xA1-\xDF])|[^\uD800-\uDFFF])(?<!>)$/) || [""])[0].length) + tags2.map((i)=>"</"+i.match(/^<[^ >]+/)[0].slice(1)+">").join("")).replace(/<[^/][^>]+><\/[^>]+>/g, "");
         }
         for (let i = start[0] + 1; i < end[0]; i++) {
           els.push(document.createElement("code"));
-          els.at(-1).innerHTML = codes[i].replace(/<[^/][^>]+><\/[^>]+>/g, "") + " ";
+          els.at(-1).innerHTML = codes.values[i].replace(/<[^/][^>]+><\/[^>]+>/g, "");
         }
         if (footer) {
           els.push(footer);
