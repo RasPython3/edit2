@@ -1056,12 +1056,16 @@
       /* for mobile-controller */
       div[name="mobile-controller"] {
         position: absolute;
-        top: 0px;
-        left: 0px;
+        bottom: 0px;
+        right: 0px;
         width: 300px;
-        transform-origin: top left;
+        height: 180px;
+        transform-origin: bottom right;
         scale: 1;
-        aspect-ratio: 1.6;
+      }
+      div[name="mobile-controller"]:has(input#hide-softkey:checked) {
+        width: 2em;
+        height: 2em;
       }
       div[name="mobile-controller"] input {
         font-size: 32px;
@@ -1835,9 +1839,8 @@
             console.log(e);
             try {
               let w = Math.min(window.visualViewport.width, window.visualViewport.height / 1.5, 300);
-              let h = w / 1.6;
-              softkey.style.top = (window.visualViewport.offsetTop + window.visualViewport.height - h) + "px";
-              softkey.style.left = (window.visualViewport.offsetLeft + window.visualViewport.width - w) + "px";
+              softkey.style.bottom = Math.ceil(window.innerHeight - (window.visualViewport.offsetTop + window.visualViewport.height)) + "px";
+              softkey.style.right = Math.ceil(window.innerWidth - (window.visualViewport.offsetLeft + window.visualViewport.width)) + "px";
               softkey.style.scale = w / 300;
             } catch (e) {
               console.error(e);
