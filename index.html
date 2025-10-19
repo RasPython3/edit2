@@ -1983,7 +1983,7 @@
           if (mode == EDITOR_MODES.LEGACY) {
             w.write(form.editarea.value);
           } else if (mode == EDITOR_MODES.MODERN) {
-            w.write(texts.join("\n"));
+            w.write(texts.join(""));
           }
           w.close();
           edited = false;
@@ -2003,7 +2003,7 @@
           if (mode == EDITOR_MODES.LEGACY) {
             blob = new Blob([form.editarea.value], {type: "text/plain"});
           } else if (mode == EDITOR_MODES.MODERN) {
-            blob = new Blob([texts.join("\n")], {type: "text/plain"});
+            blob = new Blob([texts.join("")], {type: "text/plain"});
           }
           let a = document.createElement("a");
           let url = URL.createObjectURL(blob);
