@@ -292,14 +292,14 @@
       }
       #cursor {
         position: relative;
-        width: 0.5em;
+        width: 1ch;
         height: 1.5em;
       }
       #cursor > span {
         position: absolute;
         min-width: 100%;
         width: fit-content;
-        max-width: 1em;;
+        max-width: 2ch;
         height: 100%;
         line-height: 1.5em;
         padding: 0px;
@@ -359,7 +359,7 @@
         background-color: var(--color);
       }
       #selected-area > code:not(:last-child) {
-        padding-right: 0.5em;
+        padding-right: 1ch;
       }
       #sensor {
         position: absolute;
@@ -740,64 +740,64 @@
         outline-offset: -1px;
       }
       .modern span.hljs-zerowidth {
-        width: 0.5em;
+        width: 1ch;
         margin-left: -0.25em;
         margin-right: -0.25em;
       }
       .modern span.hljs-zenkaku {
-        width: 1em;
+        width: 2ch;
       }
       .modern span.hljs-hankaku {
-        width: 0.5em;
+        width: 1ch;
       }
       .modern span.hljs-verywide {
-        min-width: 0.5em;
-        max-width: 7em;
+        min-width: 1ch;
+        max-width: 14ch;
       }
       .modern span.hljs-verywide.w-0 {
-        width: 0em;
+        width: 0;
       }
       .modern span.hljs-verywide.w-1 {
-        width: 0.5em;
+        width: 1ch;
       }
       .modern span.hljs-verywide.w-2 {
-        width: 1em;
+        width: 2ch;
       }
       .modern span.hljs-verywide.w-3 {
-        width: 1.5em;
+        width: 3ch;
       }
       .modern span.hljs-verywide.w-4 {
-        width: 2em;
+        width: 4ch;
       }
       .modern span.hljs-verywide.w-5 {
-        width: 2.5em;
+        width: 5ch;
       }
       .modern span.hljs-verywide.w-6 {
-        width: 3em;
+        width: 6ch;
       }
       .modern span.hljs-verywide.w-7 {
-        width: 3.5em;
+        width: 7ch;
       }
       .modern span.hljs-verywide.w-8 {
-        width: 4em;
+        width: 8ch;
       }
       .modern span.hljs-verywide.w-9 {
-        width: 4.5em;
+        width: 9ch;
       }
       .modern span.hljs-verywide.w-10 {
-        width: 5em;
+        width: 10ch;
       }
       .modern span.hljs-verywide.w-11 {
-        width: 5.5em;
+        width: 11ch;
       }
       .modern span.hljs-verywide.w-12 {
-        width: 6em;
+        width: 12ch;
       }
       .modern span.hljs-verywide.w-13 {
-        width: 6.5em;
+        width: 13ch;
       }
       .modern span.hljs-verywide.w-14 {
-        width: 7em;
+        width: 14ch;
       }
     </style>
     <form name="editor">
@@ -1216,7 +1216,7 @@
             return 1;
           }
           UTF8Char._ctx.font = "16px monospace";
-          return Math.ceil(UTF8Char._ctx.measureText(this.char).width / 8);
+          return Math.ceil(UTF8Char._ctx.measureText(this.char).width / UTF8Char._ctx.measureText("0").width);
         }
         toString() {
           return this.char;
@@ -1480,13 +1480,11 @@
 
       function confFontSize() {
         // following is a contermeasure for the problem that small digits are rounded off automatically.
-        fontcheck.innerText = "M".repeat(1000);
+        fontcheck.innerText = "0".repeat(1000);
         let rect = fontcheck.getBoundingClientRect();
-        fontcheck.innerText = "M"; // leaving it without undoing stresses the browser
+        fontcheck.innerText = "0"; // leaving it without undoing stresses the browser
         fontsize = [rect.width / 1000, rect.height];
-        document.querySelector("div#cursor").style.width = fontsize[0] + "px";
-        document.querySelector("div#cursor  > span").style.maxWidth = fontsize[0]*2 + "px";
-        css.sheet.cssRules[1].style.width = fontsize[0]*2 + "px";
+        css.sheet.cssRules[1].style.width = fontsize[1] + "px";
         //lh = rect.height;
       }
       confFontSize();
@@ -2130,9 +2128,11 @@
             ch = String.fromCharCode(ch.charCodeAt(0) + 0x2400);
           }
           document.getElementById("cursor-letter").innerText = ch; //[cursor_pos[1]];
+          document.getElementById("cursor-letter").style.width = (ch.length > 0 && (UTF8String.prototype.isPrototypeOf(ch) ? ch.charWidthAt(0) : (new UTF8Char(ch)).width) || 1) + "ch";
           //console.log(3);
         } else {
           document.getElementById("cursor-letter").innerText = " ";
+          document.getElementById("cursor-letter").style.width = "1ch";
         }
         //sp.innerText = (texts[cursor_pos[0]].match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).slice(0, cursor_pos[1]).join("") || "";
         //sp.style.top = (1.5*cursor_pos[0]) + "em";
@@ -2144,14 +2144,14 @@
         //cursor_pos[2] = cursor_pos[0];
         //cursor_pos[4] = (texts.slice(0, cursor_pos[0]).join("\n").match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []).length + cursor_pos[1] + (cursor_pos[0] != 0);
         document.getElementById("cursor").style.top = (1.5*cursor_pos[0]) + "em";
-        document.getElementById("cursor").style.left = (0.5*cursor_pos[2]) + "em";
+        document.getElementById("cursor").style.left = cursor_pos[2] + "ch";
         var node = getCursoredNode()[0];
         if (node?.nodeType == Node.TEXT_NODE) {
           node = node.parentNode;
         }
         style = window.getComputedStyle(node);
         document.getElementById("cursor-letter").style.color = "var(--theme-editor-bg)";
-        document.getElementById("cursor-letter").style.background = style.color;
+        document.getElementById("cursor-letter").style.Bground = style.color;
         document.getElementById("cursor-letter").style.fontWeight = style.fontWeight;
         return;
         if (texts[cursor_pos[0]].length > cursor_pos[0]) {
@@ -2425,8 +2425,8 @@
               if (cursor_pos[1] == 0) {
                 if (cursor_pos[0] > 0) {
                   cursor_pos[1] = texts[cursor_pos[0] - 1].length;
-                  texts[cursor_pos[0] - 1] = UTF8String.fromString(texts[cursor_pos[0] - 1] + texts.splice(cursor_pos[0], 1)[0]);
-                  codes.lines.splice(cursor_pos[0] - 1, 1, codes.lines[cursor_pos[0] - 1] + codes.lines[cursor_pos[0]]);
+                  texts.splice(cursor_pos[0] - 1, 2, UTF8String.fromString(texts[cursor_pos[0] - 1].toString() + texts.splice(cursor_pos[0], 1).toString()));
+                  codes.lines.splice(cursor_pos[0] - 1, 2, codes.lines[cursor_pos[0] - 1].concat(codes.lines[cursor_pos[0]]));
                   codes.regen();
                   let node = document.getElementById("code-area").children[cursor_pos[0]-row];
                   let rowul = document.querySelector(".modern div.rows > ul");
@@ -3009,14 +3009,14 @@
         //let [node2, index3, l2, index4, tags2] = getCursoredNode(...end);
         let els = [];
         els.push(header);
-        header.style.marginLeft = "calc(" + fontsize[0] + "px * " + [...(function*(){
+        header.style.marginLeft = [...(function*(){
           for (let i=0; i < start[1]; i++) {
             if (i >= texts[start[0]].length) {
               break;
             }
             yield texts[start[0]].charWidthAt(i);
           }
-        })()].reduce((total, i)=>total+i, 0) + ")";
+        })()].reduce((total, i)=>total+i, 0) + "ch";
         
         let dummy = hljs.highlight("", {language: "text"});
         dummy.lines = codes.lines.slice(start[0], end[0]+1).map((line)=>{
