@@ -2429,23 +2429,21 @@
                   codes.lines.splice(cursor_pos[0] - 1, 1, codes.lines[cursor_pos[0] - 1] + codes.lines[cursor_pos[0]]);
                   codes.regen();
                   let node = document.getElementById("code-area").children[cursor_pos[0]-row];
-                  let rownum = document.querySelector(".modern div.rows > ul").children[cursor_pos[0]-row];
+                  let rowul = document.querySelector(".modern div.rows > ul");
                   document.getElementById("code-area").children[cursor_pos[0]-1-row].innerHTML = codes.values[cursor_pos[0] - 1];
                   console.log(node);
                   if (texts.length <= document.getElementById("code-area").children.length) {
                     node.remove();
-                    rownum.remove();
+                    rowul.lastChild.remove();
                   } else if (row + document.getElementById("code-area").children.length >= texts.length) {
                     document.getElementById("code-area").insertAdjacentElement("afterbegin", node);
-                    document.querySelector(".modern div.rows > ul").insertAdjacentElement("afterbegin", rownum);
+                    rowul.insertAdjacentElement("afterbegin", rowul.lastChild);
                     node.innerHTML = codes.values[row-1];
                     rownum.innerText = row;
                     row -= 1;
                   } else {
                     document.getElementById("code-area").insertAdjacentElement("beforeend", node);
-                    document.querySelector(".modern div.rows > ul").insertAdjacentElement("beforeend", rownum);
                     node.innerHTML = codes.values[row + document.getElementById("code-area").children.length - 1];
-                    rownum.innerText = row + document.getElementById("code-area").children.length;
                   }
                   cursor_pos[0] -= 1;
                   draw();
@@ -2838,7 +2836,7 @@
         document.querySelector(".modern .wrapper").style.height = texts.length * fontsize[1] + "px";
         let box = document.getElementById("code-area");
         scrollTop = wrapper.parentNode.scrollTop;
-        let lines = Math.ceil(document.querySelector(".modern").getBoundingClientRect().height / fontsize[1]) + 20;
+        let lines = Math.min(texts.length - row, Math.ceil(document.querySelector(".modern").getBoundingClientRect().height / fontsize[1]) + 20);
         let linesDiff = lines - box.children.length;
         if (linesDiff > 0) {
           let tops = [];
