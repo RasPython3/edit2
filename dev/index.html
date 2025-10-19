@@ -2671,7 +2671,22 @@
                 indexes.push(0);
               }
             } else {
-              indexes.splice(-2, 2, indexes.at(-2)+1);
+              if (indexes.length > 1) {
+                indexes.splice(-2, 2, indexes.at(-2)+1);
+              } else {
+                if (!composing) {
+                  p.children.push(new HljsUTF8String(e.data));
+                  cursor_pos[1] += p.children.at(-1).length;
+                  codes.regen();
+                  while (node?.tagName != "CODE") {
+                    node = node.parentNode;
+                  }
+                  if (node) {
+                    node.innerHTML = codes.values[cursor_pos[0]];
+                  }
+                }
+                break;
+              }
             }
           }
 
