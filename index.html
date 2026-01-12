@@ -2244,7 +2244,7 @@
           if ((e.code == "Tab" || e.key == "Tab") && !e.isComposing) {
             if (mode == EDITOR_MODES.LEGACY) {
               let orgpos = [form.editarea.selectionStart, form.editarea.selectionEnd];
-              let pos = orgpos.sort(((a,b)=>{
+              let pos = Array.from(orgpos).sort(((a,b)=>{
                 return a - b
               }
               ));
@@ -2254,7 +2254,7 @@
               while (pos[1] < form.editarea.value.length-1 && form.editarea.value[pos[1]] != "\n") {
                 pos[1]++;
               }
-               counts = [];
+              counts = [];
               form.editarea.value = form.editarea.value.slice(0, pos[0]) + form.editarea.value.slice(pos[0], pos[1]).split("\n").map((line)=>{
                 if (!e.shiftKey) {
                   counts.push(indent);
