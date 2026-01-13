@@ -2410,6 +2410,7 @@
               }
               cursor_pos[0] += 1;
               cursor_pos[1] = spaces.length;
+              select([cursor_pos[0], cursor_pos[1]], [cursor_pos[0], cursor_pos[1]]);
               draw();
             }
           } else if ((e.code == "Backspace" || e.key == "Backspace") && !e.isComposing) {
@@ -2425,7 +2426,7 @@
               if (cursor_pos[1] == 0) {
                 if (cursor_pos[0] > 0) {
                   cursor_pos[1] = texts[cursor_pos[0] - 1].length;
-                  texts.splice(cursor_pos[0] - 1, 2, UTF8String.fromString(texts[cursor_pos[0] - 1].toString() + texts.splice(cursor_pos[0], 1).toString()));
+                  texts.splice(cursor_pos[0] - 1, 1, UTF8String.fromString(texts[cursor_pos[0] - 1].toString() + texts.splice(cursor_pos[0], 1).toString()));
                   codes.lines.splice(cursor_pos[0] - 1, 2, codes.lines[cursor_pos[0] - 1].concat(codes.lines[cursor_pos[0]]));
                   codes.regen();
                   let node = document.getElementById("code-area").children[cursor_pos[0]-row];
@@ -2446,6 +2447,7 @@
                     node.innerHTML = codes.values[row + document.getElementById("code-area").children.length - 1];
                   }
                   cursor_pos[0] -= 1;
+                  select([cursor_pos[0], cursor_pos[1]], [cursor_pos[0], cursor_pos[1]]);
                   draw();
                 }
               } else {
@@ -2469,7 +2471,7 @@
                       if (c.length < cursor_pos[1] - k) {
                         k += c.length;
                       } else {
-                        p.children[indexes.at(-1)] = new c.constructor(c.slice(0, cursor_pos[1] - k).toString() + c.slice(cursor_pos[1] - k + 1).toString());
+                        p.children[indexes.at(-1)] = new c.constructor(c.slice(0, cursor_pos[1] - k).toString() + c.slice(cursor_pos[1] - k + len).toString());
                         node.innerText = p.children[indexes.at(-1)].toString();
                         break;
                       }
