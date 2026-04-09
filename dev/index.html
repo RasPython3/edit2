@@ -295,7 +295,7 @@
         width: 1ch;
         height: 1.5em;
       }
-      #cursor > span {
+      #cursor > span#cursor-letter {
         position: absolute;
         min-width: 100%;
         width: fit-content;
@@ -318,17 +318,21 @@
         border: 0px;
         resize: none;
         font-size: 1em;
+        line-height: 1.5em;
+        outline: none;
+        scrollbar-width: none;
         opacity: 0;
       }
       #cursor > input[type="text"]#cursor-compose {
         position: absolute;
+        width: 0;
         height: 100%;
         padding: 0px;
         margin: 0px;
         border: 0px;
         opacity: 0;
       }
-      #cursor > div#cursor-compose-size {
+      #cursor > span#cursor-compose-size {
         position: absolute;
         display: inline-block;
         white-space: nowrap;
@@ -911,7 +915,7 @@
                     <span id="cursor-letter">a</span>
                     <textarea id="cursor-input" autofocus rows="1" wrap="off"></textarea>
                     <input type="text" id="cursor-compose"></input>
-                    <div id="cursor-compose-size"></div>
+                    <span id="cursor-compose-size"></span>
                   </div>
                 </div>
               </div>
@@ -1971,6 +1975,7 @@
                 el.innerHTML = codes.values[i];
               }
             }
+            draw();
           }, {once: true});
           document.getElementById("file_name").innerText = filename;
           document.querySelectorAll(".tabs")[0].children[0].innerText = filename;
@@ -2016,18 +2021,25 @@
       function getCursoredNode(r=cursor_pos[0], c=cursor_pos[1]) {
         let indexes = [0];
         let k = 0;
+        let last = undefined;
         while (k <= c) {
           let {p, cur} = indexes.reduce(({p, cur}, index)=>{
-            return {p:c, cur:cur.children[index]};
+            return {p:cur, cur:cur.children[index]};
           }, {p:undefined, cur:{children: codes.lines[r]}});
           if (cur) {
             if (UTF8String.prototype.isPrototypeOf(cur)) {
-              if (cur.length <= c - k) {
-                k += cur.length;
-              } else {
+              k += cur.length;
+              if (c < k) {
                 break;
               }
-              indexes.push(indexes.pop()+1);
+              let curindex = indexes.pop();
+              if (curindex == 0 || p && !UTF8String.prototype.isPrototypeOf(p.children[curindex-1])) {
+                indexes.push(curindex+1);
+              } else {
+                console.warn("UTF8String doubled, merging");
+                p.children[curindex - 1].push(...p.children.splice(curindex, 1));
+                indexes.push(curindex);
+              }
             } else {
               indexes.push(0);
             }
@@ -2042,8 +2054,9 @@
         }
         console.log(indexes);
 
-        var node = document.querySelector("#code-area").children[r-row];
-        indexes.pop();//l.pop();
+        var linenode = document.querySelector("#code-area").children[r-row];
+        var node = linenode;
+        indexes.splice(0, 1);//l.pop();
         for (let i of indexes) {
           node = node ? node.childNodes[i] : node;
           /*node = node
@@ -2056,7 +2069,7 @@
             : node;*/
           //console.log(node);
         }
-        return [node,];//[node, i5, l, i4, tags];
+        return [node || linenode,];//[node, i5, l, i4, tags];
       }
       function cursor_move(x=0, y=0) {
         cursor_pos[0] += y;
@@ -2530,7 +2543,9 @@
           composing = true;
           document.getElementById("cursor").children[1].style.color = "var(--theme-editor-text-color)";
           document.getElementById("cursor").children[1].style.backgroundColor = "var(--theme-editor-bg)";
-          document.getElementById("cursor").children[1].style.opacity = "1";
+          document.getElementById("cursor").children[1].style.opacity = 1;
+          document.getElementById("cursor").children[1].value = "";
+          document.getElementById("cursor-compose-size").innerText = "";
         });
         document.getElementById("cursor").children[1].addEventListener("compositionupdate", (e)=>{
           console.log(e.type, e);
@@ -2546,6 +2561,7 @@
           }
           document.getElementById("cursor").children[1].style.opacity = "";
           document.getElementById("cursor").children[1].value = "";
+          document.getElementById("cursor-compose-size").innerText = "";
         });
         document.getElementById("cursor").children[1].addEventListener("paste", (e)=>{
           e.preventDefault();
@@ -2850,7 +2866,7 @@
           e.preventDefault();
         } else if (e.target != form.editarea) {
           if (mode == EDITOR_MODES.MODERN) {
-            let pos = (selection[0]<selection[2]||selection[0]==selection[2]&&selection[1]<selection[3])?selection:selection.slice(2)+selection.slice(0, 2);
+            let pos = (selection[0]<selection[2] || selection[0]==selection[2] && selection[1] < selection[3]) ? selection : selection.slice(2).concat(selection.slice(0, 2));
             if (e.code == "KeyA" && (e.ctrlKey || softkeyStatus.ctrlKey)) {
               select([0, 0], [texts.length-1, texts.at(-1).length]);
               cursor_move();
@@ -2865,7 +2881,47 @@
                 }
                 text += "\n" + texts[pos[2]].slice(0, pos[3]);
               }
-              navigator.clipboard.writeText(text);
+              if (!navigator.clipboard.write) {
+                navigator.clipboard.writeText(text);
+              } else {
+                let selected = document.getElementById("selected-area").cloneNode(true);
+                selected.removeAttribute("id");
+                selected.style.color = "var(--theme-editor-text-color)";
+                document.body.append(selected);
+
+                let func = (el)=>{
+                  if (el.children) {
+                      Array.from(el.children).forEach(func);
+                  }
+                  if (el != selected) {
+                    let styles=((computed)=>new Map(Array.from(computed, (key)=>[key,computed[key]])))(window.getComputedStyle(el));
+                    for (let k of ["color", "background-color", "font-family", "font-size", "font-weight", "font-style", "text-decoration"]) {
+                      let v = styles.get(k) || (k == "color" ? settings.textFg : undefined);
+                      if (v != undefined) {
+                        el.style[k] = v;
+                      }
+                    }
+                  } else {
+                    let styles=((computed)=>new Map(Array.from(computed, (key)=>[key,computed[key]])))(window.getComputedStyle(document.getElementById("code-area")));
+                    for (let k of ["font-family", "font-size", "font-weight", "font-style", "text-decoration"]) {
+                      el.style[k]=styles.get(k);
+                    }
+                  }
+                  el.className = "";
+                };
+                func(selected);
+                selected.remove();
+
+                selected.style.color = settings.textFg;
+                selected.style.background = settings.textBg;
+
+                navigator.clipboard.write([
+                  new ClipboardItem({
+                    ["text/plain"] : text,
+                    ["text/html"] : `<pre style="${selected.style.cssText.replaceAll("\"", "\\\"")}">${Array.from(selected.children, (child)=>child.outerHTML).join("<br/>")}</pre>`
+                  }),
+                ]);
+              }
               if (e.code == "KeyX") {
                 deleteSelected();
               }
