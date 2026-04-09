@@ -2850,7 +2850,7 @@
           e.preventDefault();
         } else if (e.target != form.editarea) {
           if (mode == EDITOR_MODES.MODERN) {
-            let pos = (selection[0]<selection[2]||selection[0]==selection[2]&&selection[1]<selection[3])?selection:selection.slice(2)+selection.slice(0, 2);
+            let pos = (selection[0]<selection[2] || selection[0]==selection[2] && selection[1] < selection[3]) ? selection : selection.slice(2).concat(selection.slice(0, 2));
             if (e.code == "KeyA" && (e.ctrlKey || softkeyStatus.ctrlKey)) {
               select([0, 0], [texts.length-1, texts.at(-1).length]);
               cursor_move();
