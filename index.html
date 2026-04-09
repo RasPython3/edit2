@@ -295,7 +295,7 @@
         width: 1ch;
         height: 1.5em;
       }
-      #cursor > span {
+      #cursor > span#cursor-letter {
         position: absolute;
         min-width: 100%;
         width: fit-content;
@@ -318,17 +318,21 @@
         border: 0px;
         resize: none;
         font-size: 1em;
+        line-height: 1.5em;
+        outline: none;
+        scrollbar-width: none;
         opacity: 0;
       }
       #cursor > input[type="text"]#cursor-compose {
         position: absolute;
+        width: 0;
         height: 100%;
         padding: 0px;
         margin: 0px;
         border: 0px;
         opacity: 0;
       }
-      #cursor > div#cursor-compose-size {
+      #cursor > span#cursor-compose-size {
         position: absolute;
         display: inline-block;
         white-space: nowrap;
@@ -911,7 +915,7 @@
                     <span id="cursor-letter">a</span>
                     <textarea id="cursor-input" autofocus rows="1" wrap="off"></textarea>
                     <input type="text" id="cursor-compose"></input>
-                    <div id="cursor-compose-size"></div>
+                    <span id="cursor-compose-size"></span>
                   </div>
                 </div>
               </div>
@@ -2530,7 +2534,9 @@
           composing = true;
           document.getElementById("cursor").children[1].style.color = "var(--theme-editor-text-color)";
           document.getElementById("cursor").children[1].style.backgroundColor = "var(--theme-editor-bg)";
-          document.getElementById("cursor").children[1].style.opacity = "1";
+          document.getElementById("cursor").children[1].style.opacity = 1;
+          document.getElementById("cursor").children[1].value = "";
+          document.getElementById("cursor-compose-size").innerText = "";
         });
         document.getElementById("cursor").children[1].addEventListener("compositionupdate", (e)=>{
           console.log(e.type, e);
@@ -2546,6 +2552,7 @@
           }
           document.getElementById("cursor").children[1].style.opacity = "";
           document.getElementById("cursor").children[1].value = "";
+          document.getElementById("cursor-compose-size").innerText = "";
         });
         document.getElementById("cursor").children[1].addEventListener("paste", (e)=>{
           e.preventDefault();
