@@ -1975,6 +1975,7 @@
                 el.innerHTML = codes.values[i];
               }
             }
+            draw();
           }, {once: true});
           document.getElementById("file_name").innerText = filename;
           document.querySelectorAll(".tabs")[0].children[0].innerText = filename;
@@ -2020,18 +2021,25 @@
       function getCursoredNode(r=cursor_pos[0], c=cursor_pos[1]) {
         let indexes = [0];
         let k = 0;
+        let last = undefined;
         while (k <= c) {
           let {p, cur} = indexes.reduce(({p, cur}, index)=>{
-            return {p:c, cur:cur.children[index]};
+            return {p:cur, cur:cur.children[index]};
           }, {p:undefined, cur:{children: codes.lines[r]}});
           if (cur) {
             if (UTF8String.prototype.isPrototypeOf(cur)) {
-              if (cur.length <= c - k) {
-                k += cur.length;
-              } else {
+              k += cur.length;
+              if (c < k) {
                 break;
               }
-              indexes.push(indexes.pop()+1);
+              let curindex = indexes.pop();
+              if (curindex == 0 || p && !UTF8String.prototype.isPrototypeOf(p.children[curindex-1])) {
+                indexes.push(curindex+1);
+              } else {
+                console.warn("UTF8String doubled, merging");
+                p.children[curindex - 1].push(...p.children.splice(curindex, 1));
+                indexes.push(curindex);
+              }
             } else {
               indexes.push(0);
             }
@@ -2046,8 +2054,9 @@
         }
         console.log(indexes);
 
-        var node = document.querySelector("#code-area").children[r-row];
-        indexes.pop();//l.pop();
+        var linenode = document.querySelector("#code-area").children[r-row];
+        var node = linenode;
+        indexes.splice(0, 1);//l.pop();
         for (let i of indexes) {
           node = node ? node.childNodes[i] : node;
           /*node = node
@@ -2060,7 +2069,7 @@
             : node;*/
           //console.log(node);
         }
-        return [node,];//[node, i5, l, i4, tags];
+        return [node || linenode,];//[node, i5, l, i4, tags];
       }
       function cursor_move(x=0, y=0) {
         cursor_pos[0] += y;
