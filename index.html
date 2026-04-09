@@ -2865,7 +2865,47 @@
                 }
                 text += "\n" + texts[pos[2]].slice(0, pos[3]);
               }
-              navigator.clipboard.writeText(text);
+              if (!navigator.clipboard.write) {
+                navigator.clipboard.writeText(text);
+              } else {
+                let selected = document.getElementById("selected-area").cloneNode(true);
+                selected.removeAttribute("id");
+                selected.style.color = "var(--theme-editor-text-color)";
+                document.body.append(selected);
+
+                let func = (el)=>{
+                  if (el.children) {
+                      Array.from(el.children).forEach(func);
+                  }
+                  if (el != selected) {
+                    let styles=((computed)=>new Map(Array.from(computed, (key)=>[key,computed[key]])))(window.getComputedStyle(el));
+                    for (let k of ["color", "background-color", "font-family", "font-size", "font-weight", "font-style", "text-decoration"]) {
+                      let v = styles.get(k) || (k == "color" ? settings.textFg : undefined);
+                      if (v != undefined) {
+                        el.style[k] = v;
+                      }
+                    }
+                  } else {
+                    let styles=((computed)=>new Map(Array.from(computed, (key)=>[key,computed[key]])))(window.getComputedStyle(document.getElementById("code-area")));
+                    for (let k of ["font-family", "font-size", "font-weight", "font-style", "text-decoration"]) {
+                      el.style[k]=styles.get(k);
+                    }
+                  }
+                  el.className = "";
+                };
+                func(selected);
+                selected.remove();
+
+                selected.style.color = settings.textFg;
+                selected.style.background = settings.textBg;
+
+                navigator.clipboard.write([
+                  new ClipboardItem({
+                    ["text/plain"] : text,
+                    ["text/html"] : `<pre style="${selected.style.cssText.replaceAll("\"", "\\\"")}">${Array.from(selected.children, (child)=>child.outerHTML).join("<br/>")}</pre>`
+                  }),
+                ]);
+              }
               if (e.code == "KeyX") {
                 deleteSelected();
               }
