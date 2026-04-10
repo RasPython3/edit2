@@ -2056,7 +2056,8 @@
 
         var linenode = document.querySelector("#code-area").children[r-row];
         var node = linenode;
-        indexes.splice(0, 1);//l.pop();
+        //indexes.splice(0, 1);
+        indexes.pop();
         for (let i of indexes) {
           node = node ? node.childNodes[i] : node;
           /*node = node
